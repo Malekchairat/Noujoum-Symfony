@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Ticket #{{ ticket.id }}</title>
+    <style>
+        /* Use a clean, modern sans-serif font */
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 15px;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f6f6f6;
+        }
+        .container {
+            max-width: 600px;
+            margin: 30px auto;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 20px 30px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            color: #444;
+        }
+        .qr {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .qr img {
+            max-width: 200px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .info {
+            margin-bottom: 15px;
+        }
+        .info strong {
+            display: inline-block;
+            width: 150px;
+            color: #555;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 12px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Ticket #{{ ticket.id }}</h1>
+        </div>
+        <div class="qr">
+            {% if ticket.qrCode %}
+                <img src="{{ asset(ticket.qrCode) }}" alt="QR Code">
+            {% endif %}
+        </div>
+        <div class="info">
+            <strong>Ticket ID:</strong> {{ ticket.id }}
+        </div>
+        <div class="info">
+            <strong>Événement:</strong> {{ ticket.evenement.Titre }}
+        </div>
+        <div class="info">
+            <strong>Utilisateur:</strong> {{ ticket.utilisateur.username }}
+        </div>
+        <div class="info">
+            <strong>Quantité:</strong> {{ ticket.quantite }}
+        </div>
+        <div class="info">
+            <strong>Total:</strong> {{ ticket.total }} TND
+        </div>
+        <div class="info">
+            <strong>Méthode de Paiement:</strong> {{ ticket.methodePaiement }}
+        </div>
+        <div class="footer">
+            Merci pour votre réservation !<br>
+            Noujoum - Tous droits réservés
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,377 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Événements{% endblock %}
+
+{% block body %}
+    <style>
+        /* Set page background */
+        body {
+            background-color: #303234;
+        }
+        /* Header styling for title and button */
+        .header-container {
+            display: flex;
+            justify-content: center;  /* Centers the title */
+            align-items: center;
+            position: relative;
+            margin-bottom: 30px;
+        }
+        .header-container h1 {
+            color: gold;
+            margin: 0;
+        }
+        .mes-tickets-btn {
+            background-color: gold;
+            color: black;
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            right: 0;  /* Aligns button to the right */
+        }
+        /* Container for both filter navbar and search bar */
+        .filter-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 100px; /* Adjust this value as needed */
+            margin-bottom: 20px;
+        }
+
+        /* Navbar styles for filter buttons */
+        .filter-navbar {
+            display: flex;
+            gap: 20px;
+        }
+        .filter-navbar a {
+            background: transparent;
+            color: #f9fafb;
+            padding: 10px 20px;
+            text-decoration: none;
+            font-weight: bold;
+            border-bottom: 2px solid transparent;
+            transition: border-bottom 0.3s ease;
+        }
+        .filter-navbar a:hover {
+            border-bottom: 2px solid gold;
+        }
+        .filter-navbar a.active {
+            border-bottom: 2px solid gold;
+        }
+        /* Search bar styles */
+        .search-bar {
+            display: flex;
+            align-items: center;
+        }
+        .search-bar input[type="text"] {
+            padding: 8px 10px;
+            border-radius: 5px;
+            border: 1px solid gold;
+            background: transparent;
+            color: #f9fafb;
+        }
+        .search-bar input[type="text"]::placeholder {
+            color: #ccc;
+        }
+        .search-bar button {
+            padding: 8px 12px;
+            margin-left: 5px;
+            border: 1px solid gold;
+            border-radius: 5px;
+            background: transparent;
+            color: gold;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+        .search-bar button:hover {
+            background: gold;
+            color: black;
+        }
+        /* Event card styling */
+        .event-card {
+            width: 350px;
+            background-color: black;
+            border: 2px solid gold;
+            color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .event-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            display: block;
+        }
+        .event-card .content {
+            padding: 15px;
+            text-align: left;
+        }
+        .event-card h5 {
+            margin-bottom: 10px;
+            color: gold;
+        }
+        .event-card p {
+            margin-bottom: 5px;
+        }
+        .event-card .reserve-container {
+            text-align: center;
+            margin-top: 10px;
+        }
+        .open-ticket {
+            background-color: gold;
+            color: black;
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        /* Modal styles */
+        #ticketModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+         .share-btn {
+                display: inline-block;
+                background-color: #3b5998; /* Facebook blue */
+                color: white;
+                padding: 8px 12px;
+                border-radius: 4px;
+                text-decoration: none;
+                font-weight: bold;
+                margin-top: 10px;
+                transition: background-color 0.3s ease;
+            }
+
+            .share-btn:hover {
+                background-color: #2d4373;
+            }
+
+        #ticketModal .modal-content {
+            background-color: black;
+            color: white;
+            border: 2px solid gold;
+            padding: 20px;
+            width: 320px;
+            border-radius: 10px;
+            position: relative;
+        }
+        #ticketModal .close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            cursor: pointer;
+            font-size: 1.5em;
+        }
+        .ticket-input {
+            background-color: black;
+            color: white;
+            border: 1px solid gold;
+            padding: 5px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+    </style>
+
+    <div class="container py-5">
+        <div class="header-container" style="position: relative; text-align: center; margin-bottom: 30px;">
+            <h1 style="color: gold; margin: 0;">Événements à Venir</h1>
+            <a href="{{ path('mes_tickets') }}" class="mes-tickets-btn" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%);">
+                Mes Tickets
+            </a>
+        </div>
+
+        {# Combined container for filter navbar and instant search bar #}
+        <div class="filter-container">
+            <div class="filter-navbar">
+                <a href="{{ path('evenement_index', {'type': 'Tous', 'q': searchQuery}) }}" class="{{ selectedType == 'Tous' ? 'active' : '' }}">Tous</a>
+                <a href="{{ path('evenement_index', {'type': 'Concert', 'q': searchQuery}) }}" class="{{ selectedType == 'Concert' ? 'active' : '' }}">Concert</a>
+                <a href="{{ path('evenement_index', {'type': 'fanmeet', 'q': searchQuery}) }}" class="{{ selectedType == 'fanmeet' ? 'active' : '' }}">Fan Meet</a>
+            </div>
+            <div class="search-bar">
+                {# Instant search input with cancel button; form submission is not required #}
+                <input type="text" id="searchInput" name="q" placeholder="Recherche avancée..." value="{{ searchQuery }}">
+                <button type="button" id="cancelSearch">Annuler</button>
+            </div>
+        </div>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;">
+            {% for evenement in evenements %}
+                <div class="event-card">
+                    {% if evenement.image %}
+                        <img src="{{ asset('uploads/' ~ evenement.image) }}" alt="{{ evenement.Titre }}">
+                    {% endif %}
+                    
+                    <div class="content">
+                        <h5>🎫 {{ evenement.Titre }}</h5>
+                        <p>📜 <strong>Description:</strong> {{ evenement.Description|slice(0, 100) }}{% if evenement.Description|length > 100 %}...{% endif %}</p>
+                        <p>📅 <strong>Date:</strong> {{ evenement.dateDebut|date('Y-m-d') }} → {{ evenement.dateFin|date('Y-m-d') }}</p>
+                        <p>📍 <strong>Lieu:</strong> {{ evenement.Lieu }}</p>
+                        <p>💰 <strong>Prix:</strong> {{ evenement.Prix }} TND</p>
+                        <p>🎶 <strong>Type:</strong> {{ evenement.TypeE }}</p>
+                        <p>🎤 <strong>Artiste:</strong> {{ evenement.artiste }}</p>
+                        
+                        <div class="reserve-container">
+                            <button class="open-ticket" 
+                                    data-event-id="{{ evenement.id }}" 
+                                    data-event-price="{{ evenement.Prix }}">
+                                Réserver Ticket
+                            </button>
+                        </div>
+                         <!-- New Share Button -->
+                        <div class="share-container" style="text-align: center; margin-top: 10px;">
+                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ url('evenement_details', {'id': evenement.id}) | url_encode }}" 
+                            target="_blank" 
+                            class="share-btn"
+                            title="Partager cet événement sur Facebook">
+                                Partager
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <p class="text-center" style="color: gold;">Aucun événement disponible pour le moment.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    {# Modal Widget for Ticket Reservation #}
+    <div id="ticketModal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3 style="text-align: center;">Réserver Ticket</h3>
+            {# Form for ticket reservation #}
+            <form id="ticketForm" method="post" action="">
+                {# Include CSRF token hidden field #}
+                <input type="hidden" name="ticket[_token]" value="{{ csrf_token('ticket_item') }}">
+                
+                <div>
+                    <label>Méthode de Paiement</label>
+                    <select name="ticket[methodePaiement]" id="methode_paiement" class="ticket-input" required>
+                        <option value="Credit Card">Credit Card</option>
+                        <option value="Cash">Cash</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Quantité</label>
+                    <input type="number" name="ticket[quantite]" id="quantite" class="ticket-input" min="1" value="1" required>
+                </div>
+                <div>
+                    <label>Total</label>
+                    <span id="total_display" style="font-size:1.2em; white-space: nowrap;">0 TND</span>
+                </div>
+                <div style="text-align: center; margin-top: 15px;">
+                    <button type="submit" id="confirmTicket" style="background-color: gold; color: black; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+                        Confirmer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Modal logic (unchanged)
+        var modal = document.getElementById('ticketModal');
+        var closeModal = document.querySelector('#ticketModal .close');
+        var ticketQuantite = document.getElementById('quantite');
+        var totalDisplay = document.getElementById('total_display');
+        var eventPrice = 0;
+
+        function updateTotal() {
+            var quantity = parseInt(ticketQuantite.value) || 1;
+            totalDisplay.innerText = (quantity * eventPrice).toFixed(2) + " TND";
+        }
+        ticketQuantite.addEventListener('input', updateTotal);
+
+        document.querySelectorAll('.open-ticket').forEach(function(button) {
+            button.addEventListener('click', function() {
+                eventPrice = parseFloat(this.getAttribute('data-event-price'));
+                updateTotal();
+                var eventId = this.getAttribute('data-event-id');
+                document.getElementById('ticketForm').action = '/ticket/new/' + eventId;
+                modal.style.display = 'flex';
+            });
+        });
+
+        closeModal.addEventListener('click', function(){
+            modal.style.display = 'none';
+        });
+        window.addEventListener('click', function(e) {
+            if (e.target == modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        document.getElementById('ticketForm').addEventListener('submit', function(e){
+            e.preventDefault();
+            var form = this;
+            var action = form.action;
+            var formData = new FormData(form);
+            fetch(action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    alert(data.message);
+                    modal.style.display = 'none';
+                } else {
+                    alert('Erreur: ' + data.errors);
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+            });
+        });
+
+        // Instant search with debounce and cancel button
+        var searchInput = document.getElementById('searchInput');
+        var cancelSearch = document.getElementById('cancelSearch');
+        var debounceTimeout = null;
+
+        searchInput.addEventListener('keyup', function() {
+            clearTimeout(debounceTimeout);
+            debounceTimeout = setTimeout(function() {
+                var q = searchInput.value;
+                var type = "{{ selectedType }}";
+                var url = new URL(window.location.href);
+                url.searchParams.set('q', q);
+                url.searchParams.set('type', type);
+                window.location.href = url.toString();
+            }, 500);
+        });
+
+        cancelSearch.addEventListener('click', function() {
+            searchInput.value = '';
+            var type = "{{ selectedType }}";
+            var url = new URL(window.location.href);
+            url.searchParams.set('q', '');
+            url.searchParams.set('type', type);
+            window.location.href = url.toString();
+        });
+    </script>
+{% endblock %}

@@ -38,6 +38,8 @@
                     <a class="nav-link" href="{{path('app_homepage')}}">Home</a>
                 </li>
                 <li class="nav-item {{shop_active | default ('')}}"><a class="nav-link" href="{{path('app_shop')}}">Shop</a></li>
+				<li class="nav-item {{shop_active | default ('')}}"><a class="nav-link" href="{{path('evenement_index')}}">Evenements</a></li>
+				 
                 <li class="nav-item {{about_active | default ('')}}"><a class="nav-link" href="{{path('app_about_us')}}">About us</a></li>
                 <li class="nav-item {{contact_active | default ('')}}"><a class="nav-link" href="{{path('app_contact')}}">Contact us</a></li>
             </ul>
@@ -164,6 +166,7 @@
 		<script src="{{asset('js/custom.js')}}"></script>
 
          {% block javascripts %}
+            {% block importmap %}{{ importmap('app') }}{% endblock %}
 
         {% endblock %}
     </body>

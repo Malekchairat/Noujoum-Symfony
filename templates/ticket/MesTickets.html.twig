@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Tickets{% endblock %}
+
+{% block body %}
+    <style>
+        body {
+            background-color: #303234;
+        }
+        .ticket-card {
+            background-color: black;
+            border: 2px solid gold;
+            border-radius: 10px;
+            color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .ticket-card img {
+            display: block;
+            margin: 0 auto 10px;
+            max-width: 200px;
+        }
+        .pdf-button {
+            background-color: gold;
+            color: black;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 10px;
+        }
+    </style>
+
+    <div class="container py-5">
+        <h1 class="text-center" style="color: gold;">Mes Tickets</h1>
+        <div class="row">
+            {% for ticket in tickets %}
+                <div class="col-md-4">
+                    <div class="ticket-card">
+                        {% if ticket.qrCode %}
+                            <img src="{{ asset(ticket.qrCode) }}" alt="QR Code">
+                        {% endif %}
+                        <h4>Ticket #{{ ticket.id }}</h4>
+                        <p><strong>Événement:</strong> {{ ticket.evenement.Titre }}</p>
+                        <p><strong>Quantité:</strong> {{ ticket.quantite }}</p>
+                        <p><strong>Total:</strong> {{ ticket.total }} TND</p>
+                        <p><strong>Méthode de Paiement:</strong> {{ ticket.methodePaiement }}</p>
+                        <a href="{{ path('ticket_pdf', {'id': ticket.id}) }}" class="pdf-button">
+                            Télécharger PDF
+                        </a>
+                    </div>
+                </div>
+            {% else %}
+                <p class="text-center" style="color: gold;">Aucun ticket trouvé.</p>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

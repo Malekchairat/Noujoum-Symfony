@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+    {% block stylesheets %}{% endblock %}
+    <title>{% block title %}Admin Dashboard{% endblock %}</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100%;
+            background-color: #e6f2ff;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        nav .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        nav .logo-image {
+            width: 45px;
+            height: 90px;
+        }
+
+        nav .logo-image img {
+            width: auto;
+            height: 60px;
+            object-fit: cover;
+            padding-left: 18px;
+            margin-top: 10px;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 250px;
+            background-color: #222428;
+            padding: 10px 0 10px 10px;
+        }
+
+        nav .menu-items {
+            margin-top: 40px;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 150px);
+            justify-content: space-between;
+        }
+
+        nav .menu-items li {
+            list-style: none;
+        }
+
+        nav .menu-items li a {
+            display: flex;
+            align-items: center;
+            height: 50px;
+            text-decoration: none;
+        }
+
+        /* Active state styling based on CSS class 'active' */
+        nav .menu-items li.active a {
+            border-top-left-radius: 25px;
+            border-bottom-left-radius: 25px;
+            background-color: #e6f2ff;
+        }
+
+        nav .menu-items li.active a ion-icon,
+        nav .menu-items li.active a .links {
+            color: #222428;
+        }
+
+        nav .menu-items li a ion-icon {
+            color: white;
+            font-size: 24px;
+            min-width: 45px;
+        }
+
+        nav .menu-items li a .links {
+            font-size: 18px;
+            color: white;
+        }
+
+        .dashboard {
+            position: relative;
+            left: 250px;
+            width: calc(100% - 250px);
+            min-height: 100vh;
+            background-color: #303234;
+            padding: 20px 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <div class="logo">
+            <div class="logo-image">
+                <img src="logo.png" alt="Logo">
+            </div>
+        </div>
+        <div class="menu-items">
+            <ul class="navLinks">
+                <li class="navList {% if app.request.attributes.get('_route') == 'dashboard' %}active{% endif %}">
+                    <a href="{{ path('admin_dashboard') }}">
+                        <ion-icon name="home-outline"></ion-icon>
+                        <span class="links">Dashboard</span>
+                    </a>
+                </li>
+                <li class="navList {% if app.request.attributes.get('_route') == 'utilisateurs_index' %}active{% endif %}">
+                    <a href="{{ path('admin_dashboard') }}">
+                        <ion-icon name="heart-outline"></ion-icon>
+                        <span class="links">Utilisateurs</span>
+                    </a>
+                </li>
+                <li class="navList {% if app.request.attributes.get('_route') == 'evenement_EvenementBack' %}active{% endif %}">
+                    <a href="{{ path('evenement_EvenementBack') }}">
+                        <ion-icon name="folder-outline"></ion-icon>
+                        <span class="links">Evenements</span>
+                    </a>
+                </li>
+                <li class="navList {% if app.request.attributes.get('_route') == 'produits_index' %}active{% endif %}">
+                    <a href="{{ path('admin_dashboard') }}">
+                        <ion-icon name="analytics-outline"></ion-icon>
+                        <span class="links">Produits</span>
+                    </a>
+                </li>
+                <li class="navList {% if app.request.attributes.get('_route') == 'commandes_index' %}active{% endif %}">
+                    <a href="{{ path('admin_dashboard') }}">
+                        <ion-icon name="heart-outline"></ion-icon>
+                        <span class="links">Commandes</span>
+                    </a>
+                </li>
+                <li class="navList {% if app.request.attributes.get('_route') == 'reclamations_index' %}active{% endif %}">
+                    <a href="{{ path('admin_dashboard') }}">
+                        <ion-icon name="heart-outline"></ion-icon>
+                        <span class="links">Reclamations</span>
+                    </a>
+                </li>
+            </ul>
+            <ul class="bottom-link">
+                <li>
+                    <a href="#">
+                        <ion-icon name="person-circle-outline"></ion-icon>
+                        <span class="links">Profile</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <ion-icon name="log-out-outline"></ion-icon>
+                        <span class="links">Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="dashboard">
+        <div class="container">
+            {% block body %}{% endblock %}
+        </div>
+    </section>
+
+    <script src="index.js"></script>
+    <!-- Sources for icons -->
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+</body>
+
+</html>
