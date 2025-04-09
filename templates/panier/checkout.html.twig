@@ -1,0 +1,161 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Checkout - Noujoum{% endblock %}
+
+{% block body %}
+<!-- Start Hero Section -->
+<div class="hero">
+    <div class="container">
+        <div class="row justify-content-between">
+            <div class="col-lg-5">
+                <div class="intro-excerpt">
+                    <h1>Checkout</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Hero Section -->
+
+<div class="untree_co-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 mb-5 mb-md-0">
+                <h2 class="h3 mb-3 text-black">Billing Details</h2>
+                <div class="p-3 p-lg-5 border bg-white">
+                    {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+                    
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            {{ form_row(form.rue, {'attr': {'class': 'form-control'}, 'label': 'Street Address'}) }}
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-md-6">
+                            {{ form_row(form.ville, {'attr': {'class': 'form-control'}, 'label': 'City'}) }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form_row(form.code_postal, {'attr': {'class': 'form-control'}, 'label': 'Postal Code'}) }}
+                        </div>
+                    </div>
+
+                    <div class="form-group row mb-5">
+                        <div class="col-md-12">
+                            {{ form_row(form.methodePaiment, {'attr': {'class': 'form-select'}, 'label': 'Payment Method'}) }}
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+    <div class="col-md-12">
+        {{ form_row(form.etat, {'attr': {'class': 'form-select'}, 'label': 'State'}) }}
+    </div>
+</div>
+
+
+                    <div class="form-group mt-4">
+    <button type="submit" class="btn btn-black btn-lg py-3 btn-block">Place Order</button>
+</div>
+
+                    
+                    {{ form_end(form) }}
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="row mb-5">
+                    <div class="col-md-12">
+                        <h2 class="h3 mb-3 text-black">Your Order</h2>
+                        <div class="p-3 p-lg-5 border bg-white">
+                            <table class="table site-block-order-table mb-5">
+                                <thead>
+                                    <th>Product</th>
+                                    <th>Total</th>
+                                </thead>
+                                <tbody>
+                                    {% for item in cartItems %}
+                                    <tr>
+                                        <td>{{ item.produit.nom }} <strong class="mx-2">x</strong> {{ item.nbrProduit }}</td>
+                                        <td>{{ item.getTotal() }} €</td>
+                                    </tr>
+                                    {% endfor %}
+                                    <tr>
+                                        <td class="text-black font-weight-bold"><strong>Order Total</strong></td>
+                                        <td class="text-black font-weight-bold"><strong>{{ total }} €</strong></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.querySelector("form");
+    const fields = form.querySelectorAll(".form-control");
+    const submitBtn = document.querySelector("button[type='submit']");
+
+    function validateField(field) {
+        let isValid = true;
+        let errorMessage = "";
+
+        if (!field.value.trim()) {
+            errorMessage = "🚨 This field cannot be empty!";
+            isValid = false;
+        } else if (field.name === "rue" && !/^[a-zA-Z0-9\s]+$/.test(field.value)) {
+            errorMessage = "🚫 No special characters allowed!";
+            isValid = false;
+        } else if (field.name === "rue" && field.value.length > 35) {
+            errorMessage = "⚠️ Keep it short! Max 35 characters.";
+            isValid = false;
+        } else if (field.name === "ville" && !/^[a-zA-Z\s]+$/.test(field.value)) {
+            errorMessage = "🤨 Only letters allowed!";
+            isValid = false;
+        } else if (field.name === "ville" && field.value.length > 10) {
+            errorMessage = "📏 Max 10 characters, please!";
+            isValid = false;
+        } else if (field.name === "code_postal" && !/^\d{4,5}$/.test(field.value)) {
+            errorMessage = "🔢 Must be 4-5 digits only!";
+            isValid = false;
+        }
+
+        if (!isValid) {
+            field.classList.add("is-invalid");
+            field.nextElementSibling.innerHTML = errorMessage;
+        } else {
+            field.classList.remove("is-invalid");
+            field.classList.add("is-valid");
+            field.nextElementSibling.innerHTML = "";
+        }
+
+        return isValid;
+    }
+
+    function validateForm() {
+        let allValid = true;
+        fields.forEach(field => {
+            if (!validateField(field)) {
+                allValid = false;
+            }
+        });
+        submitBtn.disabled = !allValid;
+    }
+
+    fields.forEach(field => {
+        field.insertAdjacentHTML("afterend", '<div class="invalid-feedback"></div>');
+        field.addEventListener("input", function () {
+            validateField(this);
+            validateForm();
+        });
+    });
+
+    validateForm();
+});
+</script>
+
+
+{% endblock %}

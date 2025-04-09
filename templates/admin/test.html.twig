@@ -1,0 +1,181 @@
+<h1>Liste des Commandes</h1>
+
+<!-- Navigation Bar with Icons -->
+<nav class="navbar">
+    <ul>
+        <li><a href="{{ path('admin_dashboard') }}" class="nav-icon"><ion-icon name="home-outline"></ion-icon></a></li>
+        <li><a href="#" class="nav-icon"><ion-icon name="cart-outline"></ion-icon></a></li>
+        <li><a href="#" class="nav-icon"><ion-icon name="log-out-outline"></ion-icon></a></li>
+    </ul>
+</nav>
+
+<table class="commandes-table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Rue</th>
+            <th>Ville</th>
+            <th>Code Postal</th>
+            <th>État</th>
+            <th>Montant Total (€)</th>
+            <th>Méthode de Paiement</th>
+            <th>ID Utilisateur</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for commande in commandes %}
+            <tr>
+                <td>{{ commande.id }}</td>
+                <td>{{ commande.rue }}</td>
+                <td>{{ commande.ville }}</td>
+                <td>{{ commande.codePostal }}</td>
+                <td>{{ commande.etat }}</td>
+                <td>{{ commande.montantTotal }} €</td>
+                <td>{{ commande.methodePaiment }}</td>
+                <td>{{ commande.idUser }}</td>
+                <td class="actions">
+                    <a href="{{ path('admin_commandes_modify', { 'id': commande.id }) }}" class="btn modify-btn">Modifier</a>
+                    <form action="{{ path('admin_commandes_delete', { 'id': commande.id }) }}" method="POST" style="display: inline;">
+                        <button type="submit" class="btn remove-btn" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette commande ?');">Supprimer</button>
+                    </form>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="9">Aucune commande trouvée</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<style>
+    /* Body and background color */
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #212121;
+        color: white;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Navbar */
+    .navbar {
+        background-color: #111;
+        padding: 15px;
+        display: flex;
+        justify-content: center;
+        border-bottom: 3px solid #ffd700;
+    }
+
+    .navbar ul {
+        list-style: none;
+        display: flex;
+        gap: 30px;
+    }
+
+    .navbar ul li {
+        font-size: 22px;
+    }
+
+    .nav-icon {
+        color: #fff;
+        font-size: 26px;
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+
+    .nav-icon:hover {
+        color: #ffd700;
+    }
+
+    /* Table Styles */
+    .commandes-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .commandes-table th, .commandes-table td {
+        padding: 15px;
+        text-align: left;
+        border: 1px solid #444;
+        font-family: 'Arial', sans-serif;
+    }
+
+    .commandes-table th {
+        background-color: #111;
+        color: #ffd700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .commandes-table td {
+        background-color: #333;
+    }
+
+    .commandes-table tr:nth-child(even) {
+        background-color: #444;
+    }
+
+    .commandes-table tr:hover {
+        background-color: #ffd700;
+        color: black;
+        cursor: pointer;
+    }
+
+    /* Actions Buttons */
+    .actions {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+    }
+
+    .btn {
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        color: white;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        text-align: center;
+    }
+
+    .modify-btn {
+        background-color: #28a745; /* Green for Modify */
+    }
+
+    .modify-btn:hover {
+        background-color: #218838;
+    }
+
+    .remove-btn {
+        background-color: #dc3545; /* Red for Remove */
+    }
+
+    .remove-btn:hover {
+        background-color: #c82333;
+    }
+
+    /* Responsive Design */
+    @media screen and (max-width: 768px) {
+        .commandes-table th, .commandes-table td {
+            font-size: 12px;
+            padding: 10px;
+        }
+
+        .commandes-table td {
+            display: block;
+            text-align: right;
+        }
+
+        .commandes-table td::before {
+            content: attr(data-label);
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+    }
+
+</style>
