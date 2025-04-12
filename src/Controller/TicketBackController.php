@@ -23,17 +23,20 @@ class TicketBackController extends AbstractController
         // Build a query with joins on the event and user relations.
         $qb = $ticketRepository->createQueryBuilder('t')
             ->leftJoin('t.evenement', 'e') // Join with the evenement table
-            ->leftJoin('t.utilisateur', 'u'); // Join with the utilisateur table
+            ->leftJoin('t.utilisateur', 'u'); // Join with the utilisateur (User) table
 
         // If there's a search term, filter by event title or user name.
         if (!empty($search)) {
-            $qb->andWhere('e.titre LIKE :search OR u.username LIKE :search')
+            // UPDATED: Replace reference to 'u.username' with filtering by 'u.nom' and 'u.prenom'
+            // You can also use CONCAT(u.nom, ' ', u.prenom) to search full names if preferred.
+            $qb->andWhere('e.titre LIKE :search OR u.nom LIKE :search OR u.prenom LIKE :search')
                ->setParameter('search', '%' . $search . '%');
         }
 
         // Order by the chosen sorting parameter.
         if ($sort === 'utilisateur') {
-            $qb->orderBy('u.username', 'ASC');
+            // UPDATED: Order by 'u.nom' instead of 'u.username'.
+            $qb->orderBy('u.nom', 'ASC');
         } else {
             $qb->orderBy('e.titre', 'ASC');
         }

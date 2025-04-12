@@ -17,8 +17,10 @@ class Ticket
     #[ORM\JoinColumn(nullable: false)]
     private ?Evenement $evenement = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: "tickets")]
-    #[ORM\JoinColumn(nullable: true)]
+    // UPDATED: Removed inversedBy since the new User entity no longer has a "tickets" property.
+    // UPDATED: Specified referencedColumnName to "id_user" to match the new User primary key.
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: true, referencedColumnName: "id_user")]
     private ?User $utilisateur = null;
 
     #[ORM\Column(type: "float")]

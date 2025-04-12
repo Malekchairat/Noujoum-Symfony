@@ -203,6 +203,7 @@
                     <th>Événement ID</th>
                     <th>Événement Titre</th>
                     <th>Utilisateur ID</th>
+                    <!-- UPDATED: Display combined user first and last name instead of username -->
                     <th>Utilisateur Nom</th>
                     <th>Total</th>
                     <th>Méthode de Paiement</th>
@@ -218,14 +219,16 @@
                         <td>{{ ticket.evenement.titre }}</td>
                         <td>
                             {% if ticket.utilisateur %}
-                                {{ ticket.utilisateur.id }}
+                                {# UPDATED: Use the new getIdUser() accessor property (Twig will call getIdUser()) #}
+                                {{ ticket.utilisateur.idUser }}
                             {% else %}
                                 N/A
                             {% endif %}
                         </td>
                         <td>
                             {% if ticket.utilisateur %}
-                                {{ ticket.utilisateur.username }}
+                                {# UPDATED: Combine nom and prenom instead of using username #}
+                                {{ ticket.utilisateur.nom }} {{ ticket.utilisateur.prenom }}
                             {% else %}
                                 N/A
                             {% endif %}

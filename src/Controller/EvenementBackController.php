@@ -62,38 +62,51 @@ public function new(Request $request, EntityManagerInterface $entityManager): Re
 }
     
 #[Route('/{id}/edit', name: 'evenement_edit', methods: ['GET', 'POST'])]
-public function edit(Request $request, Evenement $evenement, EntityManagerInterface $entityManager): Response
-{
-    $form = $this->createForm(EvenementType::class, $evenement);
-    $form->handleRequest($request);
+    public function edit(Request $request, Evenement $evenement, EntityManagerInterface $entityManager): Response
+    {
+        $form = $this->createForm(EvenementType::class, $evenement);
+        $form->handleRequest($request);
 
-    if ($form->isSubmitted() && $form->isValid()) {
-        $imageFile = $form->get('image')->getData();
-
-        if ($imageFile) {
-            $newFilename = uniqid().'.'.$imageFile->guessExtension();
-            $imageFile->move($this->getParameter('uploads_directory'), $newFilename);
-
-            if ($evenement->getImage()) {
-                $oldImage = $this->getParameter('uploads_directory') . '/' . $evenement->getImage();
-                if (file_exists($oldImage)) {
-                    unlink($oldImage);
-                }
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Validate start and end dates
+            $dateDebut = $evenement->getDateDebut();
+            $dateFin = $evenement->getDateFin();
+            if ($dateDebut && $dateFin && $dateDebut > $dateFin) {
+                $form->get('dateDebut')->addError(new FormError('La date de début ne peut pas être après la date de fin.'));
+                return $this->render('evenement/edit.html.twig', [
+                    'evenement' => $evenement,
+                    'form' => $form->createView(),
+                ]);
             }
 
-            $evenement->setImage($newFilename);
+            // Process file upload for image if needed
+            $imageFile = $form->get('image')->getData();
+
+            if ($imageFile) {
+                $newFilename = uniqid() . '.' . $imageFile->guessExtension();
+                $imageFile->move($this->getParameter('uploads_directory'), $newFilename);
+
+                // Remove old image file if it exists
+                if ($evenement->getImage()) {
+                    $oldImage = $this->getParameter('uploads_directory') . '/' . $evenement->getImage();
+                    if (file_exists($oldImage)) {
+                        unlink($oldImage);
+                    }
+                }
+
+                $evenement->setImage($newFilename);
+            }
+
+            $entityManager->flush();
+            $this->addFlash('success', '🎉 Événement mis à jour avec succès!');
+            return $this->redirectToRoute('evenement_EvenementBack');
         }
 
-        $entityManager->flush();
-        $this->addFlash('success', '🎉 Événement mis à jour avec succès!');
-        return $this->redirectToRoute('evenement_EvenementBack');
+        return $this->render('evenement/edit.html.twig', [
+            'evenement' => $evenement,
+            'form' => $form->createView(),
+        ]);
     }
-
-    return $this->render('evenement/edit.html.twig', [
-        'evenement' => $evenement,
-        'form' => $form->createView(),
-    ]);
-}
 
 
     

@@ -23,6 +23,7 @@ class EvenementType extends AbstractType
             ->add('Titre', TextType::class, [
                 'label'       => 'Titre',
                 'required'    => true,
+                'empty_data'  => '',
                 'constraints' => [
                     new NotBlank([
                         'message' => 'Veuillez saisir le titre.',
@@ -32,6 +33,7 @@ class EvenementType extends AbstractType
             ->add('Description', TextareaType::class, [
                 'label'       => 'Description',
                 'required'    => true,
+                'empty_data'  => '',
                 'constraints' => [
                     new NotBlank([
                         'message' => 'Veuillez saisir la description.',
@@ -65,6 +67,7 @@ class EvenementType extends AbstractType
             ->add('Lieu', TextType::class, [
                 'label'       => 'Lieu',
                 'required'    => true,
+                'empty_data'  => '',
                 'constraints' => [
                     new NotBlank([
                         'message' => 'Veuillez saisir le lieu.',
@@ -74,6 +77,7 @@ class EvenementType extends AbstractType
             ->add('Prix', NumberType::class, [
                 'label'       => 'Prix',
                 'required'    => true,
+                'empty_data'  => 0, // Set default to 0 instead of null
                 'constraints' => [
                     new NotBlank([
                         'message' => 'Veuillez saisir le prix.',
@@ -101,6 +105,7 @@ class EvenementType extends AbstractType
             ->add('artiste', TextType::class, [
                 'label'       => 'Artiste',
                 'required'    => true,
+                'empty_data'  => '',
                 'constraints' => [
                     new NotBlank([
                         'message' => 'Veuillez saisir le nom de l\'artiste.',
