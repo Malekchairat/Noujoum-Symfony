@@ -1,0 +1,79 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Shop - Noujoum{% endblock %}
+
+{% set shop_active = 'active' %}
+
+{% block body %}
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="container">
+    {% if produits is defined %}
+
+        <!-- Barre de recherche et tri -->
+        <form method="get" action="{{ path('app_shop') }}" class="mb-4">
+            <div class="row">
+                <div class="col-md-4">
+                    <input type="text" name="search" class="form-control" placeholder="Rechercher un produit..." value="{{ search }}">
+                </div>
+                <div class="col-md-3">
+                    <select name="sort" class="form-control">
+                        <option value="">Trier par prix</option>
+                        <option value="asc" {% if sort == 'asc' %}selected{% endif %}>Prix croissant</option>
+                        <option value="desc" {% if sort == 'desc' %}selected{% endif %}>Prix décroissant</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Rechercher</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="row mt-4">
+            {% if produits|length > 0 %}
+                {% for produit in produits %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card">
+                            <img src="{{ asset('uploads/' ~ produit.imageName) }}" alt="{{ produit.nom }}" class="card-img-top">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ produit.nom }}</h5>
+                                <p class="card-category">{{ produit.categorie }}</p>
+                                {% set promo = produit.promotions|filter(p => p.expiration >= date())|first %}
+                                {% if produit.disponibilite < 5 %}
+    <p class="text-warning mt-2">⚠️ Plus que {{ produit.disponibilite }} en stock !</p>
+{% else %}
+    <p class="text-success mt-2">En stock</p>
+{% endif %}
+
+                                <p class="card-price">
+                                    {% if produit.getPrixPromo() %}
+                                        <span class="text-danger"><del>{{ produit.prix }}€</del></span>
+                                        {{ produit.getPrixPromo() }}€
+                                        {% if promo %}
+                                            <span class="badge bg-danger">-{{ promo.pourcentage }}%</span>
+                                        {% endif %}
+                                    {% else %}
+                                        {{ produit.prix }}€
+                                    {% endif %}
+                                </p>
+                                <a href="{{ path('app_album_details', { id: produit.id }) }}" class="btn btn-outline-primary mt-2 w-100">Voir détails</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-warning">
+                    La table produit contient {{ produits|length }} éléments
+                </div>
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="alert alert-danger">
+            ERREUR : Variable 'produits' non transmise
+            <div class="mt-2">
+                {{ dump(_context|keys) }}
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

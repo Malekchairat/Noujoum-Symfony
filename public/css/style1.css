@@ -1,0 +1,46 @@
+/* Style de la carte produit */
+.card {
+    background: #1E1E1E; /* Fond sombre */
+    border-radius: 15px;
+    padding: 15px;
+    box-shadow: 0px 4px 8px rgba(255, 255, 255, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 6px 12px rgba(255, 255, 255, 0.2);
+}
+
+/* Image du produit */
+.card img {
+    width: 100%;
+    height: auto; /* Ajuste la hauteur pour conserver le ratio */
+    max-height: 300px; /* Limite la hauteur si nécessaire */
+    object-fit: contain; /* Assure que l'image est entièrement visible */
+    border-radius: 10px;
+   
+}
+/* Nom du produit */
+.card-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #e0ad67; /* Doré */
+    margin-top: 10px;
+}
+
+/* Catégorie */
+.card-category {
+    font-size: 1rem;
+    color: #B0B0B0; /* Gris clair */
+    font-style: italic;
+    margin-bottom: 10px;
+}
+
+/* Prix */
+.card-price {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #379466; /* Vert fluo */
+}

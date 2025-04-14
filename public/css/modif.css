@@ -1,0 +1,122 @@
+/* Général */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+}
+
+/* Styles de l'en-tête */
+h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #f8f8f8;
+    margin-bottom: 20px;
+}
+
+/* Style des champs de formulaire */
+.form-control {
+    background-color: #fff;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    padding: 12px 15px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+/* Changement de couleur des champs au focus */
+.form-control:focus {
+    border-color: #f0c01f;
+    box-shadow: 0 0 10px rgba(92, 184, 92, 0.5);
+    outline: none;
+}
+
+/* Champs de sélection */
+.form-select {
+    background-color: #fff;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    padding: 12px 15px;
+    font-size: 1rem;
+}
+
+/* Libellés des champs */
+.form-label {
+    font-size: 1.1rem;
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+/* Style des boutons */
+.btn {
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary {
+    background-color: #f0c01f;
+    border: none;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: rgb(255, 217, 150);
+}
+
+.btn-outline-secondary {
+    background-color: transparent;
+    border: 2px solid #ddd;
+    color: #333;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #ddd;
+}
+
+/* Style du conteneur du formulaire */
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    background-color: rgb(41, 41, 41);
+    border-radius: 15px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Alignement des éléments dans le formulaire */
+.row.g-3 {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.col-md-6, .col-12 {
+    width: 100%;
+}
+
+.col-md-6 {
+    max-width: 48%;
+}
+
+.col-12 {
+    max-width: 100%;
+}
+
+/* Style des alertes et informations supplémentaires */
+.help-text {
+    font-size: 0.9rem;
+    color: #ffffff;
+    margin-top: 5px;
+}
+
+/* Style du texte en bas de formulaire */
+footer {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 0.9rem;
+    color: #ffffff;
+}

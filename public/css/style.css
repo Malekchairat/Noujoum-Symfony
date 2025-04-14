@@ -200,7 +200,10 @@ a {
 
 .section-title {
   color: #2f2f2f; }
-
+  .card img {
+    max-height: 200px;
+    object-fit: cover;
+}
 .product-section {
   padding: 7rem 0; }
   .product-section .product-item {
@@ -317,12 +320,7 @@ a {
 
 .we-help-section {
   padding: 7rem 0; }
-  .we-help-section .imgs-grid {
-    display: -ms-grid;
-    display: grid;
-    -ms-grid-columns: (1fr)[27];
-    grid-template-columns: repeat(27, 1fr);
-    position: relative; }
+  
     .we-help-section .imgs-grid:before {
       position: absolute;
       content: "";
@@ -713,3 +711,13 @@ textarea {
     height: 50px;
     border-radius: 50%;
     background: rgba(59, 93, 80, 0.2); }
+
+
+
+
+
+
+
+
+
+
