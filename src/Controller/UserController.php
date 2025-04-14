@@ -18,6 +18,7 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Knp\Component\Pager\PaginatorInterface;
 use App\Repository\FavorisRepository;
+use App\Entity\Favoris;
 
 class UserController extends AbstractController
 {
@@ -308,34 +309,44 @@ public function deleteUser(
     }
     // src/Controller/AdminController.php
 
-// One of these methods is likely a duplicate
-#[Route('/admin/user/{userId}/wishlist', name: 'admin_user_wishlist', methods: ['GET'])]
-    public function viewUserWishlist(int $userId, UserRepository $userRepository, FavorisRepository $favorisRepository): Response
-    {
-        // Get the logged-in user
-        $user = $this->getUser();
-
-        // Fetch the user from the repository
-        $targetUser = $userRepository->find($userId);
-
-        if (!$targetUser) {
+    #[Route('/user/wishlist/{id}', name: 'user_wishlist')]
+    public function viewUserWishlist(
+        int $id,
+        Request $request,
+        UserRepository $userRepository,
+        FavorisRepository $favorisRepository
+    ): Response {
+        // Récupérer l'utilisateur avec l'ID passé en paramètre
+        $user = $userRepository->find($id);
+        
+        if (!$user) {
             throw $this->createNotFoundException('Utilisateur non trouvé');
         }
-
-        // Ensure the logged-in user is an admin or is the user themselves
-        if (!$this->isGranted('ROLE_ADMIN') && $user !== $targetUser) {
-            throw new AccessDeniedException('Vous n\'êtes pas autorisé à voir cette wishlist.');
-        }
-
-        // Get the wishlist items for this user
-        $produits = $favorisRepository->findBy(['user' => $targetUser]);
-
-        // Return the view with the user’s wishlist
-        return $this->render('admin/user_wishlist.html.twig', [
-            'user' => $targetUser,
-            'produits' => $produits,
+    
+        // Récupérer les favoris de l'utilisateur
+        $favoris = $favorisRepository->findBy(['user' => $user]);
+    
+        // Passer l'utilisateur et ses favoris à la vue
+        return $this->render('user/user_wishlist.html.twig', [
+            'user' => $user,
+            'favoris' => $favoris,
         ]);
     }
-
     
+    #[Route('/admin/favoris/delete/{id}', name: 'favoris_deleteadmin', methods: ['POST'])]
+    public function deleteAdmin(Request $request, Favoris $favori, EntityManagerInterface $em): Response
+    {
+        // Si le favori n'est pas trouvé, renvoyer une erreur 404
+        if (!$favori) {
+            throw $this->createNotFoundException('Favori non trouvé');
+        }
+    
+        if ($this->isCsrfTokenValid('delete' . $favori->getIdFavoris(), $request->request->get('_token'))) {
+            $em->remove($favori);
+            $em->flush();
+        }
+    
+        return $this->redirectToRoute('user_wishlist', ['id' => $favori->getUser()->getIdUser()]);
+    }
+     
 }

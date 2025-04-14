@@ -174,7 +174,7 @@
             <button class="btn btn-danger">Supprimer</button>
         </form>
         <!-- Button to view user's wishlist -->
-        <a href="{{ path('admin_user_wishlist', {'userId': user.getIdUser()}) }}" class="btn btn-outline-info">Voir la Wishlist</a>
+        <a href="{{ path('user_wishlist', {'id': user.getIdUser()}) }}" class="btn btn-outline-info">Voir la Wishlist</a>
     </div>
 </td>
 
