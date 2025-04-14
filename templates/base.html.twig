@@ -6,8 +6,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
         <link rel="icon" 
-        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
-        
+              href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
+
         <!-- Bootstrap CSS -->
         <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
@@ -19,10 +19,10 @@
         {% endblock %}
     </head>
     <body>
-        <!-- Start Header/Navigation -->
-        <nav class="custom-navbar navbar navbar-expand-md navbar-dark bg-dark" aria-label="Furni navigation bar">
+        <!-- Header / Navigation -->
+        <nav class="custom-navbar navbar navbar-expand-md navbar-dark bg-dark" aria-label="Noujoum navigation">
             <div class="container">
-                <img src="images/njmlogo.jpg" alt="Noujoum Logo" style="height: 40px; position: absolute; left: 20px;">
+                <img src="{{ asset('images/njmlogo.jpg') }}" alt="Noujoum Logo" style="height: 40px; position: absolute; left: 20px;">
                 <a class="navbar-brand" href="{{ path('app_homepage') }}">
                     Noujoum<span>.</span>
                 </a>
@@ -34,9 +34,15 @@
                         <li class="nav-item {{ home_active | default('') }}">
                             <a class="nav-link" href="{{ path('app_homepage') }}">Home</a>
                         </li>
-                        <li class="nav-item {{ shop_active | default('') }}"><a class="nav-link" href="{{ path('app_shop') }}">Shop</a></li>
-                        <li class="nav-item {{ about_active | default('') }}"><a class="nav-link" href="{{ path('app_about_us') }}">About us</a></li>
-                        <li class="nav-item {{ contact_active | default('') }}"><a class="nav-link" href="{{ path('app_contact') }}">Contact us</a></li>
+                        <li class="nav-item {{ shop_active | default('') }}">
+                            <a class="nav-link" href="{{ path('app_shop') }}">Shop</a>
+                        </li>
+                        <li class="nav-item {{ about_active | default('') }}">
+                            <a class="nav-link" href="{{ path('app_about_us') }}">About us</a>
+                        </li>
+                        <li class="nav-item {{ contact_active | default('') }}">
+                            <a class="nav-link" href="{{ path('app_contact') }}">Contact us</a>
+                        </li>
                     </ul>
                     <ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5">
                         <!-- Profile -->
@@ -61,16 +67,20 @@
                 </div>
             </div>
         </nav>
-        <!-- End Header/Navigation -->
 
+        <!-- Page Content -->
         {% block body %}{% endblock %}
 
-        <!-- Start Footer Section -->
-        <footer class="footer-section"></footer>
-        <!-- End Footer Section -->    
+        <!-- Footer -->
+        <footer class="footer-section">
+            <!-- You can add footer content here -->
+        </footer>
 
+        <!-- JavaScript Files -->
         <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
         <script src="{{ asset('js/tiny-slider.js') }}"></script>
         <script src="{{ asset('js/custom.js') }}"></script>
+
+        {% block javascripts %}{% endblock %}
     </body>
 </html>

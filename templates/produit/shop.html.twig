@@ -1,92 +1,118 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Shop - Noujoum{% endblock %}
-
 {% set shop_active = 'active' %}
 
 {% block body %}
-    <!-- Hero Section -->
-    <div class="hero">
-        <div class="container">
-            {% if produits is defined %}
+<div class="hero">
+    <div class="container">
+        {% if produits is defined %}
 
-            <!-- Search and Sort Bar -->
-            <form method="get" action="{{ path('app_shop') }}" class="mb-4">
-                <div class="row">
-                    <div class="col-md-4">
-                        <input type="text" name="search" class="form-control" placeholder="Rechercher un produit..." value="{{ search }}">
-                    </div>
-                    <div class="col-md-3">
-                        <select name="sort" class="form-control">
-                            <option value="">Trier par prix</option>
-                            <option value="asc" {% if sort == 'asc' %}selected{% endif %}>Prix croissant</option>
-                            <option value="desc" {% if sort == 'desc' %}selected{% endif %}>Prix décroissant</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-primary w-100">Rechercher</button>
-                    </div>
+        <!-- Barre de recherche -->
+        <form method="get" action="{{ path('app_shop') }}" class="mb-4">
+            <div class="row">
+                <div class="col-md-4">
+                    <input type="text" name="search" class="form-control" placeholder="Rechercher un produit..." value="{{ search }}">
                 </div>
-            </form>
+                <div class="col-md-3">
+                    <select name="sort" class="form-control">
+                        <option value="">Trier par prix</option>
+                        <option value="asc" {% if sort == 'asc' %}selected{% endif %}>Prix croissant</option>
+                        <option value="desc" {% if sort == 'desc' %}selected{% endif %}>Prix décroissant</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Rechercher</button>
+                </div>
+            </div>
+        </form>
 
-            <div class="row mt-4">
-                {% if produits|length > 0 %}
-                    {% for produit in produits %}
-                        <div class="col-md-4 mb-4">
-                            <div class="card position-relative">
-                                {% if app.user %}
-                                    <!-- Add to Favoris Form -->
-                                    <form method="post" action="{{ path('add_to_favoris', { id: produit.id }) }}" class="position-absolute end-0 p-2 z-1">
-                                        <button type="submit" class="btn btn-link p-0 border-0" title="Ajouter aux favoris">
-                                            <i class="fa{{ favorisList[produit.id] is defined ? 's' : 'r' }} fa-heart text-danger fs-4"></i>
-                                        </button>
-                                    </form>
+        <!-- Liste des produits -->
+        <div class="row mt-4">
+            {% if produits|length > 0 %}
+                {% for produit in produits %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card position-relative">
+                            {% if app.user %}
+                                <!-- Bouton Favoris -->
+                                <button class="btn btn-link p-0 border-0 position-absolute end-0 p-2 z-1" title="Favoris" onclick="toggleFavori(event, {{ produit.id }})">
+                                    <i id="heart-{{ produit.id }}" class="fa{{ favorisList[produit.id] is defined ? 's' : 'r' }} fa-heart text-danger fs-4"></i>
+                                </button>
+                            {% endif %}
+
+                            <img src="{{ asset('uploads/' ~ produit.imageName) }}" alt="{{ produit.nom }}" class="card-img-top">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ produit.nom }}</h5>
+                                <p class="card-category">{{ produit.categorie }}</p>
+
+                                {% set promo = produit.promotions|filter(p => p.expiration >= date())|first %}
+                                {% if produit.disponibilite < 5 %}
+                                    <p class="text-warning mt-2">⚠️ Plus que {{ produit.disponibilite }} en stock !</p>
+                                {% else %}
+                                    <p class="text-success mt-2">En stock</p>
                                 {% endif %}
 
-                                <img src="{{ asset('uploads/' ~ produit.imageName) }}" alt="{{ produit.nom }}" class="card-img-top">
-                                <div class="card-body">
-                                    <h5 class="card-title">{{ produit.nom }}</h5>
-                                    <p class="card-category">{{ produit.categorie }}</p>
-
-                                    {% set promo = produit.promotions|filter(p => p.expiration >= date())|first %}
-
-                                    {% if produit.disponibilite < 5 %}
-                                        <p class="text-warning mt-2">⚠️ Plus que {{ produit.disponibilite }} en stock !</p>
-                                    {% else %}
-                                        <p class="text-success mt-2">En stock</p>
-                                    {% endif %}
-
-                                    <p class="card-price">
-                                        {% if produit.getPrixPromo() %}
-                                            <span class="text-danger"><del>{{ produit.prix }}€</del></span>
-                                            {{ produit.getPrixPromo() }}€
-                                            {% if promo %}
-                                                <span class="badge bg-danger">-{{ promo.pourcentage }}%</span>
-                                            {% endif %}
-                                        {% else %}
-                                            {{ produit.prix }}€
+                                <p class="card-price">
+                                    {% if produit.getPrixPromo() %}
+                                        <span class="text-danger"><del>{{ produit.prix }}€</del></span>
+                                        {{ produit.getPrixPromo() }}€
+                                        {% if promo %}
+                                            <span class="badge bg-danger">-{{ promo.pourcentage }}%</span>
                                         {% endif %}
-                                    </p>
+                                    {% else %}
+                                        {{ produit.prix }}€
+                                    {% endif %}
+                                </p>
 
-                                    <a href="{{ path('app_album_details', { id: produit.id }) }}" class="btn btn-outline-primary mt-2 w-100">Voir détails</a>
-                                </div>
+                                <a href="{{ path('app_album_details', { id: produit.id }) }}" class="btn btn-outline-primary mt-2 w-100">Voir détails</a>
                             </div>
                         </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="alert alert-warning">
-                        La table produit contient {{ produits|length }} éléments
                     </div>
-                {% endif %}
-            </div>
+                {% endfor %}
             {% else %}
-                <div class="alert alert-danger">
-                    ERREUR : Variable 'produits' non transmise
-                    <div class="mt-2">
-                        {{ dump(_context|keys) }}
-                    </div>
+                <div class="alert alert-warning">
+                    Aucun produit trouvé.
                 </div>
             {% endif %}
         </div>
+
+        {% else %}
+            <div class="alert alert-danger">
+                ERREUR : Variable 'produits' non transmise
+                {{ dump(_context|keys) }}
+            </div>
+        {% endif %}
     </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    function toggleFavori(event, produitId) {
+        event.preventDefault();
+        const heartIcon = document.getElementById('heart-' + produitId);
+
+        fetch('/favoris/toggle/' + produitId, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                if (data.action === 'added') {
+                    heartIcon.classList.remove('far');
+                    heartIcon.classList.add('fas');
+                } else {
+                    heartIcon.classList.remove('fas');
+                    heartIcon.classList.add('far');
+                }
+            } else {
+                console.error('Erreur:', data.message);
+            }
+        })
+        .catch(error => console.error('Erreur fetch:', error));
+    }
+</script>
 {% endblock %}

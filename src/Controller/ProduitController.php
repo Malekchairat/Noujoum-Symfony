@@ -8,7 +8,6 @@ use App\Repository\ProduitRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Security;
@@ -49,15 +48,11 @@ class ProduitController extends AbstractController
     #[Route('/shop/album/{id}', name: 'app_album_details')]
     public function details(ProduitRepository $repo, FavorisRepository $favorisRepository, int $id): Response
     {
-        // Fetch the product by ID
         $produit = $repo->find($id);
-
-        // Throw an exception if the product does not exist
         if (!$produit) {
             throw $this->createNotFoundException("Album non trouvé");
         }
 
-        // Check if there is an active promotion for the product
         $promo = null;
         foreach ($produit->getPromotions() as $p) {
             if ($p->getExpiration() >= new \DateTime()) {
@@ -66,7 +61,6 @@ class ProduitController extends AbstractController
             }
         }
 
-        // Check if the product is already in the user's favoris
         $favoris = false;
         if ($this->getUser()) {
             $favoris = $favorisRepository->findOneBy([
@@ -78,45 +72,7 @@ class ProduitController extends AbstractController
         return $this->render('produit/details.html.twig', [
             'produit' => $produit,
             'promo' => $promo,
-            'favoris' => $favoris // Pass favoris status to template
+            'favoris' => $favoris
         ]);
-    }
-
-    #[Route('/favoris/add/{id}', name: 'add_to_favoris', methods: ['POST'])]
-    public function addToFavoris(int $id, ProduitRepository $produitRepository, FavorisRepository $favorisRepository, EntityManagerInterface $em, Security $security): RedirectResponse
-    {
-        // Get the currently logged-in user
-        $user = $security->getUser();
-        if (!$user) {
-            // If not logged in, redirect to login page
-            return $this->redirectToRoute('app_login');
-        }
-
-        // Fetch the product by ID
-        $produit = $produitRepository->find($id);
-        if (!$produit) {
-            throw $this->createNotFoundException('Produit non trouvé');
-        }
-
-        // Check if the product is already in the user's favoris
-        $existingFavoris = $favorisRepository->findOneBy([
-            'user' => $user,
-            'produit' => $produit
-        ]);
-
-        if (!$existingFavoris) {
-            // Add the product to favoris if not already added
-            $favoris = new Favoris();
-            $favoris->setProduit($produit);
-            $favoris->setUser($user);
-            $favoris->setDate(new \DateTime());
-
-            // Persist the new favoris
-            $em->persist($favoris);
-            $em->flush();
-        }
-
-        // Redirect to the album details page
-        return $this->redirectToRoute('app_album_details', ['id' => $id]);
     }
 }

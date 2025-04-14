@@ -35,7 +35,7 @@ class FavorisController extends AbstractController
 
         if (!$existing) {
             $favoris = new Favoris();
-            $favoris->setIdProduit($produit->getId());
+            $favoris->setProduit($produit->getId());
             $favoris->setUser($user);
             $favoris->setDate(new \DateTime());
 
@@ -101,5 +101,53 @@ public function deleteFavori(Request $request, Favoris $favoris, EntityManagerIn
     // Redirect back to the favoris list after deletion
     return $this->redirectToRoute('app_favoris');
 }
+// Inside FavorisController or an appropriate controller
+
+#[Route('/favoris/toggle/{id}', name: 'favoris_toggle', methods: ['POST'])]
+public function toggleFavoris(
+    int $id,
+    Request $request,
+    ProduitRepository $produitRepository,
+    FavorisRepository $favorisRepository,
+    EntityManagerInterface $em,
+    Security $security
+): Response {
+    if (!$request->isXmlHttpRequest()) {
+        return $this->json(['success' => false, 'message' => 'Requête non autorisée'], 403);
+    }
+
+    $user = $security->getUser();
+    if (!$user) {
+        return $this->json(['success' => false, 'message' => 'Utilisateur non connecté'], 401);
+    }
+
+    $produit = $produitRepository->find($id);
+    if (!$produit) {
+        return $this->json(['success' => false, 'message' => 'Produit introuvable'], 404);
+    }
+
+    $favoris = $favorisRepository->findOneBy([
+        'user' => $user,
+        'produit' => $produit,
+    ]);
+
+    if ($favoris) {
+        $em->remove($favoris);
+        $em->flush();
+        return $this->json(['success' => true, 'action' => 'removed']);
+    } else {
+        $favori = new Favoris();
+        $favori->setUser($user);
+        $favori->setProduit($produit);
+        $favori->setDate(new \DateTime());
+
+        $em->persist($favori);
+        $em->flush();
+
+        return $this->json(['success' => true, 'action' => 'added']);
+    }
+}
+
+
 
 }
