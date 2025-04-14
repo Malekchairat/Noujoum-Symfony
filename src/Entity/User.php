@@ -43,7 +43,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $image = null;
 
-    #[ORM\OneToMany(targetEntity: Favoris::class, mappedBy: 'user')]
+    #[ORM\OneToMany(targetEntity: Favoris::class, mappedBy: 'user', cascade: ['remove'])]
     private Collection $favoris;
 
     public function __construct()
@@ -58,17 +58,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getNom(): ?string { return $this->nom; }
     public function setNom(?string $nom): self
-{
-    $this->nom = $nom;
-    return $this;
-}
+    {
+        $this->nom = $nom;
+        return $this;
+    }
 
     public function getPrenom(): ?string { return $this->prenom; }
     public function setPrenom(?string $prenom): self
-{
-    $this->prenom = $prenom;
-    return $this;
-}
+    {
+        $this->prenom = $prenom;
+        return $this;
+    }
 
     public function getEmail(): ?string { return $this->email; }
     public function setEmail(?string $email): static
@@ -78,7 +78,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
         return $this;
     }
-    
+
     public function getMdp(): ?string { return $this->mdp; }
     public function setMdp(string $mdp): static { $this->mdp = $mdp; return $this; }
 
@@ -86,14 +86,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         return $this->tel;
     }
-        public function setTel(?string $tel): static
+    public function setTel(?string $tel): static
     {
         if ($tel !== null) {
             $this->tel = $tel;
         }
         return $this;
     }
-    
+
     public function getRole(): RoleEnum { return RoleEnum::from($this->role); }
     public function setRole(RoleEnum $role): self { $this->role = $role->value; return $this; }
 

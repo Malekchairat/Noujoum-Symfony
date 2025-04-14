@@ -17,6 +17,7 @@ use App\Repository\UserRepository;  // Make sure this is the correct namespace f
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Knp\Component\Pager\PaginatorInterface;
+use App\Repository\FavorisRepository;
 
 class UserController extends AbstractController
 {
@@ -305,5 +306,36 @@ public function deleteUser(
         // Redirect to login or homepage
         return $this->redirectToRoute('app_login');
     }
+    // src/Controller/AdminController.php
+
+// One of these methods is likely a duplicate
+#[Route('/admin/user/{userId}/wishlist', name: 'admin_user_wishlist', methods: ['GET'])]
+    public function viewUserWishlist(int $userId, UserRepository $userRepository, FavorisRepository $favorisRepository): Response
+    {
+        // Get the logged-in user
+        $user = $this->getUser();
+
+        // Fetch the user from the repository
+        $targetUser = $userRepository->find($userId);
+
+        if (!$targetUser) {
+            throw $this->createNotFoundException('Utilisateur non trouvé');
+        }
+
+        // Ensure the logged-in user is an admin or is the user themselves
+        if (!$this->isGranted('ROLE_ADMIN') && $user !== $targetUser) {
+            throw new AccessDeniedException('Vous n\'êtes pas autorisé à voir cette wishlist.');
+        }
+
+        // Get the wishlist items for this user
+        $produits = $favorisRepository->findBy(['user' => $targetUser]);
+
+        // Return the view with the user’s wishlist
+        return $this->render('admin/user_wishlist.html.twig', [
+            'user' => $targetUser,
+            'produits' => $produits,
+        ]);
+    }
+
     
 }

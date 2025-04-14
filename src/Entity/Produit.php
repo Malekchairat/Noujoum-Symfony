@@ -32,8 +32,24 @@ class Produit
     private ?int $disponibilite = null;
     
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private $imageName; // Changement de type (anciennement 'blob')
-    
+    private $imageName;
+
+    #[ORM\OneToMany(mappedBy: 'produit', targetEntity: Promotion::class, orphanRemoval: true)]
+    private Collection $promotions;
+
+    #[ORM\OneToMany(mappedBy: 'produit', targetEntity: AlbumImage::class)]
+    private Collection $albumImages;
+
+    #[ORM\OneToMany(mappedBy: 'produit', targetEntity: Favoris::class, orphanRemoval: true, cascade: ['remove'])]
+    private Collection $favoris;
+
+    public function __construct()
+    {
+        $this->promotions = new ArrayCollection();
+        $this->albumImages = new ArrayCollection();
+        $this->favoris = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -47,7 +63,6 @@ class Produit
     public function setNom(string $nom): static
     {
         $this->nom = $nom;
-
         return $this;
     }
 
@@ -59,7 +74,6 @@ class Produit
     public function setDescription(string $description): static
     {
         $this->description = $description;
-
         return $this;
     }
 
@@ -71,7 +85,6 @@ class Produit
     public function setCategorie(string $categorie): static
     {
         $this->categorie = $categorie;
-
         return $this;
     }
 
@@ -83,7 +96,6 @@ class Produit
     public function setPrix(float $prix): static
     {
         $this->prix = $prix;
-
         return $this;
     }
 
@@ -95,7 +107,6 @@ class Produit
     public function setDisponibilite(int $disponibilite): static
     {
         $this->disponibilite = $disponibilite;
-
         return $this;
     }
 
@@ -104,27 +115,12 @@ class Produit
         return $this->imageName;
     }
 
-    
     public function setImageName(?string $imageName): self
     {
         $this->imageName = $imageName;
         return $this;
     }
 
-    #[ORM\OneToMany(mappedBy: 'produit', targetEntity: Promotion::class, orphanRemoval: true)]
-    private Collection $promotions;
-
-    /**
-     * @var Collection<int, AlbumImage>
-     */
-    #[ORM\OneToMany(mappedBy: 'produit', targetEntity: AlbumImage::class)]
-    private Collection $albumImages;
-
-    public function __construct()
-    {
-        $this->promotions = new ArrayCollection();
-        $this->albumImages = new ArrayCollection();
-    }
     public function getPromotions(): Collection
     {
         return $this->promotions;
@@ -150,22 +146,20 @@ class Produit
 
         return $this;
     }
+
     public function getPrixPromo(): ?float
     {
         $now = new \DateTime();
-    
+
         foreach ($this->promotions as $promotion) {
             if ($promotion->getExpiration() >= $now) {
                 return $this->prix * (1 - ($promotion->getPourcentage() / 100));
             }
         }
-    
+
         return null;
     }
 
-    /**
-     * @return Collection<int, AlbumImage>
-     */
     public function getAlbumImages(): Collection
     {
         return $this->albumImages;
@@ -184,7 +178,6 @@ class Produit
     public function removeAlbumImage(AlbumImage $albumImage): static
     {
         if ($this->albumImages->removeElement($albumImage)) {
-            // set the owning side to null (unless already changed)
             if ($albumImage->getProduit() === $this) {
                 $albumImage->setProduit(null);
             }
@@ -192,5 +185,12 @@ class Produit
 
         return $this;
     }
-    
+
+    /**
+     * @return Collection<int, Favoris>
+     */
+    public function getFavoris(): Collection
+    {
+        return $this->favoris;
+    }
 }

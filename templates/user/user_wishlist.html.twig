@@ -1,0 +1,120 @@
+{# templates/admin/user_wishlist.html.twig #}
+
+{% extends 'backoffice.html.twig' %}
+
+{% block head %}
+    <style>
+        .wishlist-container {
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 40px;
+            background-color: #303234;
+            border-radius: 15px;
+            color: white;
+            overflow-x: auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .wishlist-container:hover {
+            transform: scale(1.02);
+        }
+
+        .wishlist-title {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 30px;
+            color: gold;
+        }
+
+        .wishlist-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+            border: 2px solid gold;
+        }
+
+        .wishlist-table thead {
+            background-color: #202225;
+            color: gold;
+        }
+
+        .wishlist-table th,
+        .wishlist-table td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #444;
+            vertical-align: middle;
+        }
+
+        .wishlist-table tbody tr:nth-child(even) {
+            background-color: #2c2e30;
+        }
+
+        .wishlist-table tbody tr:nth-child(odd) {
+            background-color: #1e1f20;
+        }
+
+        .wishlist-table tbody tr:hover {
+            background-color: #444;
+        }
+
+        .delete-btn {
+            background-color: transparent;
+            border: 2px solid #ff4d4d;
+            color: #ff4d4d;
+            padding: 0.4rem 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-radius: 30px;
+            cursor: pointer;
+        }
+
+        .delete-btn:hover {
+            background-color: #ff4d4d;
+            color: #fff;
+            transform: scale(1.05);
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="wishlist-container">
+        <h2 class="wishlist-title">Wishlist de {{ user.prenom }} {{ user.nom }}</h2>
+
+        {% if produits|length > 0 %}
+            <table class="wishlist-table">
+                <thead>
+                    <tr>
+                        <th>Produit</th>
+                        <th>Catégorie</th>
+                        <th>Prix</th>
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <th>Action</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for produit in produits %}
+                        <tr>
+                            <td>{{ produit.nom }}</td>
+                            <td>{{ produit.categorie }}</td>
+                            <td>{{ produit.prix }}€</td>
+
+                            {% if is_granted('ROLE_ADMIN') %}
+                                <td>
+                                    <form method="post" action="{{ path('favoris_deleteadmin', {'id': favori.getIdFavoris()}) }}" onsubmit="return confirm('Supprimer ce favori ?');">
+                                         <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ favori.getIdFavoris()) }}">
+                                         <button class="custom-btn" type="submit">Supprimer</button>
+                                    </form>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Aucun produit ajouté à la wishlist.</p>
+        {% endif %}
+    </div>
+{% endblock %}

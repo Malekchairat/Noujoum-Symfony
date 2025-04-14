@@ -1,10 +1,11 @@
 <?php
 
+// src/Entity/Favoris.php
+
 namespace App\Entity;
 
 use App\Repository\FavorisRepository;
 use Doctrine\ORM\Mapping as ORM;
-
 
 #[ORM\Entity(repositoryClass: FavorisRepository::class)]
 class Favoris
@@ -15,13 +16,13 @@ class Favoris
     private ?int $idFavoris = null;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(name: "id_user", referencedColumnName: "id_user", nullable: false)]
+    #[ORM\JoinColumn(name: "id_user", referencedColumnName: "id_user", nullable: false, onDelete: "CASCADE")]
     private ?User $user = null;
 
-    #[ORM\ManyToOne(targetEntity: Produit::class)]
-    #[ORM\JoinColumn(name: "id_produit", referencedColumnName: "id", nullable: false)]
+    #[ORM\ManyToOne(targetEntity: Produit::class, inversedBy: "favoris")]
+    #[ORM\JoinColumn(name: "id_produit", referencedColumnName: "id", nullable: false, onDelete: "CASCADE")]
     private ?Produit $produit = null;
-
+    
     #[ORM\Column(type: "datetime", name: "date")]
     private \DateTime $date;
 
