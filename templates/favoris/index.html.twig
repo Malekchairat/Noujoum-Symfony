@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Favoris List{% endblock %}
+
+{% block body %}
+    <h1>Favoris</h1>
+
+    <a href="{{ path('favoris_new') }}">➕ Add New</a>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>ID Produit</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for favori in favoris %}
+            <tr>
+                <td>{{ favori.idFavoris }}</td>
+                <td>{{ favori.idProduit }}</td>
+                <td>{{ favori.date ? favori.date|date('Y-m-d H:i') : '' }}</td>
+                <td>
+                    <a href="{{ path('favoris_show', {'id': favori.idFavoris}) }}">👁 Show</a>
+                    <a href="{{ path('favoris_edit', {'id': favori.idFavoris}) }}">✏️ Edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr><td colspan="4">No favoris found.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

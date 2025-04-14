@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Favori Details{% endblock %}
+
+{% block body %}
+    <h1>Favori</h1>
+
+    <p><strong>ID:</strong> {{ favori.idFavoris }}</p>
+    <p><strong>ID Produit:</strong> {{ favori.idProduit }}</p>
+    <p><strong>Date:</strong> {{ favori.date|date('Y-m-d H:i') }}</p>
+
+    <a href="{{ path('favoris_index') }}">← Back to list</a>
+    <a href="{{ path('favoris_edit', {'id': favori.idFavoris}) }}">✏️ Edit</a>
+{% endblock %}

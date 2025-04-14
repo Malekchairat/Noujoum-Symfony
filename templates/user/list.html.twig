@@ -1,0 +1,187 @@
+{% extends 'backoffice.html.twig' %}
+
+{% block head %}
+<style>
+    .user-list-container {
+        max-width: 1200px;
+        margin: 50px auto;
+        padding: 40px;
+        background-color: #303234;
+        border-radius: 15px;
+        color: white;
+        overflow-x: auto;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease;
+    }
+
+    .user-list-container:hover {
+        transform: scale(1.02);
+    }
+
+    .card-container {
+        background-color: #383C40;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .user-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.95rem;
+        border: 2px solid gold; /* Gold contour restored with a finer 2px border */
+    }
+
+    .user-table thead {
+        background-color: #202225;
+        color: gold;
+    }
+
+    .user-table th,
+    .user-table td {
+        padding: 12px;
+        text-align: center;
+        border: 1px solid #444;
+        vertical-align: middle;
+    }
+
+    .user-table tbody tr:nth-child(even) {
+        background-color: #2c2e30;
+    }
+
+    .user-table tbody tr:nth-child(odd) {
+        background-color: #1e1f20;
+    }
+
+    .user-table tbody tr:hover {
+        background-color: #444; /* Hover effect on rows */
+    }
+
+    .badge {
+        font-size: 0.85em;
+        padding: 5px 10px;
+        border-radius: 10px;
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .action-buttons .btn {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+        border: 1px solid gold; /* Matching the gold accent for buttons */
+        background-color: transparent;
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* Style for the Modifier button */
+    .btn-outline-warning {
+        color: gold;
+    }
+
+    .btn-outline-warning:hover {
+        background-color: gold;
+        color: black;
+    }
+
+    /* Style for the Supprimer button */
+    .btn-danger {
+        color: white;
+        background-color: #dc3545;
+        border: none;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-danger:hover {
+        background-color: #b02a37;
+    }
+
+    .user-photo {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid gold;
+        transition: transform 0.3s ease;
+    }
+
+    .user-photo:hover {
+        transform: scale(1.1);
+        border-color: #f4d03f;
+    }
+
+    /* Responsive Styling */
+    @media (max-width: 768px) {
+        .user-list-container {
+            padding: 20px;
+        }
+
+        .user-table th, .user-table td {
+            padding: 8px;
+        }
+
+        .action-buttons .btn {
+            font-size: 0.75rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="user-list-container">
+    <div class="card-container">
+        <h2 class="text-center mb-4" style="color: gold;">👥 Liste des Utilisateurs</h2>
+    </div>
+
+    <table class="user-table">
+        <thead>
+            <tr>
+                <th>Photo</th>
+                <th>Nom</th>
+                <th>Email</th>
+                <th>Téléphone</th>
+                <th>Rôle</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+                <tr>
+                    <td>
+                        <img src="{{ asset(user.image ? 'uploads/' ~ user.image : 'uploads/user.png') }}" alt="Photo de {{ user.prenom }}" class="user-photo">
+                    </td>
+                    <td>{{ user.prenom }} {{ user.nom }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.tel }}</td>
+                    <td>
+                        {% if user.role.value == 'ROLE_ADMIN' %}
+                            <span class="badge bg-warning text-dark">Admin</span>
+                        {% elseif user.role.value == 'ROLE_USER' %}
+                            <span class="badge bg-info text-dark">Fan</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Inconnu</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="{{ path('user_edit', {'id': user.getIdUser()}) }}" class="btn btn-outline-warning">Modifier</a>
+                            <form method="post" action="{{ path('user_delete', {'id': user.getIdUser()}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?');" style="display:inline;">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.getIdUser()) }}">
+                                <button class="btn btn-danger">Supprimer</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="6" class="text-light text-center">Aucun utilisateur trouvé.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,185 @@
+{% extends 'backoffice.html.twig' %}
+
+{% block head %}
+<!-- FontAwesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #3a3a3a;
+    }
+
+    .form-container {
+        max-width: 700px;
+        margin: 40px auto;
+        padding: 30px;
+        border-radius: 12px;
+        background-color: #505050;
+        border: 2px solid #d4af37;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .form-container:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .form-header {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #f4f4f4;
+        font-weight: 600;
+        font-size: 28px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        font-size: 18px;
+        color: #ddd;
+        display: inline-block;
+        margin-bottom: 10px;
+        font-weight: bold;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 12px;
+        font-size: 16px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        background-color: #e6e6e6;
+        color: #333;
+        box-sizing: border-box;
+    }
+
+    .form-input:focus {
+        border-color: #d4af37;
+        outline: none;
+    }
+
+    .form-button {
+        padding: 12px 25px;
+        font-size: 16px;
+        background-color: #d4af37;
+        color: white;
+        border: none;
+        border-radius: 30px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+        margin-top: 20px;
+    }
+
+    .form-button:hover {
+        background-color: #f4d03f;
+        transform: scale(1.05);
+    }
+
+    .form-errors {
+        color: #f44336;
+        font-size: 14px;
+    }
+
+    .alert-warning {
+        background-color: #ffc107;
+        color: #333;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-weight: 500;
+    }
+
+    .delete-button {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 30px;
+        padding: 10px 20px;
+        font-size: 16px;
+        margin-top: 25px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .delete-button:hover {
+        background-color: #e74c3c;
+        transform: scale(1.05);
+    }
+</style>
+{% endblock %}
+
+{% block title %}Modifier le compte{% endblock %}
+
+{% block body %}
+<div class="container form-container">
+    <div class="form-header">
+        Modifier le compte
+    </div>
+
+    {% if is_self is defined and is_self %}
+        <div class="alert alert-warning">
+            Vous modifiez votre propre compte. Soyez prudent !
+        </div>
+    {% endif %}
+
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+        <div class="form-group">
+            <label for="{{ form.nom.vars.id }}">Nom</label>
+            {{ form_widget(form.nom, {'attr': {'class': 'form-input'}}) }}
+            <div class="form-errors">{{ form_errors(form.nom) }}</div>
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.prenom.vars.id }}">Prénom</label>
+            {{ form_widget(form.prenom, {'attr': {'class': 'form-input'}}) }}
+            <div class="form-errors">{{ form_errors(form.prenom) }}</div>
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.email.vars.id }}">Email</label>
+            {{ form_widget(form.email, {'attr': {'class': 'form-input'}}) }}
+            <div class="form-errors">{{ form_errors(form.email) }}</div>
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.mdp.vars.id }}">Mot de passe (laissez vide pour ne pas changer)</label>
+            {{ form_widget(form.mdp, {'attr': {'class': 'form-input'}}) }}
+            <div class="form-errors">{{ form_errors(form.mdp) }}</div>
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.tel.vars.id }}">Téléphone</label>
+            {{ form_widget(form.tel, {'attr': {'class': 'form-input'}}) }}
+            <div class="form-errors">{{ form_errors(form.tel) }}</div>
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.image.vars.id }}">Image</label>
+            {{ form_widget(form.image, {'attr': {'class': 'form-input'}}) }}
+            <div class="form-errors">{{ form_errors(form.image) }}</div>
+        </div>
+
+        {% if form.role is defined %}
+            <div class="form-group">
+                <label for="{{ form.role.vars.id }}">Rôle</label>
+                {{ form_widget(form.role, {'attr': {'class': 'form-input'}}) }}
+                <div class="form-errors">{{ form_errors(form.role) }}</div>
+            </div>
+        {% endif %}
+
+        <button type="submit" class="form-button">Enregistrer</button>
+    {{ form_end(form) }}
+
+    {% if is_self is defined and is_self %}
+        <form action="{{ path('user_delete', {'id': app.user.id}) }}" method="post" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer votre compte ?');">
+            <input type="hidden" name="_method" value="DELETE">
+            <button type="submit" class="delete-button">Supprimer mon compte</button>
+        </form>
+    {% endif %}
+</div>
+{% endblock %}
