@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ produit.nom }} - Détails{% endblock %}
+
+{% block body %}
+<div class="container mt-4 bg-dark text-light p-4 rounded">
+    <div class="row">
+        <div class="col-md-6">
+            <img src="{{ asset('uploads/' ~ produit.imageName) }}" alt="{{ produit.nom }}" class="img-fluid mb-3 rounded">
+        </div>
+        <div class="col-md-6">
+            <h2>{{ produit.nom }}</h2>
+            <p><strong>Catégorie :</strong> {{ produit.categorie }}</p>
+            <p><strong>Description :</strong> {{ produit.description }}</p>
+
+            {% if produit.getPrixPromo() %}
+                <p><del>{{ produit.prix }}€</del> <strong class="text-danger">{{ produit.getPrixPromo() }}€</strong></p>
+                {% if promo %}
+                    <span class="badge bg-danger">-{{ promo.pourcentage }}% jusqu'au {{ promo.expiration|date('d/m/Y') }}</span>
+                {% endif %}
+            {% else %}
+                <p><strong>{{ produit.prix }}€</strong></p>
+            {% endif %}
+
+            {% if produit.disponibilite < 5 %}
+                <p class="text-warning">⚠️ Plus que {{ produit.disponibilite }} en stock !</p>
+            {% else %}
+                <p class="text-success">En stock : {{ produit.disponibilite }}</p>
+            {% endif %}
+
+            <a href="#" class="btn btn-success mt-3">Acheter</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

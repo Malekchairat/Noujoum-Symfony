@@ -1,0 +1,88 @@
+{% extends 'backoffice/backoffice.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/backoffice.css') }}">
+{% endblock %}
+{% block title %}Gestion des Produits{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-gold"><i class="fas fa-boxes me-2"></i> Gestion des Produits</h2>
+   <style>
+    .btn-custom {
+        display: inline-block;
+        background-color:rgb(49, 49, 49) !important;
+        color: white !important;
+        padding: 12px 24px;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        text-decoration: none !important;
+        border: none !important;
+        cursor: pointer;
+        transition: all 0.3s ease !important;
+    }
+    .btn-custom:hover {
+        background-color:rgba(57, 58, 59, 0.1) !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+    }
+</style>
+
+<a href="{{ path('produit_ajout') }}" class="btn-custom">
+    <i class="fas fa-plus-circle me-2"></i>
+    Ajouter un Produit
+</a>
+    </div>
+
+    <div class="cards-container">
+        {% for produit in produits %}
+        <div class="card">
+            <div class="card-header">
+                {% if produit.imageName %}
+                <img src="{{ asset('uploads/' ~ produit.imageName) }}" alt="{{ produit.nom }}" class="img-fluid">
+                {% else %}
+                <span class="text-muted">Aucune image</span>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <h3>{{ produit.nom }}</h3>
+                <p>{{ produit.description|length > 50 ? produit.description[:50] ~ '...' : produit.description }}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="badge bg-secondary">{{ produit.categorie }}</span>
+                    <span class="text-success fw-bold">{{ produit.prix }}€</span>
+                </div>
+               <div class="card-body">
+    <!-- ... autres éléments ... -->
+    <div class="btn-group-actions">
+        <a href="{{ path('produit_edit', {'id': produit.id}) }}" 
+           class="btn-action btn-edit">
+           <i class="fas fa-edit"></i> Modifier
+        </a>
+        <a href="{{ path('produit_delete', {'id': produit.id}) }}" 
+           class="btn-action btn-delete"
+           onclick="return confirm('Êtes-vous sûr ?')">
+           <i class="fas fa-trash-alt"></i> Supprimer
+        </a>
+        <a href="{{ path('promotion_add', {'produitId': produit.id}) }}" 
+           class="btn-action btn-promo">
+           <i class="fas fa-plus-circle"></i> Promo
+        </a>
+        <a href="{{ path('produit_promotions', {'id': produit.id}) }}" 
+           class="btn-action btn-view">
+           <i class="fas fa-tags"></i> Voir promos
+        </a>
+    </div>
+</div>
+
+            </div>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-4 col-12">
+            Aucun produit trouvé.
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

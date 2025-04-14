@@ -1,0 +1,53 @@
+{% extends 'backoffice/backoffice.html.twig' %}
+
+{% block title %}Promotions de {{ produit.nom }}{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1>Promotions actives pour {{ produit.nom }}</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Réduction</th>
+                <th>Expiration</th>
+                <th>Actions</th> {# Nouvelle colonne pour les boutons #}
+            </tr>
+        </thead>
+        <tbody>
+            {% set hasPromotion = false %}
+            {% for promotion in produit.promotions %}
+                {% if promotion.expiration >= date() %}
+                {% set hasPromotion = true %}
+                <tr>
+                    <td>{{ promotion.code }}</td>
+                    <td>-{{ promotion.pourcentage }}%</td>
+                    <td>{{ promotion.expiration|date('d/m/Y') }}</td>
+                    <td>
+                        <a href="{{ path('promotion_edit', { id: promotion.id }) }}" class="btn btn-warning btn-sm">
+                            Modifier
+                        </a>
+                        <a href="{{ path('promotion_delete', { id: promotion.id }) }}"
+                           class="btn btn-danger btn-sm"
+                           onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette promotion ?');">
+                            Supprimer
+                        </a>
+                    </td>
+                </tr>
+                {% endif %}
+            {% endfor %}
+
+            {% if not hasPromotion %}
+                <tr>
+                    <td colspan="4">Aucune promotion active</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('produits_index') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Retour à la liste
+    </a>
+</div>
+{% endblock %}
