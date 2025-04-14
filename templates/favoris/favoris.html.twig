@@ -61,6 +61,27 @@
             border: 2px solid #d4af37;
         }
 
+        .produit form {
+            margin-top: 15px;
+        }
+
+        .custom-btn {
+            background-color: transparent;
+            border: 2px solid #ff4d4d;
+            color: #ff4d4d;
+            padding: 0.4rem 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-radius: 30px;
+            cursor: pointer;
+        }
+
+        .custom-btn:hover {
+            background-color: #ff4d4d;
+            color: #fff;
+            transform: scale(1.05);
+        }
+
         .no-favoris {
             text-align: center;
             font-size: 1.2rem;
@@ -85,6 +106,11 @@
                     {% if favori.produit.imageName %}
                         <img src="{{ asset('uploads/' ~ favori.produit.imageName) }}" alt="{{ favori.produit.nom }}">
                     {% endif %}
+
+                    <form method="post" action="{{ path('favoris_delete', {'id': favori.getIdFavoris()}) }}" onsubmit="return confirm('Supprimer ce favori ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ favori.getIdFavoris()) }}">
+                        <button class="custom-btn" type="submit">Supprimer</button>
+                    </form>
                 </div>
             {% endfor %}
         </div>

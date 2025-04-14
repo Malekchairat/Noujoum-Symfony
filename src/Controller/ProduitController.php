@@ -107,7 +107,7 @@ class ProduitController extends AbstractController
         if (!$existingFavoris) {
             // Add the product to favoris if not already added
             $favoris = new Favoris();
-            $favoris->setIdProduit($produit);
+            $favoris->setProduit($produit);
             $favoris->setUser($user);
             $favoris->setDate(new \DateTime());
 
