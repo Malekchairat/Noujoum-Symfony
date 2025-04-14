@@ -40,4 +40,12 @@ class FavorisRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+    public function findByUser(User $user): array
+{
+    return $this->createQueryBuilder('f')
+        ->andWhere('f.user = :user')
+        ->setParameter('user', $user)
+        ->getQuery()
+        ->getResult();
+}
 }

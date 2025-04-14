@@ -4,87 +4,75 @@ namespace App\Controller;
 
 use App\Entity\Favoris;
 use App\Entity\User;
-use App\Form\FavorisType;
 use App\Repository\FavorisRepository;
+use App\Repository\ProduitRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Security;
+use Symfony\Component\HttpFoundation\Response;
 
-#[Route('/favoris')]
 class FavorisController extends AbstractController
 {
-    #[Route('/f', name: 'app_favoris_index', methods: ['GET'])]
+    #[Route('/favoris/add/{id}', name: 'add_to_favoris', methods: ['POST'])]
+    public function addToFavoris(int $id, ProduitRepository $produitRepository, EntityManagerInterface $em, Security $security): RedirectResponse
+    {
+        $user = $security->getUser();
+        if (!$user) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $produit = $produitRepository->find($id);
+        if (!$produit) {
+            throw $this->createNotFoundException('Produit non trouvé');
+        }
+
+        // Check if this product is already in the user's favoris
+        $existing = $em->getRepository(Favoris::class)->findOneBy([
+            'user' => $user,
+            'id_produit' => $produit->getId()
+        ]);
+
+        if (!$existing) {
+            $favoris = new Favoris();
+            $favoris->setIdProduit($produit->getId());
+            $favoris->setUser($user);
+            $favoris->setDate(new \DateTime());
+
+            $em->persist($favoris);
+            $em->flush();
+        }
+
+        return $this->redirectToRoute('app_album_details', ['id' => $id]);
+    }
+    #[Route('/favoris', name: 'app_favoris')]
     public function index(FavorisRepository $favorisRepository): Response
     {
+        // Fetch the favoris for the logged-in user
+        $favorisList = [];
+        if ($this->getUser()) {
+            $favorisList = $favorisRepository->findBy(['user' => $this->getUser()]);
+        }
+
         return $this->render('favoris/index.html.twig', [
-            'favoris' => $favorisRepository->findAll(),
+            'favorisList' => $favorisList,
         ]);
     }
+    #[Route('/mes-produits', name: 'app_favoris')]
+public function mesFavoris(FavorisRepository $favorisRepository): Response
+{
+    $user = $this->getUser();
 
-    #[Route('/new', name: 'favoris_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
-    {
-        $favori = new Favoris();
-
-        // Set default user manually (ID 1)
-        $user = $entityManager->getRepository(User::class)->find(1);
-        $favori->setUser($user);
-
-        // Set current date
-        $favori->setDate(new \DateTime());
-
-        $form = $this->createForm(FavorisType::class, $favori);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($favori);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_favoris_index', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->render('favoris/new.html.twig', [
-            'favori' => $favori,
-            'form' => $form->createView(),
-        ]);
+    if (!$user) {
+        return $this->redirectToRoute('app_login');
     }
 
-    #[Route('/{id_favoris}', name: 'favoris_show', methods: ['GET'])]
-    public function show(Favoris $favori): Response
-    {
-        return $this->render('favoris/show.html.twig', [
-            'favori' => $favori,
-        ]);
-    }
+    $favoris = $favorisRepository->findBy(['user' => $user]);
 
-    #[Route('/{id_favoris}/edit', name: 'app_favoris_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Favoris $favori, EntityManagerInterface $entityManager): Response
-    {
-        $form = $this->createForm(FavorisType::class, $favori);
-        $form->handleRequest($request);
+    return $this->render('favoris/favoris.html.twig', [
+        'favoris' => $favoris,
+    ]);
+}
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_favoris_index', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->render('favoris/edit.html.twig', [
-            'favori' => $favori,
-            'form' => $form->createView(),
-        ]);
-    }
-
-    #[Route('/{id_favoris}', name: 'app_favoris_delete', methods: ['POST'])]
-    public function delete(Request $request, Favoris $favori, EntityManagerInterface $entityManager): Response
-    {
-        if ($this->isCsrfTokenValid('delete'.$favori->getIdFavoris(), $request->request->get('_token'))) {
-            $entityManager->remove($favori);
-            $entityManager->flush();
-        }
-
-        return $this->redirectToRoute('app_favoris_index', [], Response::HTTP_SEE_OTHER);
-    }
 }

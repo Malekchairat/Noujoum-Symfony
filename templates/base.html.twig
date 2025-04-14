@@ -39,20 +39,31 @@
                         <li class="nav-item {{ contact_active | default('') }}"><a class="nav-link" href="{{ path('app_contact') }}">Contact us</a></li>
                     </ul>
                     <ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5">
-                        <!-- Link to profile page on click -->
-                        <li><a class="nav-link" href="{{ path('app_profile') }}"><img src="images/user.svg" alt="User Profile"></a></li>
-                        <li class="nav-item {{ cart_active | default('') }}"><a class="nav-link" href="{{ path('app_cart') }}"><img src="images/cart.svg"></a></li>
+                        <!-- Profile -->
+                        <li>
+                            <a class="nav-link" href="{{ path('app_profile') }}">
+                                <i class="fas fa-user" style="color: white;"></i>
+                            </a>
+                        </li>
+                        <!-- Favoris -->
+                        <li>
+                            <a class="nav-link" href="{{ path('app_favoris') }}">
+                                <i class="fas fa-heart" style="color: red;"></i>
+                            </a>
+                        </li>
+                        <!-- Cart -->
+                        <li class="nav-item {{ cart_active | default('') }}">
+                            <a class="nav-link" href="{{ path('app_cart') }}">
+                                <i class="fas fa-shopping-cart" style="color: white;"></i>
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
         </nav>
         <!-- End Header/Navigation -->
 
-
-       
-            {% block body %}{% endblock %}
-       
-      
+        {% block body %}{% endblock %}
 
         <!-- Start Footer Section -->
         <footer class="footer-section"></footer>

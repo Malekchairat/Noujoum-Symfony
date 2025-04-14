@@ -5,12 +5,18 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <link rel="stylesheet" href="{{ asset('css/backoffice.css?v=' ~ random()) }}">
-    
-<link rel="stylesheet" href="/style.css">
 
-    {% block stylesheets %}{% endblock %}
+    <!-- External CSS -->
+    <link rel="stylesheet" href="{{ asset('css/backoffice.css?v=' ~ random()) }}">
+    <link rel="stylesheet" href="/style.css">
+
+    <!-- ✅ Add block for custom head (like page-specific styles) -->
+    {% block head %}{% endblock %}
+
+    <!-- Page Title -->
     <title>{% block title %}Admin Dashboard{% endblock %}</title>
+
+    <!-- Default Styles -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
@@ -111,7 +117,7 @@
     <nav>
         <div class="logo">
             <div class="logo-image">
-                <img src="logo.png" alt="Logo">
+                <img src="/images/njmlogo.jpg" alt="Logo">
             </div>
         </div>
         <div class="menu-items">
@@ -123,14 +129,13 @@
                     </a>
                 </li>
                 <li class="navList {% if app.request.attributes.get('_route') == 'utilisateurs_index' %}active{% endif %}">
-                    <a href="{{ path('admin_dashboard') }}">
+                    <a href="{{ path('user_list') }}">
                         <ion-icon name="heart-outline"></ion-icon>
                         <span class="links">Utilisateurs</span>
                     </a>
                 </li>
                 <li class="navList">
-                    <a href="#" class="btn btn-primary" title="Lien désactivé">
-
+                    <a href="{{ path('admin_dashboard') }}">
                         <ion-icon name="folder-outline"></ion-icon>
                         <span class="links">Evenements</span>
                     </a>
@@ -153,16 +158,22 @@
                         <span class="links">Reclamations</span>
                     </a>
                 </li>
+                <li class="navList">
+                    <a href="{{ path('user_create') }}">
+                        <ion-icon name="person-add-outline"></ion-icon>
+                        <span class="links">Ajouter Utilisateur</span>
+                    </a>
+                </li>
             </ul>
             <ul class="bottom-link">
-                <li>
-                    <a href="#">
+                <li class="{% if app.request.attributes.get('_route') == 'app_profile_admin' %}active{% endif %}">
+                    <a href="{{ path('app_profile_admin') }}">
                         <ion-icon name="person-circle-outline"></ion-icon>
                         <span class="links">Profile</span>
                     </a>
                 </li>
                 <li>
-                    <a href="#">
+                    <a href="{{ path('app_logout') }}">
                         <ion-icon name="log-out-outline"></ion-icon>
                         <span class="links">Logout</span>
                     </a>

@@ -3,54 +3,31 @@
 namespace App\Entity;
 
 use App\Repository\FavorisRepository;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+
 
 #[ORM\Entity(repositoryClass: FavorisRepository::class)]
 class Favoris
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id_favoris = null;
+    #[ORM\Column(type: "integer", name: "id_favoris")]
+    private ?int $idFavoris = null;
 
-    #[ORM\Column]
-    private ?int $id_produit = null;
-
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $date = null;
-
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'favoris')]
-    #[ORM\JoinColumn(name: 'id_user', referencedColumnName: 'id_user', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(name: "id_user", referencedColumnName: "id_user", nullable: false)]
     private ?User $user = null;
+
+    #[ORM\ManyToOne(targetEntity: Produit::class)]
+    #[ORM\JoinColumn(name: "id_produit", referencedColumnName: "id", nullable: false)]
+    private ?Produit $produit = null;
+
+    #[ORM\Column(type: "datetime", name: "date")]
+    private \DateTime $date;
 
     public function getIdFavoris(): ?int
     {
-        return $this->id_favoris;
-    }
-
-    public function getIdProduit(): ?int
-    {
-        return $this->id_produit;
-    }
-
-    public function setIdProduit(int $id_produit): static
-    {
-        $this->id_produit = $id_produit;
-
-        return $this;
-    }
-
-    public function getDate(): ?\DateTimeInterface
-    {
-        return $this->date;
-    }
-
-    public function setDate(\DateTimeInterface $date): static
-    {
-        $this->date = $date;
-
-        return $this;
+        return $this->idFavoris;
     }
 
     public function getUser(): ?User
@@ -61,7 +38,45 @@ class Favoris
     public function setUser(?User $user): static
     {
         $this->user = $user;
-
         return $this;
+    }
+
+    public function getProduit(): ?Produit
+    {
+        return $this->produit;
+    }
+
+    public function setProduit(?Produit $produit): static
+    {
+        $this->produit = $produit;
+        return $this;
+    }
+
+    public function getDate(): \DateTime
+    {
+        return $this->date;
+    }
+
+    public function setDate(\DateTime $date): static
+    {
+        $this->date = $date;
+        return $this;
+    }
+
+    /**
+     * Add user to the favorites
+     *
+     * @param User $user
+     * @param Produit $produit
+     * @return Favoris
+     */
+    public static function createFavori(User $user, Produit $produit): self
+    {
+        $favoris = new self();
+        $favoris->setUser($user)
+                ->setProduit($produit)
+                ->setDate(new \DateTime()); // Set the current date and time
+        
+        return $favoris;
     }
 }
