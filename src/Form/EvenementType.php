@@ -43,12 +43,16 @@ class EvenementType extends AbstractType
             ->add('dateDebut', DateTimeType::class, [
                 'label'           => 'Date Début',
                 'widget'          => 'single_text',
-                'required'        => false, // allow empty submission, but NotBlank will catch it
+                'required'        => false,
                 'empty_data'      => null,
                 'invalid_message' => 'Veuillez saisir une date de début valide.',
                 'constraints'     => [
                     new NotBlank([
                         'message' => 'Veuillez saisir la date de début.',
+                    ]),
+                    new GreaterThanOrEqual([
+                        'value'   => new \DateTime(),
+                        'message' => 'La date de début ne peut pas être dans le passé.',
                     ]),
                 ],
             ])
@@ -77,7 +81,7 @@ class EvenementType extends AbstractType
             ->add('Prix', NumberType::class, [
                 'label'       => 'Prix',
                 'required'    => true,
-                'empty_data'  => 0, // Set default to 0 instead of null
+                'empty_data'  => 0,
                 'constraints' => [
                     new NotBlank([
                         'message' => 'Veuillez saisir le prix.',

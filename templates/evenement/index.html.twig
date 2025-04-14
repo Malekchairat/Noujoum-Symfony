@@ -1,4 +1,4 @@
- {% extends 'base.html.twig' %}
+{% extends 'base.html.twig' %}
 
 {% block title %}Événements{% endblock %}
 
@@ -11,7 +11,7 @@
         /* Header styling for title and button */
         .header-container {
             display: flex;
-            justify-content: center;  /* Centers the title */
+            justify-content: center;
             align-items: center;
             position: relative;
             margin-bottom: 30px;
@@ -30,17 +30,16 @@
             font-weight: bold;
             cursor: pointer;
             position: absolute;
-            right: 0;  /* Aligns button to the right */
+            right: 0;
         }
         /* Container for both filter navbar and search bar */
         .filter-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 100px; /* Adjust this value as needed */
+            gap: 100px;
             margin-bottom: 20px;
         }
-
         /* Navbar styles for filter buttons */
         .filter-navbar {
             display: flex;
@@ -146,22 +145,20 @@
             justify-content: center;
             align-items: center;
         }
-         .share-btn {
-                display: inline-block;
-                background-color: #3b5998; /* Facebook blue */
-                color: white;
-                padding: 8px 12px;
-                border-radius: 4px;
-                text-decoration: none;
-                font-weight: bold;
-                margin-top: 10px;
-                transition: background-color 0.3s ease;
-            }
-
-            .share-btn:hover {
-                background-color: #2d4373;
-            }
-
+        .share-btn {
+            display: inline-block;
+            background-color: #3b5998;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 10px;
+            transition: background-color 0.3s ease;
+        }
+        .share-btn:hover {
+            background-color: #2d4373;
+        }
         #ticketModal .modal-content {
             background-color: black;
             color: white;
@@ -209,7 +206,6 @@
                 <a href="{{ path('evenement_index', {'type': 'fanmeet', 'q': searchQuery}) }}" class="{{ selectedType == 'fanmeet' ? 'active' : '' }}">Fan Meet</a>
             </div>
             <div class="search-bar">
-                {# Instant search input with cancel button; form submission is not required #}
                 <input type="text" id="searchInput" name="q" placeholder="Recherche avancée..." value="{{ searchQuery }}">
                 <button type="button" id="cancelSearch">Annuler</button>
             </div>
@@ -217,38 +213,41 @@
 
         <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;">
             {% for evenement in evenements %}
-                <div class="event-card">
-                    {% if evenement.image %}
-                        <img src="{{ asset('uploads/' ~ evenement.image) }}" alt="{{ evenement.Titre }}">
-                    {% endif %}
-                    
-                    <div class="content">
-                        <h5>🎫 {{ evenement.Titre }}</h5>
-                        <p>📜 <strong>Description:</strong> {{ evenement.Description|slice(0, 100) }}{% if evenement.Description|length > 100 %}...{% endif %}</p>
-                        <p>📅 <strong>Date:</strong> {{ evenement.dateDebut|date('Y-m-d') }} → {{ evenement.dateFin|date('Y-m-d') }}</p>
-                        <p>📍 <strong>Lieu:</strong> {{ evenement.Lieu }}</p>
-                        <p>💰 <strong>Prix:</strong> {{ evenement.Prix }} TND</p>
-                        <p>🎶 <strong>Type:</strong> {{ evenement.TypeE }}</p>
-                        <p>🎤 <strong>Artiste:</strong> {{ evenement.artiste }}</p>
+                {# Check if the event is not expired. Using Unix timestamp comparison ensures an accurate check #}
+                {% if evenement.dateFin|date("U") >= "now"|date("U") %}
+                    <div class="event-card">
+                        {% if evenement.image %}
+                            <img src="{{ asset('uploads/' ~ evenement.image) }}" alt="{{ evenement.Titre }}">
+                        {% endif %}
                         
-                        <div class="reserve-container">
-                            <button class="open-ticket" 
-                                    data-event-id="{{ evenement.id }}" 
-                                    data-event-price="{{ evenement.Prix }}">
-                                Réserver Ticket
-                            </button>
-                        </div>
-                         <!-- New Share Button -->
-                        <div class="share-container" style="text-align: center; margin-top: 10px;">
-                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ url('evenement_details', {'id': evenement.id}) | url_encode }}" 
-                            target="_blank" 
-                            class="share-btn"
-                            title="Partager cet événement sur Facebook">
-                                Partager
-                            </a>
+                        <div class="content">
+                            <h5>🎫 {{ evenement.Titre }}</h5>
+                            <p>📜 <strong>Description:</strong> {{ evenement.Description|slice(0, 100) }}{% if evenement.Description|length > 100 %}...{% endif %}</p>
+                            <p>📅 <strong>Date:</strong> {{ evenement.dateDebut|date('Y-m-d') }} → {{ evenement.dateFin|date('Y-m-d') }}</p>
+                            <p>📍 <strong>Lieu:</strong> {{ evenement.Lieu }}</p>
+                            <p>💰 <strong>Prix:</strong> {{ evenement.Prix }} TND</p>
+                            <p>🎶 <strong>Type:</strong> {{ evenement.TypeE }}</p>
+                            <p>🎤 <strong>Artiste:</strong> {{ evenement.artiste }}</p>
+                            
+                            <div class="reserve-container">
+                                <button class="open-ticket" 
+                                        data-event-id="{{ evenement.id }}" 
+                                        data-event-price="{{ evenement.Prix }}">
+                                    Réserver Ticket
+                                </button>
+                            </div>
+                            
+                            <div class="share-container" style="text-align: center; margin-top: 10px;">
+                                <a href="https://www.facebook.com/sharer/sharer.php?u={{ url('evenement_details', {'id': evenement.id}) | url_encode }}" 
+                                   target="_blank" 
+                                   class="share-btn"
+                                   title="Partager cet événement sur Facebook">
+                                    Partager
+                                </a>
+                            </div>
                         </div>
                     </div>
-                </div>
+                {% endif %}
             {% else %}
                 <p class="text-center" style="color: gold;">Aucun événement disponible pour le moment.</p>
             {% endfor %}
@@ -260,9 +259,7 @@
         <div class="modal-content">
             <span class="close">&times;</span>
             <h3 style="text-align: center;">Réserver Ticket</h3>
-            {# Form for ticket reservation #}
             <form id="ticketForm" method="post" action="">
-                {# Include CSRF token hidden field #}
                 <input type="hidden" name="ticket[_token]" value="{{ csrf_token('ticket_item') }}">
                 
                 <div>
@@ -290,7 +287,7 @@
     </div>
 
     <script>
-        // Modal logic (unchanged)
+        // Modal logic
         var modal = document.getElementById('ticketModal');
         var closeModal = document.querySelector('#ticketModal .close');
         var ticketQuantite = document.getElementById('quantite');
