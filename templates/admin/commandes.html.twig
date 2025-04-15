@@ -1,0 +1,43 @@
+{% extends 'admin/backend.html.twig' %}
+
+{% block content %}
+    <div>Test - Commandes Page Loaded</div> <!-- Debugging Line -->
+    <div class="data-table activityTable">
+        <div class="title">
+            <ion-icon name="cart-outline"></ion-icon>
+            <span class="text">Liste des Commandes</span>
+        </div>
+        <table class="activity">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Rue</th>
+                    <th>Ville</th>
+                    <th>Code Postal</th>
+                    <th>État</th>
+                    <th>Montant Total</th>
+                    <th>Méthode de Paiement</th>
+                    <th>ID Utilisateur</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for commande in commandes %}
+                    <tr>
+                        <td>{{ commande.id }}</td>
+                        <td>{{ commande.rue }}</td>
+                        <td>{{ commande.ville }}</td>
+                        <td>{{ commande.codePostal }}</td>
+                        <td>{{ commande.etat }}</td>
+                        <td>{{ commande.montantTotal }} €</td>
+                        <td>{{ commande.methodePaiment }}</td>
+                        <td>{{ commande.idUser }}</td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="8">Aucune commande trouvée</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
