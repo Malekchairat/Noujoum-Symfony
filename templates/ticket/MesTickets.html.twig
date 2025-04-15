@@ -1,0 +1,100 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Tickets{% endblock %}
+
+{% block body %}
+    <style>
+        body {
+            background-color: #303234;
+        }
+        .ticket-card {
+            background-color: black;
+            border: 2px solid gold;
+            border-radius: 10px;
+            color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .ticket-card img {
+            display: block;
+            margin: 0 auto 10px;
+            max-width: 200px;
+        }
+        .pdf-button {
+            background-color: gold;
+            color: black;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        .expired-label {
+            color: red;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+    </style>
+
+    <div class="container py-5">
+        <h1 class="text-center" style="color: gold;">Mes Tickets</h1>
+        
+        {# Split tickets into active and expired arrays #}
+        {% set activeTickets = [] %}
+        {% set expiredTickets = [] %}
+        {% for ticket in tickets %}
+            {% if ticket.evenement.dateFin|date("U") >= "now"|date("U") %}
+                {% set activeTickets = activeTickets|merge([ticket]) %}
+            {% else %}
+                {% set expiredTickets = expiredTickets|merge([ticket]) %}
+            {% endif %}
+        {% endfor %}
+
+        <div class="row">
+            {# Render active tickets first, including the Date de Fin #}
+            {% for ticket in activeTickets %}
+                <div class="col-md-4">
+                    <div class="ticket-card">
+                        {% if ticket.qrCode %}
+                            <img src="{{ asset(ticket.qrCode) }}" alt="QR Code">
+                        {% endif %}
+                        <h4>Ticket #{{ ticket.id }}</h4>
+                        <p><strong>Événement:</strong> {{ ticket.evenement.Titre }}</p>
+                        <p><strong>Quantité:</strong> {{ ticket.quantite }}</p>
+                        <p><strong>Total:</strong> {{ ticket.total }} TND</p>
+                        <p><strong>Méthode de Paiement:</strong> {{ ticket.methodePaiement }}</p>
+                        <p><strong>Date de Fin:</strong> {{ ticket.evenement.dateFin|date("d/m/Y H:i:s") }}</p>
+                        <a href="{{ path('ticket_pdf', {'id': ticket.id}) }}" class="pdf-button">
+                            Télécharger PDF
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+
+            {# Render expired tickets next, without the Date de Fin #}
+            {% for ticket in expiredTickets %}
+                <div class="col-md-4">
+                    <div class="ticket-card">
+                        {% if ticket.qrCode %}
+                            <img src="{{ asset(ticket.qrCode) }}" alt="QR Code">
+                        {% endif %}
+                        <h4>Ticket #{{ ticket.id }}</h4>
+                        <p><strong>Événement:</strong> {{ ticket.evenement.Titre }}</p>
+                        <p><strong>Quantité:</strong> {{ ticket.quantite }}</p>
+                        <p><strong>Total:</strong> {{ ticket.total }} TND</p>
+                        <p><strong>Méthode de Paiement:</strong> {{ ticket.methodePaiement }}</p>
+                        <p class="expired-label">
+                            Expired on {{ ticket.evenement.dateFin|date("d/m/Y") }}
+                        </p>
+                        <a href="{{ path('ticket_pdf', {'id': ticket.id}) }}" class="pdf-button">
+                            Télécharger PDF
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

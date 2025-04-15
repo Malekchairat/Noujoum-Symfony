@@ -18,7 +18,9 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Knp\Component\Pager\PaginatorInterface;
 use App\Repository\FavorisRepository;
-
+use App\Entity\Favoris;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 class UserController extends AbstractController
 {
     private $userRepository;
@@ -239,16 +241,26 @@ public function modifieradmin(Request $request, EntityManagerInterface $em, User
     #[Route('/users', name: 'user_list')]
 public function listUsers(Request $request, EntityManagerInterface $em, PaginatorInterface $paginator): Response
 {
-    $query = $em->getRepository(User::class)->createQueryBuilder('u')->getQuery();
+    $roleFilter = $request->query->get('role');
+
+    $qb = $em->getRepository(User::class)->createQueryBuilder('u');
+
+    if ($roleFilter) {
+        $qb->andWhere('u.role = :role')
+           ->setParameter('role', $roleFilter);
+    }
+
+    $query = $qb->getQuery();
 
     $pagination = $paginator->paginate(
-        $query, // Query or array
-        $request->query->getInt('page', 1), // Current page number
-        10 // Users per page
+        $query,
+        $request->query->getInt('page', 1),
+        10
     );
 
     return $this->render('user/list.html.twig', [
         'users' => $pagination,
+        'currentRole' => $roleFilter,
     ]);
 }
 
@@ -308,34 +320,71 @@ public function deleteUser(
     }
     // src/Controller/AdminController.php
 
-// One of these methods is likely a duplicate
-#[Route('/admin/user/{userId}/wishlist', name: 'admin_user_wishlist', methods: ['GET'])]
-    public function viewUserWishlist(int $userId, UserRepository $userRepository, FavorisRepository $favorisRepository): Response
-    {
-        // Get the logged-in user
-        $user = $this->getUser();
-
-        // Fetch the user from the repository
-        $targetUser = $userRepository->find($userId);
-
-        if (!$targetUser) {
+    #[Route('/user/wishlist/{id}', name: 'user_wishlist')]
+    public function viewUserWishlist(
+        int $id,
+        Request $request,
+        UserRepository $userRepository,
+        FavorisRepository $favorisRepository
+    ): Response {
+        // Récupérer l'utilisateur avec l'ID passé en paramètre
+        $user = $userRepository->find($id);
+        
+        if (!$user) {
             throw $this->createNotFoundException('Utilisateur non trouvé');
         }
-
-        // Ensure the logged-in user is an admin or is the user themselves
-        if (!$this->isGranted('ROLE_ADMIN') && $user !== $targetUser) {
-            throw new AccessDeniedException('Vous n\'êtes pas autorisé à voir cette wishlist.');
-        }
-
-        // Get the wishlist items for this user
-        $produits = $favorisRepository->findBy(['user' => $targetUser]);
-
-        // Return the view with the user’s wishlist
-        return $this->render('admin/user_wishlist.html.twig', [
-            'user' => $targetUser,
-            'produits' => $produits,
+    
+        // Récupérer les favoris de l'utilisateur
+        $favoris = $favorisRepository->findBy(['user' => $user]);
+    
+        // Passer l'utilisateur et ses favoris à la vue
+        return $this->render('user/user_wishlist.html.twig', [
+            'user' => $user,
+            'favoris' => $favoris,
         ]);
     }
-
     
+    #[Route('/admin/favoris/delete/{id}', name: 'favoris_deleteadmin', methods: ['POST'])]
+    public function deleteAdmin(Request $request, Favoris $favori, EntityManagerInterface $em): Response
+    {
+        // Si le favori n'est pas trouvé, renvoyer une erreur 404
+        if (!$favori) {
+            throw $this->createNotFoundException('Favori non trouvé');
+        }
+    
+        if ($this->isCsrfTokenValid('delete' . $favori->getIdFavoris(), $request->request->get('_token'))) {
+            $em->remove($favori);
+            $em->flush();
+        }
+    
+        return $this->redirectToRoute('user_wishlist', ['id' => $favori->getUser()->getIdUser()]);
+    }
+    #[Route('/admin/users/pdf', name: 'user_list_pdf')]
+public function generatePdf(Request $request, UserRepository $userRepository): Response
+{
+    $role = $request->query->get('role');
+
+    $users = $role
+        ? $userRepository->findByRole($role)
+        : $userRepository->findAll();
+
+    $html = $this->renderView('user/pdf.html.twig', [
+        'users' => $users,
+        'role' => $role
+    ]);
+
+    $pdfOptions = new Options();
+    $pdfOptions->set('defaultFont', 'Arial');
+
+    $dompdf = new Dompdf($pdfOptions);
+    $dompdf->loadHtml($html);
+    $dompdf->setPaper('A4', 'portrait');
+    $dompdf->render();
+
+    return new Response($dompdf->output(), 200, [
+        'Content-Type' => 'application/pdf',
+        'Content-Disposition' => 'attachment; filename="liste_utilisateurs.pdf"',
+    ]);
+}
+     
 }

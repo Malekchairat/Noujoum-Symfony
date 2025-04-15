@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des utilisateurs</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 12px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #000; padding: 6px; text-align: left; }
+        th { background-color: #f5f5f5; }
+    </style>
+</head>
+<body>
+    <h2>Liste des utilisateurs{% if role %} - Rôle : {{ role }}{% endif %}</h2>
+    <table>
+<thead>
+            <tr>
+                <th>Photo</th>
+                <th>Nom</th>
+                <th>Email</th>
+                <th>Téléphone</th>
+                <th>Rôle</th>
+                
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+                <tr>
+                    <td>
+                        <img src="{{ asset(user.image ? 'uploads/' ~ user.image : 'uploads/user.png') }}" alt="Photo de {{ user.prenom }}" class="user-photo">
+                    </td>
+                    <td>{{ user.prenom }} {{ user.nom }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.tel }}</td>
+                    <td>
+                        {% if user.role.value == 'ROLE_ADMIN' %}
+                            <span class="badge bg-warning text-dark">Admin</span>
+                        {% elseif user.role.value == 'ROLE_USER' %}
+                            <span class="badge bg-info text-dark">Fan</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Inconnu</span>
+                        {% endif %}
+                    </td>
+                  </tr>  
+            {% else %}
+                <tr>
+                    <td colspan="4">Aucun utilisateur trouvé.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

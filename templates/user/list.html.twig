@@ -30,7 +30,7 @@
         width: 100%;
         border-collapse: collapse;
         font-size: 0.95rem;
-        border: 2px solid gold; /* Gold contour restored with a finer 2px border */
+        border: 2px solid gold;
     }
 
     .user-table thead {
@@ -55,7 +55,7 @@
     }
 
     .user-table tbody tr:hover {
-        background-color: #444; /* Hover effect on rows */
+        background-color: #444;
     }
 
     .badge {
@@ -73,12 +73,11 @@
     .action-buttons .btn {
         font-size: 0.8rem;
         padding: 6px 12px;
-        border: 1px solid gold; /* Matching the gold accent for buttons */
+        border: 1px solid gold;
         background-color: transparent;
         transition: background-color 0.3s ease, color 0.3s ease;
     }
 
-    /* Style for the Modifier button */
     .btn-outline-warning {
         color: gold;
     }
@@ -88,7 +87,6 @@
         color: black;
     }
 
-    /* Style for the Supprimer button */
     .btn-danger {
         color: white;
         background-color: #dc3545;
@@ -98,6 +96,26 @@
 
     .btn-danger:hover {
         background-color: #b02a37;
+    }
+
+    .btn-outline-info {
+        color: #17a2b8;
+        border: 1px solid #17a2b8;
+    }
+
+    .btn-outline-info:hover {
+        background-color: #17a2b8;
+        color: white;
+    }
+
+    .btn-outline-success {
+        color: gold;
+        border: 1px solid gold;
+    }
+
+    .btn-outline-success:hover {
+        background-color: gold;
+        color: black;
     }
 
     .user-photo {
@@ -114,7 +132,6 @@
         border-color: #f4d03f;
     }
 
-    /* Responsive Styling */
     @media (max-width: 768px) {
         .user-list-container {
             padding: 20px;
@@ -135,6 +152,28 @@
 <div class="user-list-container">
     <div class="card-container">
         <h2 class="text-center mb-4" style="color: gold;">👥 Liste des Utilisateurs</h2>
+
+        <div class="text-end mb-3">
+            <a href="{{ path('user_create') }}" class="btn btn-outline-success">
+                ➕ Ajouter un utilisateur
+            </a>
+        </div>
+        <div class="mb-4 d-flex justify-content-end">
+    <form method="get" action="{{ path('user_list') }}">
+        <label for="role" class="me-2 text-light">Filtrer par rôle :</label>
+        <select name="role" id="role" onchange="this.form.submit()" class="form-select d-inline-block w-auto">
+            <option value="">Tous</option>
+            <option value="ROLE_ADMIN" {% if currentRole == 'ROLE_ADMIN' %}selected{% endif %}>Admin</option>
+            <option value="ROLE_USER" {% if currentRole == 'ROLE_USER' %}selected{% endif %}>Fan</option>
+        </select>
+    </form>
+</div>
+       <div class="mb-3 d-flex justify-content-end">
+    <a href="{{ path('user_list_pdf', {role: currentRole}) }}" class="btn btn-outline-light">
+        📄 Télécharger PDF
+    </a>
+</div>
+
     </div>
 
     <table class="user-table">
@@ -167,17 +206,15 @@
                         {% endif %}
                     </td>
                     <td>
-    <div class="action-buttons">
-        <a href="{{ path('user_edit', {'id': user.getIdUser()}) }}" class="btn btn-outline-warning">Modifier</a>
-        <form method="post" action="{{ path('user_delete', {'id': user.getIdUser()}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?');" style="display:inline;">
-            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.getIdUser()) }}">
-            <button class="btn btn-danger">Supprimer</button>
-        </form>
-        <!-- Button to view user's wishlist -->
-        <a href="{{ path('admin_user_wishlist', {'userId': user.getIdUser()}) }}" class="btn btn-outline-info">Voir la Wishlist</a>
-    </div>
-</td>
-
+                        <div class="action-buttons">
+                            <a href="{{ path('user_edit', {'id': user.getIdUser()}) }}" class="btn btn-outline-warning">Modifier</a>
+                            <form method="post" action="{{ path('user_delete', {'id': user.getIdUser()}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?');" style="display:inline;">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.getIdUser()) }}">
+                                <button class="btn btn-danger">Supprimer</button>
+                            </form>
+                            <a href="{{ path('user_wishlist', {'id': user.getIdUser()}) }}" class="btn btn-outline-info">Voir la Wishlist</a>
+                        </div>
+                    </td>
                 </tr>
             {% else %}
                 <tr>
