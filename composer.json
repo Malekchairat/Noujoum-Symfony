@@ -7,12 +7,21 @@
         "php": ">=8.1",
         "ext-ctype": "*",
         "ext-iconv": "*",
+<<<<<<< HEAD
         "doctrine/annotations": "*",
+=======
+>>>>>>> origin/GestionEvenement
         "doctrine/dbal": "^3",
         "doctrine/doctrine-bundle": "^2.13",
         "doctrine/doctrine-migrations-bundle": "^3.3",
         "doctrine/orm": "^3.3",
+<<<<<<< HEAD
         "knplabs/knp-paginator-bundle": "^6.8",
+=======
+        "dompdf/dompdf": "^3.1",
+        "endroid/qr-code": "^6.0",
+        "knplabs/knp-paginator-bundle": "^6.7",
+>>>>>>> origin/GestionEvenement
         "phpdocumentor/reflection-docblock": "^5.4",
         "phpstan/phpdoc-parser": "^1.33",
         "symfony/asset": "6.4.*",
@@ -27,7 +36,10 @@
         "symfony/http-client": "6.4.*",
         "symfony/intl": "6.4.*",
         "symfony/mailer": "6.4.*",
+<<<<<<< HEAD
         "symfony/maker-bundle": "^1.62",
+=======
+>>>>>>> origin/GestionEvenement
         "symfony/mime": "6.4.*",
         "symfony/monolog-bundle": "^3.0",
         "symfony/notifier": "6.4.*",
@@ -45,8 +57,11 @@
         "symfony/validator": "6.4.*",
         "symfony/web-link": "6.4.*",
         "symfony/yaml": "6.4.*",
+<<<<<<< HEAD
         "symfonycasts/reset-password-bundle": "^1.23",
         "symfonycasts/verify-email-bundle": "^1.17",
+=======
+>>>>>>> origin/GestionEvenement
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/twig": "^2.12|^3.0"
     },
@@ -104,6 +119,10 @@
         "symfony/browser-kit": "6.4.*",
         "symfony/css-selector": "6.4.*",
         "symfony/debug-bundle": "6.4.*",
+<<<<<<< HEAD
+=======
+        "symfony/maker-bundle": "^1.0",
+>>>>>>> origin/GestionEvenement
         "symfony/phpunit-bridge": "^7.1",
         "symfony/stopwatch": "6.4.*",
         "symfony/web-profiler-bundle": "6.4.*"

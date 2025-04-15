@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ evenement.Titre }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .event-details {
+            max-width: 800px;
+            margin: 50px auto;
+            background-color: #000;
+            color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .event-details img {
+            width: 100%;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .event-details h1 {
+            color: gold;
+            margin-bottom: 20px;
+        }
+        .event-details p {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+    </style>
+{% endblock %}
+
+{# Open Graph meta tags to improve sharing appearance #}
+{% block head %}
+    <meta property="og:title" content="{{ evenement.Titre }}" />
+    <meta property="og:description" content="{{ evenement.Description }}" />
+    {% if evenement.image %}
+        <meta property="og:image" content="{{ asset('uploads/' ~ evenement.image) }}" />
+    {% endif %}
+    <meta property="og:url" content="{{ app.request.uri }}" />
+    {{ parent() }}
+{% endblock %}
+
+{% block body %}
+<div class="event-details">
+    {% if evenement.image %}
+        <img src="{{ asset('uploads/' ~ evenement.image) }}" alt="{{ evenement.Titre }}">
+    {% endif %}
+    <h1>{{ evenement.Titre }}</h1>
+    <p><strong>Description:</strong> {{ evenement.Description }}</p>
+    <p><strong>Date:</strong> {{ evenement.dateDebut|date('Y-m-d') }} → {{ evenement.dateFin|date('Y-m-d') }}</p>
+    <p><strong>Lieu:</strong> {{ evenement.Lieu }}</p>
+    <p><strong>Prix:</strong> {{ evenement.Prix }} TND</p>
+    <p><strong>Type:</strong> {{ evenement.TypeE }}</p>
+    <p><strong>Artiste:</strong> {{ evenement.artiste }}</p>
+    <a href="{{ path('evenement_index') }}" style="color: gold; text-decoration: underline;">Retour aux événements</a>
+</div>
+{% endblock %}
