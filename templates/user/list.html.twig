@@ -206,6 +206,7 @@
                         {% endif %}
                     </td>
                     <td>
+<<<<<<< HEAD
                         <div class="action-buttons">
                             <a href="{{ path('user_edit', {'id': user.getIdUser()}) }}" class="btn btn-outline-warning">Modifier</a>
                             <form method="post" action="{{ path('user_delete', {'id': user.getIdUser()}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?');" style="display:inline;">
@@ -215,6 +216,19 @@
                             <a href="{{ path('user_wishlist', {'id': user.getIdUser()}) }}" class="btn btn-outline-info">Voir la Wishlist</a>
                         </div>
                     </td>
+=======
+    <div class="action-buttons">
+        <a href="{{ path('user_edit', {'id': user.getIdUser()}) }}" class="btn btn-outline-warning">Modifier</a>
+        <form method="post" action="{{ path('user_delete', {'id': user.getIdUser()}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?');" style="display:inline;">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.getIdUser()) }}">
+            <button class="btn btn-danger">Supprimer</button>
+        </form>
+        <!-- Button to view user's wishlist -->
+        <a href="{{ path('user_wishlist', {'id': user.getIdUser()}) }}" class="btn btn-outline-info">Voir la Wishlist</a>
+    </div>
+</td>
+
+>>>>>>> 196baec27980e5fac3eeda1f273d9e2d8a0163a3
                 </tr>
             {% else %}
                 <tr>

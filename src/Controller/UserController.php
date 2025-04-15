@@ -19,8 +19,12 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Knp\Component\Pager\PaginatorInterface;
 use App\Repository\FavorisRepository;
 use App\Entity\Favoris;
+<<<<<<< HEAD
 use Dompdf\Dompdf;
 use Dompdf\Options;
+=======
+
+>>>>>>> 196baec27980e5fac3eeda1f273d9e2d8a0163a3
 class UserController extends AbstractController
 {
     private $userRepository;
@@ -359,6 +363,7 @@ public function deleteUser(
     
         return $this->redirectToRoute('user_wishlist', ['id' => $favori->getUser()->getIdUser()]);
     }
+<<<<<<< HEAD
     #[Route('/admin/users/pdf', name: 'user_list_pdf')]
 public function generatePdf(Request $request, UserRepository $userRepository): Response
 {
@@ -386,5 +391,7 @@ public function generatePdf(Request $request, UserRepository $userRepository): R
         'Content-Disposition' => 'attachment; filename="liste_utilisateurs.pdf"',
     ]);
 }
+=======
+>>>>>>> 196baec27980e5fac3eeda1f273d9e2d8a0163a3
      
 }
