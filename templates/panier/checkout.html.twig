@@ -99,10 +99,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const fields = form.querySelectorAll(".form-control");
     const submitBtn = document.querySelector("button[type='submit']");
 
+    // Function to validate a single field
     function validateField(field) {
         let isValid = true;
         let errorMessage = "";
 
+        // Validation logic based on field name
         if (!field.value.trim()) {
             errorMessage = "🚨 This field cannot be empty!";
             isValid = false;
@@ -123,6 +125,7 @@ document.addEventListener("DOMContentLoaded", function () {
             isValid = false;
         }
 
+        // Apply validation styling and feedback
         if (!isValid) {
             field.classList.add("is-invalid");
             field.nextElementSibling.innerHTML = errorMessage;
@@ -135,6 +138,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return isValid;
     }
 
+    // Validate all fields and enable/disable submit button
     function validateForm() {
         let allValid = true;
         fields.forEach(field => {
@@ -145,6 +149,7 @@ document.addEventListener("DOMContentLoaded", function () {
         submitBtn.disabled = !allValid;
     }
 
+    // Attach event listeners for live validation
     fields.forEach(field => {
         field.insertAdjacentHTML("afterend", '<div class="invalid-feedback"></div>');
         field.addEventListener("input", function () {
@@ -153,9 +158,11 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
+    // Run initial validation on page load
     validateForm();
 });
 </script>
+
 
 
 {% endblock %}
