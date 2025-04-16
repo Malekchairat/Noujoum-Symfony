@@ -1,0 +1,68 @@
+{% extends 'backoffice.html.twig' %}
+
+{% block title %}Edit Reclamation #{{ reclamation.id }}{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0">Edit Reclamation #{{ reclamation.id }}</h1>
+            <a href="{{ path('admin_reclamation_index') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-2"></i>Back to List
+            </a>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <div class="row">
+                    <div class="col-md-6">
+                        <small class="text-muted">
+                            <i class="bi bi-person me-2"></i>User #{{ reclamation.userId }}
+                        </small>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <small class="text-muted">
+                            Created: {{ reclamation.dateCreation|date('Y-m-d H:i') }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                {{ form_start(form) }}
+                <div class="row">
+                    <div class="col-md-8">
+                        <h4 class="mb-3">Original Request</h4>
+                        <div class="mb-4">
+                            <h5 class="h6">{{ reclamation.titre }}</h5>
+                            <p class="text-muted">{{ reclamation.description|nl2br }}</p>
+                        </div>
+
+                        {% if reclamation.answer %}
+                            <div class="alert alert-light border">
+                                <h4 class="h6 mb-3">Current Response</h4>
+                                <p class="text-muted">{{ reclamation.answer|nl2br }}</p>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body">
+                                <h4 class="h6 mb-3">Administration</h4>
+                                {{ form_row(form.statut) }}
+                                {{ form_row(form.answer) }}
+
+                                <div class="mt-4">
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="bi bi-save me-2"></i>Save Changes
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
