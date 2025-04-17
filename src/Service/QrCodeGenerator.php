@@ -17,6 +17,7 @@ class QrCodeGenerator
      */
     public function generateAndSave(string $data, string $filePath, int $size = 150, int $margin = 10): void
     {
+        // Instantiate the builder using the constructor, not a non-existent static method.
         $builder = new Builder();
         $result = $builder->build(
             writer: new PngWriter(),

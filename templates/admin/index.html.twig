@@ -1,0 +1,271 @@
+{% extends 'backoffice.html.twig' %}
+
+{% block title %}Reclamations Management{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        body {
+            background-color: #f4f6f9;
+        }
+
+        .reclamation-card {
+            transition: all 0.3s ease;
+            border: none;
+            border-radius: 16px;
+            background: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .reclamation-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        .card-title {
+            font-weight: 600;
+            color: #343a40;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.4em 0.6em;
+            border-radius: 12px;
+        }
+
+        .feedback-section {
+            background-color: #f8f9fa;
+            padding: 0.75rem;
+            border-radius: 12px;
+            margin-top: 1rem;
+        }
+
+        .btn-outline-primary {
+            border-radius: 20px;
+        }
+
+        .btn-outline-primary:hover {
+            background-color: #0d6efd;
+            color: white;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 12px;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+
+        .reclamation-meta {
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .feedback-comment {
+            font-size: 0.9rem;
+            color: #444;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div >
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 fw-bold text-dark">📋 Admin Dashboard - Reclamations</h1>
+        </div>
+
+        <!-- 🔍 Search and Filter -->
+        <form method="get" class="row g-3 mb-4">
+            <div class="col-md-4">
+                <input type="text" name="search" class="form-control" placeholder="Search by title or user ID"
+                       value="{{ app.request.get('search') }}">
+            </div>
+            <div class="col-md-3">
+                <select name="statut" class="form-select">
+                    <option value="">All Statuses</option>
+                    <option value="OPEN" {{ app.request.get('statut') == 'OPEN' ? 'selected' }}>Open</option>
+                    <option value="RESOLVED" {{ app.request.get('statut') == 'RESOLVED' ? 'selected' }}>Resolved</option>
+                    <option value="CLOSED" {{ app.request.get('statut') == 'CLOSED' ? 'selected' }}>Closed</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="priorite" class="form-select">
+                    <option value="">All Priorities</option>
+                    <option value="LOW" {{ app.request.get('priorite') == 'LOW' ? 'selected' }}>Low</option>
+                    <option value="MEDIUM" {{ app.request.get('priorite') == 'MEDIUM' ? 'selected' }}>Medium</option>
+                    <option value="HIGH" {{ app.request.get('priorite') == 'HIGH' ? 'selected' }}>High</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100 rounded-pill">Filter</button>
+            </div>
+        </form>
+
+        {% if reclamations is empty %}
+            <div class="alert alert-info">No reclamations found.</div>
+        {% else %}
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                {% for reclamation in reclamations %}
+                    <div class="col">
+                        <div class="card reclamation-card h-100">
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title">{{ reclamation.titre }}</h5>
+                                <div class="reclamation-meta">
+                                    <p><strong>User:</strong> #{{ reclamation.userId }}</p>
+                                    <p>
+                                        <strong>Status:</strong>
+                                        <span class="badge bg-{{ reclamation.statut == 'RESOLVED' ? 'success' :
+                                        (reclamation.statut == 'CLOSED' ? 'secondary' : 'warning') }}">
+                                        {{ reclamation.statut|capitalize }}
+                                    </span>
+                                    </p>
+                                    <p>
+                                        <strong>Priority:</strong>
+                                        <span class="badge bg-{{ reclamation.priorite == 'HIGH' ? 'danger' :
+                                        (reclamation.priorite == 'MEDIUM' ? 'warning' : 'secondary') }}">
+                                        {{ reclamation.priorite|capitalize }}
+                                    </span>
+                                    </p>
+                                    <p><strong>Created:</strong> {{ reclamation.dateCreation|date('Y-m-d H:i') }}</p>
+                                </div>
+
+                                {% set relatedFeedbacks = feedbacks|filter(f => f.reclamationId == reclamation.id) %}
+                                {% if relatedFeedbacks|length > 0 %}
+                                    <div class="feedback-section mt-2">
+                                        <h6 class="text-primary mb-2">Feedback</h6>
+                                        {% for feedback in relatedFeedbacks %}
+                                            <p class="feedback-comment mb-1">
+                                                <strong>Note:</strong> {{ feedback.note }}<br>
+                                                <strong>Comment:</strong> {{ feedback.commentaire }}
+                                            </p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+
+                                {% if reclamation.answer is not empty %}
+                                    <div class="alert alert-success mt-2">
+                                        <strong>Response:</strong> {{ reclamation.answer }}
+                                    </div>
+                                {% else %}
+                                    <div class="mt-auto pt-3 d-flex justify-content-end">
+                                        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#answerModal{{ reclamation.id }}">
+                                            <i class="bi bi-pencil me-1"></i> Answer
+                                        </button>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal fade" id="answerModal{{ reclamation.id }}" tabindex="-1" aria-labelledby="answerModalLabel{{ reclamation.id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <form method="post" action="{{ path('admin_reclamation_edit', {id: reclamation.id}) }}">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="answerModalLabel{{ reclamation.id }}">Respond to Reclamation #{{ reclamation.id }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label for="answerTextarea{{ reclamation.id }}" class="form-label">Answer</label>
+                                            <textarea name="answer" class="form-control" id="answerTextarea{{ reclamation.id }}" rows="4" placeholder="Write your response...">{{ reclamation.answer }}</textarea>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="statutSelect{{ reclamation.id }}" class="form-label">Status</label>
+                                            <select name="statut" class="form-select" id="statutSelect{{ reclamation.id }}">
+                                                <option value="OPEN" {{ reclamation.statut == 'OPEN' ? 'selected' }}>Open</option>
+                                                <option value="IN_PROGRESS" {{ reclamation.statut == 'IN_PROGRESS' ? 'selected' }}>In Progress</option>
+                                                <option value="RESOLVED" {{ reclamation.statut == 'RESOLVED' ? 'selected' }}>Resolved</option>
+                                                <option value="CLOSED" {{ reclamation.statut == 'CLOSED' ? 'selected' }}>Closed</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="submit" class="btn btn-primary">Submit</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- 📊 Dashboard Charts -->
+    <div class="row mb-5">
+        <div class="col-md-6">
+            <div class="card p-3">
+                <h5 class="mb-3">Reclamation Status Overview</h5>
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card p-3">
+                <h5 class="mb-3">Reclamation Priority Overview</h5>
+                <canvas id="priorityChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ionicons@5.5.2/dist/ionicons.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // ✅ Reclamation data from controller
+            const statusStats = {{ statusStats|json_encode|raw }};
+            const priorityStats = {{ priorityStats|json_encode|raw }};
+
+            // ✅ Status Chart
+            new Chart(document.getElementById('statusChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(statusStats),
+                    datasets: [{
+                        data: Object.values(statusStats),
+                        backgroundColor: ['#ffc107', '#0dcaf0', '#198754', '#6c757d'],
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+
+            // ✅ Priority Chart
+            new Chart(document.getElementById('priorityChart'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(priorityStats),
+                    datasets: [{
+                        label: 'Count',
+                        data: Object.values(priorityStats),
+                        backgroundColor: ['#6c757d', '#ffc107', '#dc3545'],
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        });
+    </script>
+
+
+
+{% endblock %}

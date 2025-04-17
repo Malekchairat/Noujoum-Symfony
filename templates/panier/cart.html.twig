@@ -3,6 +3,7 @@
 {% block title %}Your Cart - Noujoum{% endblock %}
 
 {% block body %}
+<<<<<<< Updated upstream
 <!-- Start Hero Section --> 
 <div class="hero">
     <div class="container">
@@ -12,47 +13,50 @@
                     <h1>Your Cart 🛒</h1>
                     <p>Review your selected items before checkout. Don't forget to grab your favorite merch before it sells out!</p>
                 </div>
+=======
+<!-- Wrapper with grey background -->
+<div style="background-color: #2f2f2f; min-height: 100vh;">
+    <!-- Cart Items Section -->
+    <div class="untree_co-section before-footer-section py-5">
+        <div class="container">
+            <div class="row">
+                {% if cartItems is defined and cartItems|length > 0 %}
+                    {% for item in cartItems %}
+                        <div class="col-md-4 mb-4">
+                            <div class="card bg-dark text-white h-100 shadow">
+                                {% if item.produit.imageName is not empty %}
+                                    <img src="{{ asset('uploads/' ~ item.produit.imageName) }}" class="card-img-top" alt="{{ item.produit.nom }}">
+                                {% else %}
+                                    <img src="{{ asset('images/default.png') }}" class="card-img-top" alt="{{ item.produit.nom }}">
+                                {% endif %}
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ item.produit.nom }}</h5>
+                                    <p class="card-text">Price: <strong>{{ item.produit.prix }}€</strong></p>
+                                    <p class="card-text">Quantity: <strong>{{ item.nbrProduit }}</strong></p>
+                                    <p class="card-text">Total: <strong>{{ item.getTotal() }}€</strong></p>
+                                </div>
+                                <div class="card-footer bg-transparent border-top-0">
+                                    <a href="{{ path('cart_remove', {'id': item.id}) }}" class="btn btn-danger btn-sm">Remove</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-12">
+                        <div class="alert alert-warning text-center">
+                            Your cart is empty.
+                        </div>
+                    </div>
+                {% endif %}
+>>>>>>> Stashed changes
             </div>
-            <div class="col-lg-7">
-                <!-- Start Carousel -->
-                <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
-                    <!-- Indicators -->
-                    <div class="carousel-indicators">
-                        <button type="button" data-bs-target="#productCarousel" data-bs-slide-to="0" class="active"></button>
-                        <button type="button" data-bs-target="#productCarousel" data-bs-slide-to="1"></button>
-                        <button type="button" data-bs-target="#productCarousel" data-bs-slide-to="2"></button>
-                    </div>
 
-                    <!-- Carousel Items -->
-                    <div class="carousel-inner">
-                        <div class="carousel-item active">
-                            <img src="images/a2-.png" class="d-block w-100 rounded" alt="Best Seller">
-                            <div class="carousel-caption d-none d-md-block">
-                                <span class="badge bg-danger fs-5">🔥 Best Seller</span>
-                            </div>
-                        </div>
-                        <div class="carousel-item">
-                            <img src="images/a3-.png" class="d-block w-100 rounded" alt="Best Seller">
-                            <div class="carousel-caption d-none d-md-block">
-                                <span class="badge bg-danger fs-5">🔥 Best Seller</span>
-                            </div>
-                        </div>
-                        <div class="carousel-item">
-                            <img src="images/a1.jpg" class="d-block w-100 rounded" alt="Best Seller">
-                            <div class="carousel-caption d-none d-md-block">
-                                <span class="badge bg-danger fs-5">🔥 Best Seller</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Controls -->
-                    <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon"></span>
-                    </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
-                        <span class="carousel-control-next-icon"></span>
-                    </button>
+            <!-- Cart Summary Section -->
+            <div class="row align-items-center mt-5">
+                <div class="col-md-6">
+                    <a href="{{ path('app_shop') }}" class="btn btn-outline-light btn-block">Continue Shopping</a>
                 </div>
+<<<<<<< Updated upstream
                 <!-- End Carousel -->
             </div>
         </div>
@@ -173,6 +177,13 @@
                             </div>
                         </div>
                     </div>
+=======
+                <div class="col-md-6 text-end">
+                    <h3 class="text-white">Cart Totals</h3>
+                    <p class="text-white">Subtotal: <strong>{{ totalPrice }}€</strong></p>
+                    <p class="text-white">Total: <strong>{{ totalPrice }}€</strong></p>
+                    <a href="{{ path('app_checkout') }}" class="btn btn-warning btn-lg mt-3">Proceed To Checkout</a>
+>>>>>>> Stashed changes
                 </div>
             </div>
         </div>

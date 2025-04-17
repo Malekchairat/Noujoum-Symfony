@@ -1,7 +1,5 @@
 <?php
 
-// src/Form/UserType.php
-
 namespace App\Form;
 
 use App\Enum\RoleEnum;
@@ -25,12 +23,18 @@ class UserType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-        ->add('nom', TextType::class, [
-            'attr' => ['placeholder' => 'Nom'],
-        ])
-        ->add('prenom', TextType::class, [
-            'attr' => ['placeholder' => 'Prenom'],
-        ])
+            ->add('nom', TextType::class, [
+                'attr' => ['placeholder' => 'Nom'],
+                'constraints' => [
+                    new NotBlank(['message' => 'Le nom est requis.']),
+                ],
+            ])
+            ->add('prenom', TextType::class, [
+                'attr' => ['placeholder' => 'Prenom'],
+                'constraints' => [
+                    new NotBlank(['message' => 'Le prénom est requis.']),
+                ],
+            ])
             ->add('email', EmailType::class, [
                 'constraints' => [
                     new NotBlank(['message' => 'L\'email est requis.']),
@@ -59,8 +63,9 @@ class UserType extends AbstractType
             ->add('image', FileType::class, [
                 'label' => 'Image',
                 'mapped' => false,
-                'required' => false,
+                'required' => true, // Set to true if you want to force image upload
                 'constraints' => [
+                    new NotBlank(['message' => 'L\'image est requise.']),
                     new File([
                         'maxSize' => '2Mi',
                         'mimeTypes' => ['image/jpeg', 'image/png', 'image/gif'],
@@ -75,8 +80,11 @@ class UserType extends AbstractType
                     RoleEnum::FAN => 'ROLE_USER',
                 },
                 'choice_value' => fn (?RoleEnum $role) => $role?->value,
-                'expanded' => true,
+                'expanded' => false,
                 'multiple' => false,
+                'constraints' => [
+                    new NotBlank(['message' => 'Le rôle est requis.']),
+                ],
             ]);
     }
 

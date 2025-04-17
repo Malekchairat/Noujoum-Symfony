@@ -35,10 +35,11 @@ class TicketController extends AbstractController
             return new JsonResponse(['status' => 'error', 'errors' => 'Événement non trouvé.'], Response::HTTP_NOT_FOUND);
         }
 
-        // Use the user with id=1 (temporary)
-        $user = $entityManager->getRepository(User::class)->find(1);
+        // Use the currently logged in user instead of a hardcoded user id=1
+        $user = $this->getUser();
         if (!$user) {
-            return new JsonResponse(['status' => 'error', 'errors' => 'User with id 1 not found.'], Response::HTTP_NOT_FOUND);
+            // Optionally, redirect to login or throw an exception
+            return new JsonResponse(['status' => 'error', 'errors' => 'Utilisateur non authentifié.'], Response::HTTP_UNAUTHORIZED);
         }
 
         // Create a new Ticket and bind to form
@@ -69,7 +70,7 @@ class TicketController extends AbstractController
             $ticketId = $ticket->getId();
             // Assuming your Evenement entity has a getTitre() method
             $eventTitle = $event->getTitre();
-            // UPDATED: New User entity has no getUsername(), combine getNom() and getPrenom() instead.
+            // Use first and last names from the logged in user (combine getNom() and getPrenom())
             $username = $user->getNom() . ' ' . $user->getPrenom();
 
             // Create the content to be encoded in the QR code
@@ -101,14 +102,13 @@ class TicketController extends AbstractController
     #[Route('/mes', name: 'mes_tickets', methods: ['GET'])]
     public function mesTickets(EntityManagerInterface $entityManager): Response
     {
-        // For now, use the user with id = 1
-        $user = $entityManager->getRepository(User::class)->find(1);
+        // Use the currently logged in user instead of a hardcoded id=1
+        $user = $this->getUser();
         if (!$user) {
-            throw $this->createNotFoundException('User with id 1 not found.');
+            throw $this->createNotFoundException('Utilisateur non authentifié.');
         }
 
-        // UPDATED: Since the new User entity does not have a "tickets" property,
-        // we query for tickets based on the "utilisateur" field.
+        // Query for tickets based on the "utilisateur" field
         $tickets = $entityManager->getRepository(Ticket::class)->findBy(['utilisateur' => $user]);
 
         return $this->render('ticket/MesTickets.html.twig', [

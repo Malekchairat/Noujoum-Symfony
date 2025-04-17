@@ -36,5 +36,12 @@ public function login(AuthenticationUtils $authenticationUtils): Response
         // Ce code ne sera jamais exécuté, car Symfony intercepte cette route.
         throw new \Exception('This should never be reached!');
     }
+    #[Route('/check-email', name: 'check_email', methods: ['GET'])]
+    public function checkEmail(Request $request, UserRepository $userRepository): JsonResponse
+    {
+        $email = $request->query->get('email');
+        $user = $userRepository->findOneBy(['email' => $email]);
 
+        return new JsonResponse(['exists' => $user !== null]);
+    }
 }

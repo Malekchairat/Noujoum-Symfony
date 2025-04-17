@@ -2,7 +2,8 @@
 
 {% block title %}Gestion Tickets{% endblock %}
 
-{% block stylesheets %}
+{# Use the existing "head" block to inject custom styles into the <head> of backoffice.html.twig #}
+{% block head %}
     {{ parent() }}
     <style>
         /* Header & Form Layout */
@@ -56,11 +57,11 @@
             margin-bottom: 20px;
         }
         .retour-button a {
-            background-color: gold; 
-            color: black; 
-            padding: 10px 20px; 
-            border-radius: 5px; 
-            text-decoration: none; 
+            background-color: gold;
+            color: black;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
             font-weight: 600;
         }
         /* Search Input & Cancel Button */
@@ -166,7 +167,7 @@
 {% endblock %}
 
 {% block body %}
-<div class="container my-5" style="background-color: #303234; padding: 40px; border-radius: 10px;">
+<div>
     <!-- Retour button at the top -->
     <div class="retour-button">
         <a href="{{ path('evenement_EvenementBack') }}">← Retour</a>
@@ -203,7 +204,6 @@
                     <th>Événement ID</th>
                     <th>Événement Titre</th>
                     <th>Utilisateur ID</th>
-                    <!-- UPDATED: Display combined user first and last name instead of username -->
                     <th>Utilisateur Nom</th>
                     <th>Total</th>
                     <th>Méthode de Paiement</th>
@@ -219,7 +219,6 @@
                         <td>{{ ticket.evenement.titre }}</td>
                         <td>
                             {% if ticket.utilisateur %}
-                                {# UPDATED: Use the new getIdUser() accessor property (Twig will call getIdUser()) #}
                                 {{ ticket.utilisateur.idUser }}
                             {% else %}
                                 N/A
@@ -227,7 +226,6 @@
                         </td>
                         <td>
                             {% if ticket.utilisateur %}
-                                {# UPDATED: Combine nom and prenom instead of using username #}
                                 {{ ticket.utilisateur.nom }} {{ ticket.utilisateur.prenom }}
                             {% else %}
                                 N/A

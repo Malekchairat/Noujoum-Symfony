@@ -1,22 +1,25 @@
+{# templates/user/list.html.twig #}
 {% extends 'backoffice.html.twig' %}
 
 {% block head %}
 <style>
-    .user-list-container {
-        max-width: 1200px;
-        margin: 50px auto;
-        padding: 40px;
-        background-color: #303234;
-        border-radius: 15px;
-        color: white;
-        overflow-x: auto;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        transition: transform 0.3s ease;
+    /* Make all text white inside the container */
+    .user-list-container,
+    .user-list-container * {
+        color: white !important;
     }
 
-    .user-list-container:hover {
-        transform: scale(1.02);
+    .user-list-container {
+        max-width: 1200px;
+        
+        background-color: #303234;
+        border-radius: 15px;
+        overflow-x: auto;
+       
+       
     }
+
+    
 
     .card-container {
         background-color: #383C40;
@@ -24,6 +27,30 @@
         padding: 20px;
         margin-bottom: 20px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .user-navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        background-color: #1e1f20;
+        padding: 15px 20px;
+        border: 1px solid gold;
+        border-radius: 12px;
+        margin-bottom: 30px;
+    }
+
+    .user-navbar form {
+        margin: 0;
+    }
+
+    .user-navbar .form-select {
+        min-width: 150px;
+        background-color: #202225;
+        border: 1px solid gold;
+        color: white;
     }
 
     .user-table {
@@ -68,14 +95,18 @@
         display: flex;
         justify-content: center;
         gap: 8px;
+        flex-wrap: wrap;
     }
 
-    .action-buttons .btn {
+    .action-buttons .btn,
+    .user-navbar a {
         font-size: 0.8rem;
         padding: 6px 12px;
         border: 1px solid gold; /* Matching the gold accent for buttons */
         background-color: transparent;
         transition: background-color 0.3s ease, color 0.3s ease;
+        text-decoration: none;
+        border-radius: 6px;
     }
 
     /* Style for the Modifier button */
@@ -93,13 +124,45 @@
         color: white;
         background-color: #dc3545;
         border: none;
-        transition: background-color 0.3s ease;
     }
 
     .btn-danger:hover {
         background-color: #b02a37;
     }
 
+<<<<<<< Updated upstream
+=======
+    .btn-outline-info {
+        color: #17a2b8;
+        border: 1px solid #17a2b8;
+    }
+
+    .btn-outline-info:hover {
+        background-color: #17a2b8;
+        color: white;
+    }
+
+    .btn-outline-success {
+        color: gold;
+        border: 1px solid gold;
+    }
+
+    .btn-outline-success:hover {
+        background-color: gold;
+        color: black;
+    }
+
+    .btn-outline-light {
+        color: white;
+        border: 1px solid white;
+    }
+
+    .btn-outline-light:hover {
+        background-color: white;
+        color: black;
+    }
+
+>>>>>>> Stashed changes
     .user-photo {
         width: 40px;
         height: 40px;
@@ -120,7 +183,19 @@
             padding: 20px;
         }
 
-        .user-table th, .user-table td {
+        .user-navbar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .user-navbar a,
+        .user-navbar form {
+            width: 100%;
+            text-align: center;
+        }
+
+        .user-table th,
+        .user-table td {
             padding: 8px;
         }
 
@@ -128,13 +203,61 @@
             font-size: 0.75rem;
         }
     }
+
+    /* Pagination styling */
+    .pagination {
+        display: flex;
+        gap: 8px;
+        list-style: none;
+        padding: 10px 0;
+        justify-content: center;
+    }
+
+    .pagination li a,
+    .pagination li span {
+        color: gold;
+        border: 1px solid gold;
+        padding: 6px 12px;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: background-color .3s, color .3s;
+    }
+
+    .pagination li a:hover {
+        background-color: gold;
+        color: black;
+    }
+
+    .pagination li.active span {
+        background-color: gold;
+        color: black;
+        font-weight: bold;
+    }
 </style>
 {% endblock %}
 
 {% block body %}
 <div class="user-list-container">
+<<<<<<< Updated upstream
     <div class="card-container">
         <h2 class="text-center mb-4" style="color: gold;">👥 Liste des Utilisateurs</h2>
+=======
+    <h2 class="text-center mb-4" style="color: white;">👥 Liste des Utilisateurs</h2>
+
+    <div class="user-navbar">
+        <a href="{{ path('user_create') }}" class="btn btn-outline-success">➕ Ajouter un utilisateur</a>
+
+        <form method="get" action="{{ path('user_list') }}" class="d-flex align-items-center">
+            <label for="role" class="me-2">Filtrer par rôle :</label>
+            <select name="role" id="role" onchange="this.form.submit()" class="form-select w-auto">
+                <option value="">Tous</option>
+                <option value="ROLE_ADMIN" {% if currentRole == 'ROLE_ADMIN' %}selected{% endif %}>Admin</option>
+                <option value="ROLE_USER" {% if currentRole == 'ROLE_USER' %}selected{% endif %}>Fan</option>
+            </select>
+        </form>
+
+        <a href="{{ path('user_list_pdf', {role: currentRole}) }}" class="btn btn-outline-light">📄 Télécharger PDF</a>
+>>>>>>> Stashed changes
     </div>
 
     <table class="user-table">
@@ -152,7 +275,9 @@
             {% for user in users %}
                 <tr>
                     <td>
-                        <img src="{{ asset(user.image ? 'uploads/' ~ user.image : 'uploads/user.png') }}" alt="Photo de {{ user.prenom }}" class="user-photo">
+                        <img src="{{ asset(user.image ? 'uploads/' ~ user.image : 'uploads/user.png') }}"
+                             alt="Photo de {{ user.prenom }}"
+                             class="user-photo">
                     </td>
                     <td>{{ user.prenom }} {{ user.nom }}</td>
                     <td>{{ user.email }}</td>
@@ -167,6 +292,7 @@
                         {% endif %}
                     </td>
                     <td>
+<<<<<<< Updated upstream
     <div class="action-buttons">
         <a href="{{ path('user_edit', {'id': user.getIdUser()}) }}" class="btn btn-outline-warning">Modifier</a>
         <form method="post" action="{{ path('user_delete', {'id': user.getIdUser()}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?');" style="display:inline;">
@@ -178,13 +304,34 @@
     </div>
 </td>
 
+=======
+                        <div class="action-buttons">
+                            <a href="{{ path('user_edit', {id: user.getIdUser()}) }}" class="btn btn-outline-warning">Modifier</a>
+                            <form method="post"
+                                  action="{{ path('user_delete', {id: user.getIdUser()}) }}"
+                                  onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?');"
+                                  style="display:inline;">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.getIdUser()) }}">
+                                <button class="btn btn-danger">Supprimer</button>
+                            </form>
+                            {% if user.role.value == 'ROLE_USER' %}
+                                <a href="{{ path('user_wishlist', {id: user.getIdUser()}) }}"
+                                   class="btn btn-outline-success">Voir la Wishlist</a>
+                            {% endif %}
+                        </div>
+                    </td>
+>>>>>>> Stashed changes
                 </tr>
             {% else %}
                 <tr>
-                    <td colspan="6" class="text-light text-center">Aucun utilisateur trouvé.</td>
+                    <td colspan="6" class="text-center">Aucun utilisateur trouvé.</td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
+
+    <div class="d-flex justify-content-center mt-4">
+        {{ knp_pagination_render(users) }}
+    </div>
 </div>
 {% endblock %}

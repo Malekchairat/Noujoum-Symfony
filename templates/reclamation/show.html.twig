@@ -1,0 +1,96 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Reclamation #{{ reclamation.id }} - {{ reclamation.titre }}{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0 text-primary">{{ reclamation.titre }}</h1>
+            <span class="badge bg-{{ reclamation.statut == 'RESOLVED' ? 'success' : 'warning' }} fs-6">
+            {{ reclamation.statut|lower|capitalize }}
+        </span>
+        </div>
+
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-light py-3">
+                <div class="row">
+                    <div class="col-md-6">
+                    <span class="text-muted">
+                        <i class="bi bi-calendar me-2"></i>
+                        Created: {{ reclamation.dateCreation|date('M j, Y H:i') }}
+                    </span>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                    <span class="text-muted">
+                        <i class="bi bi-person me-2"></i>
+                        User ID: {{ reclamation.userId }}
+                    </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-lg-8">
+                        <h3 class="h5 mb-3">Description</h3>
+                        <div class="text-muted lh-base">
+                            {{ reclamation.description|nl2br }}
+                        </div>
+                    </div>
+                    <div class="col-lg-4 mt-4 mt-lg-0">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body">
+                                <h3 class="h6 mb-3">Details</h3>
+                                <dl class="row mb-0">
+                                    <dt class="col-sm-5">Priority</dt>
+                                    <dd class="col-sm-7">
+                                    <span class="badge bg-{{ reclamation.priorite == 'HIGH' ? 'danger' : (reclamation.priorite == 'MEDIUM' ? 'warning' : 'secondary') }}">
+                                        {{ reclamation.priorite|lower|capitalize }}
+                                    </span>
+                                    </dd>
+
+                                    <dt class="col-sm-5">Reference ID</dt>
+                                    <dd class="col-sm-7">#{{ reclamation.id }}</dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if reclamation.answer %}
+                    <div class="alert alert-light border">
+                        <h3 class="h5 mb-3 text-success">Official Response</h3>
+                        <div class="text-muted lh-base">
+                            {{ reclamation.answer|nl2br }}
+                        </div>
+                        {% if reclamation.dateCreation < reclamation.dateUpdate %}
+                            <div class="mt-2 text-end small text-muted">
+                                Last updated: {{ reclamation.dateUpdate|date('M j, Y H:i') }}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-light border text-center py-4">
+                        <i class="bi bi-info-circle me-2"></i>
+                        This request is currently being reviewed by our support team
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="card-footer bg-light py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <a href="{{ path('app_reclamation_index') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>Back to List
+                    </a>
+                    <div class="d-flex gap-2">
+                        <a href="{{ path('app_reclamation_edit', {'id': reclamation.id}) }}"
+                           class="btn btn-outline-primary">
+                            <i class="bi bi-pencil me-2"></i>Edit
+                        </a>
+                        {{ include('reclamation/_delete_form.html.twig') }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

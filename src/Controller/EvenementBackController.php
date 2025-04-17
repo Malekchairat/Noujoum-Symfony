@@ -60,6 +60,8 @@ public function new(Request $request, EntityManagerInterface $entityManager): Re
         'form' => $form->createView(),
     ]);
 }
+
+
     
 #[Route('/{id}/edit', name: 'evenement_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Evenement $evenement, EntityManagerInterface $entityManager): Response

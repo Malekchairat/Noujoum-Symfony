@@ -1,5 +1,6 @@
 {% extends 'base.html.twig' %}
 
+<<<<<<< Updated upstream
 {% block title %}Checkout - Noujoum{% endblock %}
 
 {% block body %}
@@ -51,8 +52,101 @@
         {{ form_row(form.etat, {'attr': {'class': 'form-select'}, 'label': 'State'}) }}
     </div>
 </div>
+=======
+{% block title %} Checkout – Noujoum {% endblock %}
 
+{% block body %}
+<div class="hero">
+  <div class="container">
+    <h1>Checkout</h1>
+  </div>
+</div>
 
+<div class="untree_co-section">
+  <div class="container">
+
+    {# Display flash messages #}
+    {% for label, messages in app.flashes %}
+      <div class="alert alert-{{ label }}">
+        {% for message in messages %}{{ message }}<br>{% endfor %}
+      </div>
+    {% endfor %}
+
+    {# Start the form #}
+    {{ form_start(form, { 'attr': { 'novalidate': 'novalidate' } }) }}
+
+    <div class="row">
+      <div class="col-md-6">
+        <h2 class="h3 mb-3 text-black">Billing Details</h2>
+        <div class="p-3 p-lg-5 border bg-white">
+          {# Loop over form fields rather than hardcoding names #}
+          {% for child in form %}
+            <div class="form-group mb-3">
+              {{ form_label(child) }}
+              {{ form_widget(child, { attr: { class: 'form-control' } }) }}
+              {{ form_errors(child) }}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <h2 class="h3 mb-3 text-black">Your Order</h2>
+        <div class="p-3 p-lg-5 border bg-white">
+          <table class="table site-block-order-table mb-5">
+            <thead>
+              <tr><th>Product</th><th>Total</th></tr>
+            </thead>
+            <tbody>
+              {% for item in cartItems %}
+                <tr>
+                  <td>{{ item.produit.nom }} <strong class="mx-2">×</strong> {{ item.nbrProduit }}</td>
+                  <td>{{ item.getTotal()|number_format(2, '.', ',') }}€</td>
+                </tr>
+              {% endfor %}
+              <tr>
+                <td class="font-weight-bold">Cart Subtotal</td>
+                <td>{{ total|number_format(2, '.', ',') }}€</td>
+              </tr>
+              <tr>
+                <td class="font-weight-bold">Order Total</td>
+                <td class="font-weight-bold">{{ total|number_format(2, '.', ',') }}€</td>
+              </tr>
+            </tbody>
+          </table>
+
+          {# Payment methods... #}
+          <div class="border p-3 mb-3">
+            <h3 class="h6 mb-0"><a data-bs-toggle="collapse" href="#collapsebank">Direct Bank Transfer</a></h3>
+            <div class="collapse" id="collapsebank">
+              <div class="py-2"><p>Make your payment directly into our bank account.</p></div>
+            </div>
+          </div>
+          <div class="border p-3 mb-3">
+            <h3 class="h6 mb-0"><a data-bs-toggle="collapse" href="#collapsecheque">Cheque Payment</a></h3>
+            <div class="collapse" id="collapsecheque">
+              <div class="py-2"><p>Make your payment via cheque.</p></div>
+            </div>
+          </div>
+          <div class="border p-3 mb-5">
+            <h3 class="h6 mb-0"><a data-bs-toggle="collapse" href="#collapsepaypal">Paypal</a></h3>
+            <div class="collapse" id="collapsepaypal">
+              <div class="py-2"><p>Make your payment via PayPal.</p></div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-black btn-lg py-3 btn-block">Place Order</button>
+        </div>
+      </div>
+    </div>
+
+    {{ form_end(form) }}
+>>>>>>> Stashed changes
+
+  </div>
+</div>
+
+<<<<<<< Updated upstream
                     <div class="form-group mt-4">
     <button type="submit" class="btn btn-black btn-lg py-3 btn-block">Place Order</button>
 </div>
@@ -159,3 +253,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 {% endblock %}
+=======
+{% endblock %}
+>>>>>>> Stashed changes

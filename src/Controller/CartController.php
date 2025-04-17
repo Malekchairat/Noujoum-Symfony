@@ -18,6 +18,7 @@ class CartController extends AbstractController
     #[Route('/cart', name: 'cart')]
     public function index(PanierRepository $panierRepository): Response
     {
+<<<<<<< Updated upstream
         $cartItems = $panierRepository->findBy(['id_user' => 1]);
         $totalPrice = 0;
         
@@ -25,6 +26,20 @@ class CartController extends AbstractController
             $totalPrice += $item->getTotal();
         }
         
+=======
+        $user = $this->getUser();
+        if (!$user) {
+            throw $this->createAccessDeniedException('You must be logged in to view your cart.');
+        }
+        
+        $cartItems = $panierRepository->findBy(['id_user' => $user->getIdUser()]);
+        $totalPrice = 0;
+        
+        foreach ($cartItems as $item) {
+            $totalPrice += $item->getTotal();
+        }
+        
+>>>>>>> Stashed changes
         return $this->render('panier/cart.html.twig', [
             'cartItems' => $cartItems,
             'totalPrice' => $totalPrice
@@ -34,15 +49,28 @@ class CartController extends AbstractController
     #[Route('/cart/add/{id}', name: 'cart_add')]
     public function add(int $id, EntityManagerInterface $entityManager, PanierRepository $panierRepository, ProduitRepository $produitRepository): Response
     {
+<<<<<<< Updated upstream
         $userId = 1;
         $produit = $produitRepository->find($id);
         
+=======
+        $user = $this->getUser();
+        if (!$user) {
+            throw $this->createAccessDeniedException('You must be logged in to add items to your cart.');
+        }
+        
+        $produit = $produitRepository->find($id);
+>>>>>>> Stashed changes
         if (!$produit) {
             throw $this->createNotFoundException('Product not found');
         }
         
         $cartItem = $panierRepository->findOneBy([
+<<<<<<< Updated upstream
             'id_user' => $userId,
+=======
+            'id_user' => $user->getIdUser(),
+>>>>>>> Stashed changes
             'produit' => $produit
         ]);
         
@@ -50,7 +78,11 @@ class CartController extends AbstractController
             $cartItem->setNbrProduit($cartItem->getNbrProduit() + 1);
         } else {
             $cartItem = new Panier();
+<<<<<<< Updated upstream
             $cartItem->setIdUser($userId);
+=======
+            $cartItem->setIdUser($user->getIdUser());
+>>>>>>> Stashed changes
             $cartItem->setProduit($produit);
             $cartItem->setNbrProduit(1);
             $entityManager->persist($cartItem);
@@ -68,7 +100,10 @@ class CartController extends AbstractController
     public function updateQuantity(int $id, int $quantity, EntityManagerInterface $entityManager, PanierRepository $panierRepository): JsonResponse
     {
         $cartItem = $panierRepository->find($id);
+<<<<<<< Updated upstream
         
+=======
+>>>>>>> Stashed changes
         if (!$cartItem) {
             throw $this->createNotFoundException('Cart item not found');
         }
@@ -92,6 +127,14 @@ class CartController extends AbstractController
     #[Route('/cart/remove/{id}', name: 'cart_remove', methods: ['POST'])]
     public function remove(int $id, EntityManagerInterface $entityManager): JsonResponse
     {
+<<<<<<< Updated upstream
+=======
+        $user = $this->getUser();
+        if (!$user) {
+            throw $this->createAccessDeniedException('You must be logged in.');
+        }
+        
+>>>>>>> Stashed changes
         $connection = $entityManager->getConnection();
         
         try {
@@ -99,13 +142,21 @@ class CartController extends AbstractController
             $connection->beginTransaction();
             
             // First check if there's a related commande
+<<<<<<< Updated upstream
             $commandeResult = $connection->executeQuery('
                 SELECT id FROM commande WHERE id_panier = :id
             ', ['id' => $id])->fetchAllAssociative();
+=======
+            $commandeResult = $connection->executeQuery(
+                'SELECT id FROM commande WHERE id_panier = :id',
+                ['id' => $id]
+            )->fetchAllAssociative();
+>>>>>>> Stashed changes
             
             // If there's a commande, delete it first
             if (!empty($commandeResult)) {
                 foreach ($commandeResult as $commande) {
+<<<<<<< Updated upstream
                     $connection->executeStatement('
                         DELETE FROM commande WHERE id = :id
                     ', ['id' => $commande['id']]);
@@ -124,6 +175,29 @@ class CartController extends AbstractController
                 JOIN produit pr ON p.id_produit = pr.id
                 WHERE p.id_user = 1
             ')->fetchAssociative();
+=======
+                    $connection->executeStatement(
+                        'DELETE FROM commande WHERE id = :id',
+                        ['id' => $commande['id']]
+                    );
+                }
+            }
+            
+            // Now safely delete the panier
+            $connection->executeStatement(
+                'DELETE FROM panier WHERE id = :id',
+                ['id' => $id]
+            );
+            
+            // Calculate new total based on the current logged-in user
+            $totalResult = $connection->executeQuery(
+                'SELECT SUM(p.nbr_produit * pr.prix) as total
+                 FROM panier p
+                 JOIN produit pr ON p.id_produit = pr.id
+                 WHERE p.id_user = :id_user',
+                ['id_user' => $user->getIdUser()]
+            )->fetchAssociative();
+>>>>>>> Stashed changes
             
             $total = $totalResult['total'] ?? 0;
             
@@ -147,18 +221,39 @@ class CartController extends AbstractController
         }
     }
     
+<<<<<<< Updated upstream
     
     #[Route('/cart/count', name: 'cart_count')]
     public function count(PanierRepository $panierRepository): JsonResponse
     {
         $count = $panierRepository->count(['id_user' => 1]);
+=======
+    #[Route('/cart/count', name: 'cart_count')]
+    public function count(PanierRepository $panierRepository): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            throw $this->createAccessDeniedException('You must be logged in.');
+        }
+        
+        $count = $panierRepository->count(['id_user' => $user->getIdUser()]);
+>>>>>>> Stashed changes
         return $this->json(['count' => $count]);
     }
     
     #[Route('/cart/preview', name: 'cart_preview')]
     public function preview(PanierRepository $panierRepository): JsonResponse
     {
+<<<<<<< Updated upstream
         $cartItems = $panierRepository->findBy(['id_user' => 1]);
+=======
+        $user = $this->getUser();
+        if (!$user) {
+            throw $this->createAccessDeniedException('You must be logged in.');
+        }
+        
+        $cartItems = $panierRepository->findBy(['id_user' => $user->getIdUser()]);
+>>>>>>> Stashed changes
         $items = [];
         $total = 0;
         
@@ -180,7 +275,16 @@ class CartController extends AbstractController
     
     private function calculateCartTotal(PanierRepository $panierRepository): float
     {
+<<<<<<< Updated upstream
         $cartItems = $panierRepository->findBy(['id_user' => 1]);
+=======
+        $user = $this->getUser();
+        if (!$user) {
+            throw $this->createAccessDeniedException('You must be logged in.');
+        }
+        
+        $cartItems = $panierRepository->findBy(['id_user' => $user->getIdUser()]);
+>>>>>>> Stashed changes
         $total = 0;
         
         foreach ($cartItems as $item) {
@@ -189,6 +293,7 @@ class CartController extends AbstractController
         
         return $total;
     }
+<<<<<<< Updated upstream
 
 
 
@@ -205,3 +310,24 @@ public function checkout(PanierRepository $panierRepository): Response
     return $this->redirectToRoute('app_checkout_process');
 }
 }
+=======
+    
+    #[Route('/checkout', name: 'app_checkout')]
+    public function checkout(PanierRepository $panierRepository): Response
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            throw $this->createAccessDeniedException('You must be logged in to checkout.');
+        }
+        
+        $cartItems = $panierRepository->findBy(['id_user' => $user->getIdUser()]);
+        
+        if (count($cartItems) === 0) {
+            $this->addFlash('error', 'Your cart is empty');
+            return $this->redirectToRoute('cart');
+        }
+        
+        return $this->redirectToRoute('app_checkout_process');
+    }
+}
+>>>>>>> Stashed changes

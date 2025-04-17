@@ -48,4 +48,16 @@ class FavorisRepository extends ServiceEntityRepository
         ->getQuery()
         ->getResult();
 }
+
+public function findTopByLikes(int $limit): array
+    {
+        return $this->createQueryBuilder('f')
+            ->select('p.nom AS productName, COUNT(f.idFavoris) AS totalLikes')
+            ->join('f.produit', 'p')
+            ->groupBy('p.id')
+            ->orderBy('totalLikes', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
 }

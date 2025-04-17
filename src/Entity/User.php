@@ -96,6 +96,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getRole(): RoleEnum { return RoleEnum::from($this->role); }
     public function setRole(RoleEnum $role): self { $this->role = $role->value; return $this; }
+    public function setRoles(array $roles): static
+{
+    if (!empty($roles)) {
+        $roleValue = $roles[0]; // Take the first role
+        if (RoleEnum::tryFrom($roleValue)) {
+            $this->setRole(RoleEnum::from($roleValue));
+        }
+    }
+
+    return $this;
+}
 
     public function getImage(): ?string { return $this->image; }
     public function setImage(?string $image): static { $this->image = $image; return $this; }
