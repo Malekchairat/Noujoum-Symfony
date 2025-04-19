@@ -1,0 +1,289 @@
+{% extends 'backoffice.html.twig' %}
+
+{% block title %}Gestion Tickets{% endblock %}
+
+{# Use the existing "head" block to inject custom styles into the <head> of backoffice.html.twig #}
+{% block head %}
+    {{ parent() }}
+    <style>
+        /* Header & Form Layout */
+        .header-section {
+            margin-bottom: 30px;
+        }
+        .sort-search-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .sort-search-container > * {
+            margin-bottom: 0;
+        }
+        /* Custom Sorting Button Styling */
+        .custom-sort-btn {
+            background-color: #FFD700;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s, transform 0.3s;
+            font-size: 1.1rem;
+        }
+        .custom-sort-btn:hover,
+        .custom-sort-btn.active {
+            background-color: #e6c200;
+            transform: translateY(-2px);
+        }
+        /* Return Button Styling */
+        .return-btn {
+            background-color: #FFD700;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            text-decoration: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s, transform 0.3s;
+            font-size: 1.1rem;
+        }
+        .return-btn:hover {
+            background-color: #e6c200;
+            transform: translateY(-2px);
+        }
+        /* Retour button styling */
+        .retour-button {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+        .retour-button a {
+            background-color: gold;
+            color: black;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        /* Search Input & Cancel Button */
+        #searchInput {
+            max-width: 300px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 1.1rem;
+        }
+        .cancel-btn {
+            background-color: transparent;
+            border: none;
+            color: red;
+            font-size: 1.5rem;
+            line-height: 1;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .search-icon {
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        /* Table Container */
+        .table-container {
+            margin-top: 30px;
+        }
+        /* Table Header & Body Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        thead th {
+            border: 2px solid #FFD700;
+            color: #FFD700;
+            padding: 12px;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+        tbody td {
+            border: 2px solid #444;
+            padding: 12px;
+            text-align: center;
+            font-size: 1.05rem;
+        }
+        tbody tr {
+            background-color: #303234;
+            color: #fff;
+        }
+        /* Action Buttons Styling */
+        .action-btn {
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            margin: 0 4px;
+            display: inline-block;
+        }
+        .action-edit {
+            background-color: #28a745;
+            color: #fff;
+        }
+        .action-delete {
+            background-color: #dc3545;
+            color: #fff;
+        }
+        /* Custom Pagination Styling */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 20px;
+        }
+        .pagination a {
+            padding: 8px 12px;
+            border: 1px solid #FFD700;
+            border-radius: 3px;
+            color: #FFD700;
+            text-decoration: none;
+            transition: background-color 0.3s, color 0.3s;
+            font-size: 1.1rem;
+        }
+        .pagination a:hover {
+            background-color: #FFD700;
+            color: #fff;
+        }
+        .pagination a.active {
+            background-color: #e6c200;
+            color: #fff;
+            pointer-events: none;
+        }
+        /* Return Button Container */
+        .return-container {
+            margin-bottom: 20px;
+        }
+        /* Table Action Title */
+        .action-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div>
+    <!-- Retour button at the top -->
+    <div class="retour-button">
+        <a href="{{ path('evenement_EvenementBack') }}">← Retour</a>
+    </div>
+
+    <!-- Header Section -->
+    <div class="header-section">
+        <h1 style="color: #FFD700; margin-bottom: 20px; font-size: 2.5rem;">Gestion des Tickets</h1>
+        <form id="searchForm" method="GET" action="{{ path('ticket_back') }}" class="sort-search-container">
+            <!-- Sorting Buttons -->
+            <div class="btn-group" role="group" aria-label="Trier par">
+                <button type="submit" name="sort" value="evenement" class="custom-sort-btn {% if sort == 'evenement' %}active{% endif %}" title="Trier par Événement">
+                    Trier par Événement
+                </button>
+                <button type="submit" name="sort" value="utilisateur" class="custom-sort-btn {% if sort == 'utilisateur' %}active{% endif %}" title="Trier par Utilisateur">
+                    Trier par Utilisateur
+                </button>
+            </div>
+            <!-- Search Field -->
+            <input type="text" name="search" id="searchInput" class="form-control" placeholder="Recherche avancée" value="{{ search }}">
+            {% if search %}
+                <a href="{{ path('ticket_back') }}" class="cancel-btn" title="Annuler">&times;</a>
+            {% endif %}
+            <span class="search-icon" title="Recherche automatique">🔄</span>
+        </form>
+    </div>
+
+    <!-- Tickets Table -->
+    <div class="table-container">
+        <table class="table table-dark table-striped table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Ticket ID</th>
+                    <th>Événement ID</th>
+                    <th>Événement Titre</th>
+                    <th>Utilisateur ID</th>
+                    <th>Utilisateur Nom</th>
+                    <th>Total</th>
+                    <th>Méthode de Paiement</th>
+                    <th>Quantité</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ticket in tickets %}
+                    <tr>
+                        <td>{{ ticket.id }}</td>
+                        <td>{{ ticket.evenement.id }}</td>
+                        <td>{{ ticket.evenement.titre }}</td>
+                        <td>
+                            {% if ticket.utilisateur %}
+                                {{ ticket.utilisateur.idUser }}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if ticket.utilisateur %}
+                                {{ ticket.utilisateur.nom }} {{ ticket.utilisateur.prenom }}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        <td>{{ ticket.total }}</td>
+                        <td>{{ ticket.methodePaiement }}</td>
+                        <td>{{ ticket.quantite }}</td>
+                        <td>
+                            <a href="{{ path('ticket_edit', { id: ticket.id }) }}" class="action-btn action-edit" title="Modifier ce ticket">Modifier</a>
+                            <form method="post" action="{{ path('ticket_delete', { id: ticket.id }) }}" style="display:inline;" onsubmit="return confirm('Voulez-vous vraiment supprimer ce ticket ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ ticket.id) }}">
+                                <input type="hidden" name="_method" value="DELETE">
+                                <button type="submit" class="action-btn action-delete" title="Supprimer ce ticket">Supprimer</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="9" class="text-center">Aucun ticket trouvé.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Custom Pagination Navigation -->
+    {% if pages is defined and pages > 1 %}
+        <div class="pagination">
+            {% for i in 1..pages %}
+                <a href="{{ path('ticket_back', { page: i, sort: sort, search: search }) }}" class="{% if i == currentPage %}active{% endif %}">
+                    {{ i }}
+                </a>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+
+<!-- Auto Search Script -->
+<script>
+    // Debounce function to limit the rate of form submission
+    function debounce(func, wait) {
+        let timeout;
+        return function() {
+            const context = this, args = arguments;
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(context, args), wait);
+        };
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const searchForm = document.getElementById('searchForm');
+
+        // Listen to input events with debounce (500ms delay)
+        searchInput.addEventListener('input', debounce(function() {
+            searchForm.submit();
+        }, 500));
+    });
+</script>
+{% endblock %}

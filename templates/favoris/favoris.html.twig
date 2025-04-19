@@ -1,0 +1,129 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Favoris{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        body {
+            background-color: #2c2c2c;
+            color: #f0f0f0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .favoris-container {
+            margin: 60px auto;
+            max-width: 1000px;
+            padding: 20px;
+        }
+
+        .favoris-title {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 30px;
+            color: #d4af37;
+        }
+
+        /* Changed to flex so that when there's only one card, it doesn't stretch */
+        .produits {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+        }
+
+        .produit {
+            background-color: #3a3a3a;
+            border: 2px solid #d4af37;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            /* Flex settings so that each card adjusts according to its content */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-width: 250px;
+            max-width: 300px;
+        }
+
+        .produit:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .produit h3 {
+            color: #f0f0f0;
+            margin-bottom: 10px;
+        }
+
+        .produit p {
+            margin: 5px 0;
+        }
+
+        /* Center the image in the card */
+        .produit img {
+            margin: 15px auto 0 auto;
+            width: 100%;
+            max-width: 150px;
+            border-radius: 10px;
+            border: 2px solid #d4af37;
+            display: block;
+        }
+
+        .produit form {
+            margin-top: 15px;
+        }
+
+        .custom-btn {
+            background-color: transparent;
+            border: 2px solid #ff4d4d;
+            color: #ff4d4d;
+            padding: 0.4rem 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-radius: 30px;
+            cursor: pointer;
+        }
+
+        .custom-btn:hover {
+            background-color: #ff4d4d;
+            color: #fff;
+            transform: scale(1.05);
+        }
+
+        .no-favoris {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #ccc;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="favoris-container">
+    <h1 class="favoris-title">Mes Produits Favoris</h1>
+
+    {% if favoris is empty %}
+        <p class="no-favoris">Vous n'avez aucun produit en favoris.</p>
+    {% else %}
+        <div class="produits">
+            {% for favori in favoris %}
+                <div class="produit">
+                    <h3>{{ favori.produit.nom }}</h3>
+                    <p>{{ favori.produit.description }}</p>
+                    <p>Prix : {{ favori.produit.prix }} TND</p>
+                    {% if favori.produit.imageName %}
+                        <img src="{{ asset('uploads/' ~ favori.produit.imageName) }}" alt="{{ favori.produit.nom }}">
+                    {% endif %}
+
+                    <form method="post" action="{{ path('favoris_delete', {'id': favori.getIdFavoris()}) }}" onsubmit="return confirm('Supprimer ce favori ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ favori.getIdFavoris()) }}">
+                        <button class="custom-btn" type="submit">Supprimer</button>
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

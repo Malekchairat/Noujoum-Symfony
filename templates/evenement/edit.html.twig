@@ -1,0 +1,207 @@
+{% extends 'backoffice.html.twig' %}
+
+{% block title %}Modifier un Événement{% endblock %}
+
+{% block head %}
+    {{ parent() }}
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 2rem 0 2rem 2rem;
+            padding: 1rem;
+        }
+        h1, h2 {
+            font-size: 2rem;
+            color: #FFD700;
+            margin-bottom: 1.5rem;
+        }
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            flex: 0 0 150px;
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+        .form-group .form-control,
+        .form-group select,
+        .form-group textarea {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .btn-custom {
+            padding: 0.5rem 1rem;
+            background: #FFD700;
+            border: none;
+            color: #303234;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        .btn-custom:hover {
+            background: #e6c200;
+        }
+        .invalid-feedback {
+            color: red;
+            font-size: 0.875rem;
+            margin-left: 150px;
+        }
+        .alert {
+            margin: 1rem 2rem;
+            padding: 1rem;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+        .alert-error {
+            color: #a94442;
+            background-color: #f2dede;
+            border-color: #ebccd1;
+        }
+        .alert-success {
+            color: #3c763d;
+            background-color: #dff0d8;
+            border-color: #d6e9c6;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1>Modifier l'Événement</h1>
+    
+    {# Display any flash messages if needed #}
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">{{ message }}</div>
+    {% endfor %}
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-error">{{ message }}</div>
+    {% endfor %}
+
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'id': 'eventForm', 'enctype': 'multipart/form-data'}}) }}
+        <div class="form-group">
+            {{ form_label(form.Titre, 'Title') }}
+            {{ form_widget(form.Titre, {'attr': {'class': 'form-control', 'required': 'required'}}) }}
+            <div class="invalid-feedback">{{ form_errors(form.Titre) }}</div>
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.Description, 'Description') }}
+            {{ form_widget(form.Description, {'attr': {'class': 'form-control', 'required': 'required'}}) }}
+            <div class="invalid-feedback">{{ form_errors(form.Description) }}</div>
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.dateDebut, 'Start Date') }}
+            {{ form_widget(form.dateDebut, {'attr': {'class': 'form-control', 'required': 'required'}}) }}
+            <div class="invalid-feedback">{{ form_errors(form.dateDebut) }}</div>
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.dateFin, 'End Date') }}
+            {{ form_widget(form.dateFin, {'attr': {'class': 'form-control', 'required': 'required'}}) }}
+            <div class="invalid-feedback">{{ form_errors(form.dateFin) }}</div>
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.Lieu, 'Location') }}
+            {{ form_widget(form.Lieu, {'attr': {'class': 'form-control', 'required': 'required'}}) }}
+            <div class="invalid-feedback">{{ form_errors(form.Lieu) }}</div>
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.Prix, 'Price') }}
+            {{ form_widget(form.Prix, {'attr': {'class': 'form-control', 'required': 'required', 'min': '0'}}) }}
+            <div class="invalid-feedback">{{ form_errors(form.Prix) }}</div>
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.TypeE, 'Event Type') }}
+            {{ form_widget(form.TypeE, {'attr': {'class': 'form-control', 'required': 'required'}}) }}
+            <div class="invalid-feedback">{{ form_errors(form.TypeE) }}</div>
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.artiste, 'Artist') }}
+            {{ form_widget(form.artiste, {'attr': {'class': 'form-control', 'required': 'required'}}) }}
+            <div class="invalid-feedback">{{ form_errors(form.artiste) }}</div>
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.image, 'Image') }}
+            {{ form_widget(form.image, {'attr': {'class': 'form-control'}}) }}
+            <div class="invalid-feedback">{{ form_errors(form.image) }}</div>
+            {% if evenement.image %}
+                <p>Image actuelle :</p>
+                <img src="{{ asset('uploads/' ~ evenement.image) }}" alt="Image actuelle" class="img-thumbnail" width="150">
+            {% endif %}
+        </div>
+
+        <div class="form-group" style="justify-content: flex-start;">
+            <button type="submit" class="btn-custom">Enregistrer</button>
+            <a href="{{ path('evenement_EvenementBack') }}" class="btn btn-secondary">Annuler</a>
+        </div>
+    {{ form_end(form) }}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('eventForm');
+
+            form.addEventListener('submit', function(e) {
+                let valid = true;
+
+                // Clear previous client-side error messages (if any)
+                document.querySelectorAll('.invalid-feedback').forEach(el => {
+                    el.textContent = '';
+                });
+
+                // Client-side required fields validation
+                const requiredFields = [
+                    { id: '{{ form.Titre.vars.id }}', name: 'Title' },
+                    { id: '{{ form.Description.vars.id }}', name: 'Description' },
+                    { id: '{{ form.dateDebut.vars.id }}', name: 'Start Date' },
+                    { id: '{{ form.dateFin.vars.id }}', name: 'End Date' },
+                    { id: '{{ form.Lieu.vars.id }}', name: 'Location' },
+                    { id: '{{ form.Prix.vars.id }}', name: 'Price' },
+                    { id: '{{ form.TypeE.vars.id }}', name: 'Event Type' },
+                    { id: '{{ form.artiste.vars.id }}', name: 'Artist' }
+                ];
+
+                requiredFields.forEach(item => {
+                    let input = document.getElementById(item.id);
+                    if (!input.value.trim()) {
+                        valid = false;
+                    }
+                });
+
+                // Validate that start date is not after end date
+                let dateDebutElem = document.getElementById('{{ form.dateDebut.vars.id }}');
+                let dateFinElem = document.getElementById('{{ form.dateFin.vars.id }}');
+                if (dateDebutElem.value && dateFinElem.value) {
+                    let startDate = new Date(dateDebutElem.value);
+                    let endDate = new Date(dateFinElem.value);
+                    if (startDate > endDate) {
+                        valid = false;
+                    }
+                }
+
+                // Validate that price is not negative
+                let prixElem = document.getElementById('{{ form.Prix.vars.id }}');
+                if (prixElem.value.trim() && parseFloat(prixElem.value) < 0) {
+                    valid = false;
+                }
+
+                if (!valid) {
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
+{% endblock %}

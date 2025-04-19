@@ -1,0 +1,16 @@
+{% extends 'backoffice.html.twig' %}
+
+{% block title %}Ajouter une Image au Produit{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h2 class="fw-bold">Ajouter une Image pour {{ produit.nom }}</h2>
+    <form method="post" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label for="image" class="form-label">Choisir une image</label>
+            <input type="file" name="image" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Ajouter l'Image</button>
+    </form>
+</div>
+{% endblock %}

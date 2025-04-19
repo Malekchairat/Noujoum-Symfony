@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Reclamation{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <h1 class="mb-4">Create New Reclamation</h1>
+
+        <div class="card shadow">
+            <div class="card-body">
+                {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+                <div class="mb-3">
+                    {{ form_label(form.titre, null, {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.titre, {
+                        'attr': {
+                            'class': 'form-control' ~ (form.titre.vars.errors|length > 0 ? ' is-invalid' : '')
+                        }
+                    }) }}
+                    {{ form_errors(form.titre) }}
+                </div>
+
+                <div class="mb-4">
+                    {{ form_label(form.description, null, {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.description, {
+                        'attr': {
+                            'class': 'form-control' ~ (form.description.vars.errors|length > 0 ? ' is-invalid' : ''),
+                            'rows': 5
+                        }
+                    }) }}
+                    {{ form_errors(form.description) }}
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-send-fill me-2"></i> Submit Reclamation
+                </button>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -16,20 +16,29 @@ use Symfony\Component\Routing\Annotation\Route;
 class CartController extends AbstractController
 {
     #[Route('/cart', name: 'cart')]
-    public function index(PanierRepository $panierRepository): Response
+    public function index(Request $request, PanierRepository $panierRepository): Response
     {
+        $searchTerm = $request->query->get('search');
         $cartItems = $panierRepository->findBy(['id_user' => 1]);
-        $totalPrice = 0;
         
+        if ($searchTerm) {
+            $cartItems = array_filter($cartItems, function ($item) use ($searchTerm) {
+                return stripos($item->getProduit()->getNom(), $searchTerm) !== false;
+            });
+        }
+    
+        $totalPrice = 0;
         foreach ($cartItems as $item) {
             $totalPrice += $item->getTotal();
         }
-        
+    
         return $this->render('panier/cart.html.twig', [
             'cartItems' => $cartItems,
-            'totalPrice' => $totalPrice
+            'totalPrice' => $totalPrice,
+            'searchTerm' => $searchTerm
         ]);
     }
+    
     
     #[Route('/cart/add/{id}', name: 'cart_add')]
     public function add(int $id, EntityManagerInterface $entityManager, PanierRepository $panierRepository, ProduitRepository $produitRepository): Response
@@ -204,4 +213,27 @@ public function checkout(PanierRepository $panierRepository): Response
     
     return $this->redirectToRoute('app_checkout_process');
 }
+
+
+#[Route('/search/autocomplete', name: 'autocomplete_search')]
+public function autocompleteSearch(Request $request, ProduitRepository $produitRepository): Response
+{
+    $searchTerm = $request->query->get('term'); // Get search term from the request
+
+    if (strlen($searchTerm) < 2) {
+        return $this->json([]); // Return empty array if term is too short
+    }
+
+    // Search for products by name
+    $products = $produitRepository->findBySearchTerm($searchTerm); // You need to implement this query
+
+    // Prepare the results to return (e.g., only product names)
+    $suggestions = [];
+    foreach ($products as $product) {
+        $suggestions[] = ['name' => $product->getNom()]; // Assuming 'getNom' returns product name
+    }
+
+    return $this->json($suggestions); // Return results as JSON
+}
+
 }

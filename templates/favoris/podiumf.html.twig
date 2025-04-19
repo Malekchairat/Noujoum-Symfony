@@ -1,0 +1,107 @@
+{% extends 'backoffice.html.twig' %}
+
+{% block title %}Produits les Plus Populaires{% endblock %}
+
+{% block body %}
+    <h1 class="my-4 text-center title-podium">🏆 Podium des Produits les Plus Populaires</h1>
+
+    <div class="d-flex justify-content-center align-items-end podium-wrapper mt-5">
+        {% for produit in topFavoris %}
+            {% set place = loop.index %}
+            <div class="podium-card text-center podium-place-{{ place }}">
+                <div class="position-label">
+                    {% if place == 1 %}
+                        🥇 1ère place
+                    {% elseif place == 2 %}
+                        🥈 2ème place
+                    {% elseif place == 3 %}
+                        🥉 3ème place
+                    {% endif %}
+                </div>
+                <img src="{{ asset('uploads/' ~ produit.imageName) }}" alt="{{ produit.nom }}" class="img-fluid mb-2 rounded" style="max-height: 150px; object-fit: cover;" />
+                <h5>{{ produit.nom }}</h5>
+                <p>Nombre de favoris: {{ produit.nbFavoris }}</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <style>
+        body {
+            background-color: #121212; /* fond sombre global si souhaité */
+        }
+
+        .title-podium {
+            margin-bottom: 100px;
+            color: #ffffff;
+        }
+
+        .podium-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 30px;
+            flex-wrap: wrap;
+            padding-top: 20px;
+        }
+
+        .podium-card {
+            background-color: #1f1f1f;
+            border-radius: 20px;
+            padding: 20px;
+            width: 200px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+            transition: transform 0.3s ease;
+        }
+
+        .podium-card:hover {
+            transform: scale(1.05);
+        }
+
+        .podium-place-1 {
+            transform: translateY(-30px);
+            z-index: 3;
+        }
+
+        .podium-place-2 {
+            transform: translateY(0px);
+            z-index: 2;
+        }
+
+        .podium-place-3 {
+            transform: translateY(10px);
+            z-index: 1;
+        }
+
+        .position-label {
+            font-weight: bold;
+            color: #ffc107;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .podium-card h5 {
+            color: #ffffff; /* nom du produit en blanc */
+        }
+
+        .podium-card p {
+            color: #dddddd; /* nombre de favoris en gris clair */
+        }
+
+        @media (max-width: 768px) {
+            .podium-wrapper {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .podium-place-1,
+            .podium-place-2,
+            .podium-place-3 {
+                transform: translateY(0);
+            }
+
+            .title-podium {
+                margin-bottom: 30px;
+            }
+        }
+    </style>
+{% endblock %}

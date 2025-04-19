@@ -1,0 +1,32 @@
+{% extends 'backoffice/backoffice.html.twig' %}
+
+{% block title %}Modifier la Promotion{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1 class="mb-4">Modifier la promotion</h1>
+
+    {{ form_start(form) }}
+        <div class="mb-3">
+            {{ form_label(form.code) }}
+            {{ form_widget(form.code, { 'attr': {'class': 'form-control'} }) }}
+            {{ form_errors(form.code) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_label(form.pourcentage) }}
+            {{ form_widget(form.pourcentage, { 'attr': {'class': 'form-control'} }) }}
+            {{ form_errors(form.pourcentage) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_label(form.expiration) }}
+            {{ form_widget(form.expiration, { 'attr': {'class': 'form-control'} }) }}
+            {{ form_errors(form.expiration) }}
+        </div>
+
+        <button class="btn btn-success mt-3"><i class="fas fa-save"></i> Enregistrer</button>
+        <a href="{{ path('produits_index') }}" class="btn btn-secondary mt-3"><i class="fas fa-arrow-left"></i> Retour</a>
+    {{ form_end(form) }}
+</div>
+{% endblock %}

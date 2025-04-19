@@ -1,0 +1,200 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Shop - Noujoum{% endblock %}
+{% set shop_active = 'active' %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .btn-gold {
+        background-color: #d4af37;
+        color: black;
+        border: none;
+    }
+
+    .btn-gold:hover {
+        background-color: #c9a032;
+        color: white;
+    }
+
+    .card {
+        background-color: #000;
+        border: 2px solid #d4af37;
+        color: white;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+    }
+
+    .card .card-title,
+    .card .card-category,
+    .card .card-price,
+    .card .text-success,
+    .card .text-warning {
+        color: white;
+    }
+
+    .card .text-danger {
+        color: #ff6b6b;
+    }
+
+    .card .badge.bg-danger {
+        background-color: #ff4c4c;
+    }
+
+    .card .btn-outline-primary {
+        border-color: #d4af37;
+        color: #d4af37;
+    }
+
+    .card .btn-outline-primary:hover {
+        background-color: #d4af37;
+        color: black;
+    }
+</style>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.add-to-cart').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const productId = this.dataset.productId;
+
+                fetch(`/cart/add/${productId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const toast = new bootstrap.Toast(document.getElementById('cartToast'));
+                        document.getElementById('toastMessage').textContent = 'Product added to cart!';
+                        toast.show();
+                        document.dispatchEvent(new Event('cartUpdated'));
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        });
+    });
+
+    function toggleFavori(event, produitId) {
+        event.preventDefault();
+        const heartIcon = document.getElementById('heart-' + produitId);
+
+        fetch('/favoris/toggle/' + produitId, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                if (data.action === 'added') {
+                    heartIcon.classList.remove('far');
+                    heartIcon.classList.add('fas');
+                } else {
+                    heartIcon.classList.remove('fas');
+                    heartIcon.classList.add('far');
+                }
+            } else {
+                console.error('Erreur:', data.message);
+            }
+        })
+        .catch(error => console.error('Erreur fetch:', error));
+    }
+</script>
+{% endblock %}
+
+{% block body %}
+<div class="hero">
+    <div class="container">
+        {% if produits is defined %}
+
+        <!-- Barre de recherche -->
+        <form method="get" action="{{ path('app_shop') }}" class="mb-4">
+            <div class="row">
+                <div class="col-md-4">
+                    <input type="text" name="search" class="form-control" placeholder="Rechercher un produit..." value="{{ search }}">
+                </div>
+                <div class="col-md-3">
+                    <select name="sort" class="form-control">
+                        <option value="">Trier par prix</option>
+                        <option value="asc" {% if sort == 'asc' %}selected{% endif %}>Prix croissant</option>
+                        <option value="desc" {% if sort == 'desc' %}selected{% endif %}>Prix décroissant</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-gold w-100">Rechercher</button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Liste des produits -->
+        <div class="row mt-4">
+            {% if produits|length > 0 %}
+                {% for produit in produits %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card position-relative">
+                            {% if app.user %}
+                                <!-- Bouton Favoris -->
+                                <button class="btn btn-link p-0 border-0 position-absolute end-0 p-2 z-1" title="Favoris" onclick="toggleFavori(event, {{ produit.id }})">
+                                    <i id="heart-{{ produit.id }}" class="fa{{ favorisList[produit.id] is defined ? 's' : 'r' }} fa-heart text-danger fs-4"></i>
+                                </button>
+                            {% endif %}
+
+                            <img src="{{ asset('uploads/' ~ produit.imageName) }}" alt="{{ produit.nom }}" class="card-img-top">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ produit.nom }}</h5>
+                                <p class="card-category">{{ produit.categorie }}</p>
+
+                                {% set promo = produit.promotions|filter(p => p.expiration >= date())|first %}
+                                {% if produit.disponibilite < 5 %}
+                                    <p class="text-warning mt-2">⚠️ Plus que {{ produit.disponibilite }} en stock !</p>
+                                {% else %}
+                                    <p class="text-success mt-2">En stock</p>
+                                {% endif %}
+
+                                <p class="card-price">
+                                    {% if produit.getPrixPromo() %}
+                                        <span class="text-danger"><del>{{ produit.prix }}€</del></span>
+                                        {{ produit.getPrixPromo() }}€
+                                        {% if promo %}
+                                            <span class="badge bg-danger">-{{ promo.pourcentage }}%</span>
+                                        {% endif %}
+                                    {% else %}
+                                        {{ produit.prix }}€
+                                    {% endif %}
+                                    <a href="{{ path('cart_add', {'id': produit.id}) }}" class="btn btn-gold add-to-cart mt-2 w-100" data-product-id="{{ produit.id }}">Add to Cart</a>
+                                </p>
+
+                                <a href="{{ path('app_album_details', { id: produit.id }) }}" class="btn btn-outline-primary mt-2 w-100">Voir détails</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-warning">
+                    Aucun produit trouvé.
+                </div>
+            {% endif %}
+        </div>
+
+        {% else %}
+            <div class="alert alert-danger">
+                ERREUR : Variable 'produits' non transmise
+                {{ dump(_context|keys) }}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

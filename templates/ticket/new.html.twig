@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Réserver Ticket{% endblock %}
+
+{% block body %}
+    <h1>Réserver Ticket</h1>
+
+    {{ form_start(form) }}
+        {{ form_row(form.quantite) }}
+        {{ form_row(form.methodePaiement) }}
+
+        <button class="btn btn-primary" type="submit">Réserver</button>
+    {{ form_end(form) }}
+
+    <a href="{{ path('evenement_index') }}">Retour aux événements</a>
+{% endblock %}

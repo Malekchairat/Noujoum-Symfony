@@ -1,0 +1,110 @@
+{% extends 'backoffice.html.twig' %}
+
+{% block title %}Podium des Evenements{% endblock %}
+
+{% block body %}
+<style>
+    .podium-container {
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        margin-top: 50px;
+        gap: 20px;
+    }
+    .podium-step {
+        background-color: #000;
+        color: white;
+        text-align: center;
+        padding: 20px 10px;
+        border-radius: 10px 10px 0 0;
+        position: relative;
+        width: 200px;
+    }
+    .podium-step .title {
+        font-size: 1.2em;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+    .podium-step .tickets {
+        font-size: 1.5em;
+        color: gold;
+        margin-bottom: 10px;
+    }
+    /* Podium heights for different ranks */
+    .center-step { height: 220px; }
+    .right-step  { height: 180px; }
+    .left-step   { height: 150px; }
+    /* Podium base */
+    .podium-base {
+        background-color: #222;
+        height: 20px;
+        border-radius: 0 0 10px 10px;
+        margin-top: -10px;
+    }
+    /* Rank label */
+    .rank-label {
+        position: absolute;
+        top: -25px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: gold;
+        color: black;
+        padding: 5px 10px;
+        border-radius: 50%;
+        font-weight: bold;
+    }
+    /* Retour button styling */
+    .retour-button {
+        text-align: left;
+        margin-bottom: 20px;
+    }
+    .retour-button a {
+        background-color: gold; 
+        color: black; 
+        padding: 10px 20px; 
+        border-radius: 5px; 
+        text-decoration: none; 
+        font-weight: 600;
+    }
+</style>
+
+<div style="background-color: #303234; padding: 40px; border-radius: 10px;">
+    <!-- Retour button at the top -->
+    <div class="retour-button">
+        <a href="{{ path('evenement_EvenementBack') }}">← Retour</a>
+    </div>
+    <h1 class="text-center" style="color: gold;">🎤 Podium des Evenements</h1>
+    {% if results is not empty and results|length >= 3 %}
+        {% set podium = results|sort((a, b) => b.totalTickets <=> a.totalTickets) %}
+        {% set first = podium[0] %}
+        {% set second = podium[1] %}
+        {% set third = podium[2] %}
+        <div class="podium-container">
+            <!-- Left podium: 3rd ranked -->
+            <div class="podium-step left-step">
+                <div class="rank-label">3</div>
+                <div class="title">{{ third[0].Titre }}</div>
+                <div class="tickets">{{ third.totalTickets }} Tickets</div>
+                <div class="podium-base"></div>
+            </div>
+            <!-- Center podium: 1st ranked -->
+            
+            <div class="podium-step center-step">
+                <div class="rank-label">1</div>
+                <div class="title">{{ first[0].Titre }}</div>
+                <div class="tickets">{{ first.totalTickets }} Tickets</div>
+                <div class="podium-base"></div>
+            </div>
+            <!-- Right podium: 2nd ranked -->
+            <div class="podium-step right-step">
+                <div class="rank-label">2</div>
+                <div class="title">{{ second[0].Titre }}</div>
+                <div class="tickets">{{ second.totalTickets }} Tickets</div>
+                <div class="podium-base"></div>
+            </div>
+        </div>
+    {% else %}
+        <p class="text-center text-white">Aucun événement trouvé.</p>
+    {% endif %}
+</div>
+{% endblock %}

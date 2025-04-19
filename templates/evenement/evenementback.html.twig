@@ -1,0 +1,114 @@
+{% extends 'backoffice.html.twig' %}
+
+{% block title %}Evenements Management{% endblock %}
+
+{% block body %}
+<style>
+    .event-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .event-card:hover {
+        transform: scale(1.02);
+        box-shadow: 0 0 15px gold;
+    }
+
+    .gold-button, .edit-button, .delete-button {
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+
+    .gold-button {
+        background-color: gold;
+        color: black;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .gold-button:hover {
+        background-color: #ffd700;
+        color: black;
+        box-shadow: 0 0 10px #ffd700;
+        transform: scale(1.05);
+    }
+
+    .edit-button {
+        border: 1px solid gold;
+        color: gold;
+        background: transparent;
+        border-radius: 5px;
+        padding: 5px 10px;
+        text-decoration: none;
+    }
+
+    .edit-button:hover {
+        background-color: gold;
+        color: black;
+        transform: scale(1.05);
+        box-shadow: 0 0 8px gold;
+    }
+
+    .delete-button {
+        background-color: red;
+        border: none;
+        border-radius: 5px;
+        padding: 5px 10px;
+        color: white;
+        cursor: pointer;
+    }
+
+    .delete-button:hover {
+        background-color: darkred;
+        transform: scale(1.05);
+        box-shadow: 0 0 8px red;
+    }
+</style>
+
+<div style="background-color: #303234; padding: 40px; border-radius: 10px; margin-top: 50px;">
+    <h1 class="text-center" style="margin-bottom: 30px; color: gold;">🎭 Gestion evenements </h1>
+
+    {# Display flash messages #}
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }}" style="margin-bottom: 20px;">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <div class="text-end" style="margin-bottom: 40px;">
+        <a href="{{ path('evenement_new') }}" class="gold-button">➕ Creer nouveau evenement</a>
+        <a href="{{ path('ticket_back') }}" class="gold-button" style="margin-left: 10px;">🎫Voir Tickets</a>
+        <a href="{{ path('evenement_stat') }}" class="gold-button" style="margin-left: 10px;">📊 Voir Statistics</a>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;">
+        {% for evenement in evenements %}
+            <div class="event-card" style="width: 350px; background-color: black; border: 2px solid gold; color: white; border-radius: 10px; overflow: hidden; display: flex; flex-direction: column;">
+                {% if evenement.image %}
+                    <img src="{{ asset('uploads/' ~ evenement.image) }}" alt="{{ evenement.Titre }}" style="width: 100%; height: 180px; object-fit: cover; display: block;">
+                {% endif %}
+                <div style="padding: 15px;">
+                    <h5 style="margin-bottom: 10px; color: gold;">🎫 {{ evenement.Titre }}</h5>
+                    <p>📜 <strong>Description:</strong> {{ evenement.Description|slice(0, 100) }}</p>
+                    <p>📅 <strong>Date:</strong> {{ evenement.dateDebut|date('Y-m-d') }} → {{ evenement.dateFin|date('Y-m-d') }}</p>
+                    <p>📍 <strong>Lieu:</strong> {{ evenement.Lieu }}</p>
+                    <p>💰 <strong>Prix:</strong> {{ evenement.Prix }} TND</p>
+                    <p>🎶 <strong>Type:</strong> {{ evenement.TypeE }}</p>
+                    <p>🎤 <strong>Artiste:</strong> {{ evenement.artiste }}</p>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <a href="{{ path('evenement_edit', {'id': evenement.id}) }}" class="edit-button">Modifier</a>
+                        <form method="POST" action="{{ path('evenement_delete', {'id': evenement.id}) }}" onsubmit="return confirm('Are you sure you want to delete this event?');" style="display:inline;">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ evenement.id) }}">
+                            <button type="submit" class="delete-button">Supprimer</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <p class="text-center text-white">No events found.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
