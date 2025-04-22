@@ -116,7 +116,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getRoles(): array { return [$this->getRole()->value]; }
     public function getSalt(): ?string { return null; }
-    public function eraseCredentials() {}
+    public function eraseCredentials():void{}
 
     public function __toString(): string
     {

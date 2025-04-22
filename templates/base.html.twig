@@ -12,6 +12,113 @@
     padding: 6px 12px !important;
     font-size: 14px !important;
 }
+
+.sort-dropdown {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.sort-dropdown select {
+  padding: 8px 12px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  background-color: white;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.sort-dropdown select:hover {
+  border-color: #999;
+  box-shadow: 0 0 5px rgba(0,0,0,0.1);
+}
+
+.sort-dropdown select:focus {
+  outline: none;
+  border-color: #007BFF;
+  box-shadow: 0 0 0 3px rgba(0,123,255,0.2);
+}
+.carousel-container {
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  margin: auto;
+}
+
+.carousel-track {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+}
+
+.carousel-item {
+  min-width: calc(100% / 3); /* Show 3 items at a time */
+  box-sizing: border-box;
+  padding: 10px;
+  border: 1px solid #ccc;
+  margin: 5px;
+  border-radius: 10px;
+  background: #f9f9f9;
+  text-align: center;
+}
+
+.carousel-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-top: 10px;
+}
+
+.carousel-controls button {
+  padding: 8px 12px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.suggestions-container {
+    position: absolute;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: white;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.suggestion-item {
+    padding: 8px;
+    cursor: pointer;
+}
+
+.suggestion-item:hover {
+    background-color: #f1f1f1;
+}
+
+.cart-row {
+    position: relative;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.cart-row:hover {
+    transform: translateY(-5px); /* Slightly lift the row */
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+}
+
+.cart-image {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.cart-row:hover .cart-image {
+    transform: scale(1.05); /* Slightly enlarge the image */
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2); /* Enhance shadow on hover */
+}
+
+
 </style>
 
         <!-- Bootstrap CSS -->
@@ -39,7 +146,6 @@
                         <li class="nav-item {{ home_active | default ('') }}">
                             <a class="nav-link" href="{{ path('app_homepage') }}">Home</a>
                         </li>
-<<<<<<< Updated upstream
                         <li class="nav-item {{ shop_active | default ('') }}"><a class="nav-link" href="{{ path('shop') }}">Shop</a></li>
                         <li class="nav-item {{ about_active | default ('') }}"><a class="nav-link" href="{{ path('app_about_us') }}">About us</a></li>
                         <li class="nav-item {{ contact_active | default ('') }}"><a class="nav-link" href="{{ path('app_contact') }}">Contact us</a></li>
@@ -47,42 +153,6 @@
                     <ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5">
                         <li><a class="nav-link" href="#"><img src="{{ asset('images/user.svg') }}"></a></li>
                         <li class="nav-item {{ cart_active | default ('') }}"><a class="nav-link" href="{{ path('cart') }}"><img src="{{ asset('images/cart.svg') }}"></a></li>
-=======
-                        
-                        <li class="nav-item {{ shop_active | default('') }}">
-                            <a class="nav-link" href="{{ path('app_shop') }}">Shop</a>
-                        </li>
-
-                        <!-- New Evenements link -->
-                        <li class="nav-item {{ shop_active | default('') }}">
-                            <a class="nav-link" href="{{ path('evenement_index') }}">Evenements</a>
-                        </li>
-                        <li class="nav-item {{ shop_active | default('') }}">
-                            <a class="nav-link" href="{{ path('app_reclamation_index') }}">Reclamations</a>
-                        </li>
-
-                        
-                    </ul>
-                    <ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5">
-                        <!-- Profile -->
-                        <li>
-                            <a class="nav-link" href="{{ path('app_profile') }}">
-                                <i class="fas fa-user" style="color: white;"></i>
-                            </a>
-                        </li>
-                        <!-- Favoris -->
-                        <li>
-                            <a class="nav-link" href="{{ path('app_favoris') }}">
-                                <i class="fas fa-heart" style="color: red;"></i>
-                            </a>
-                        </li>
-                        <!-- Cart -->
-                        <li class="nav-item {{ cart_active | default('') }}">
-                            <a class="nav-link" href="{{ path('cart') }}">
-                                <i class="fas fa-shopping-cart" style="color: white;"></i>
-                            </a>
-                        </li>
->>>>>>> Stashed changes
                     </ul>
                 </div>
             </div>
@@ -209,6 +279,7 @@
 	
         <!-- End Footer Section -->
 {% block javascripts %}
+            {% block importmap %}{{ importmap('app') }}{% endblock %}
         <script>
         document.addEventListener('DOMContentLoaded', function() {
             updateCartCount();

@@ -13,21 +13,4 @@ class EvenementRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Evenement::class);
     }
-<<<<<<< Updated upstream
 }
-=======
-    public function findTopByTicketCount(int $limit): array
-    {
-        return $this->createQueryBuilder('e')
-            ->select('e, SUM(t.quantite) AS totalTickets')
-            ->leftJoin('e.tickets', 't')
-            ->groupBy('e.id')
-            ->orderBy('totalTickets', 'DESC')
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult();
-    }
-
-    
-}
->>>>>>> Stashed changes
