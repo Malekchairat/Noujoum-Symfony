@@ -3,15 +3,25 @@
 namespace App\Controller;
 
 use App\Entity\Commande;
+
 use App\Form\AdminCommandeType;
+
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class AdminCommandeController extends AbstractController
 {
+    private $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
     #[Route('/admin/test', name: 'admin_test')]
     public function test(EntityManagerInterface $entityManager): Response
     {
@@ -80,4 +90,44 @@ class AdminCommandeController extends AbstractController
         $this->addFlash('success', 'Commande supprimée avec succès');
         return $this->redirectToRoute('admin_test');
     }
-}
+
+    
+
+    #[Route('/admin/test/search', name: 'admin_test_search')]
+    public function searchCommandes(Request $request): JsonResponse
+    {
+        $query = $request->query->get('q');
+        
+        // Modify the query to avoid using CAST and check if query is empty
+        if (!$query) {
+            $commandes = $this->entityManager->getRepository(Commande::class)->findAll(); // Return all if no query
+        } else {
+            $commandes = $this->entityManager->getRepository(Commande::class)
+                ->createQueryBuilder('c')
+                ->where('LOWER(c.id) LIKE LOWER(:query)')
+                ->orWhere('LOWER(c.methodePaiment) LIKE LOWER(:query)')
+                ->orWhere('LOWER(c.productsSummary) LIKE LOWER(:query)')
+                ->setParameter('query', '%' . strtolower($query) . '%')
+                ->getQuery()
+                ->getResult();
+        }
+    
+        // Prepare and return the response
+        $data = [];
+        foreach ($commandes as $commande) {
+            $data[] = [
+                'id' => $commande->getId(),
+                'rue' => $commande->getRue(),
+                'ville' => $commande->getVille(),
+                'codePostal' => $commande->getCodePostal(),
+                'etat' => $commande->getEtat(),
+                'montantTotal' => $commande->getMontantTotal(),
+                'methodePaiment' => $commande->getMethodePaiment(),
+                'idUser' => $commande->getIdUser(),
+                'productsSummary' => $commande->getProductsSummary(),
+            ];
+        }
+    
+        return new JsonResponse($data);
+    }
+}    

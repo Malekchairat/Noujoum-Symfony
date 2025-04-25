@@ -5,11 +5,23 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
 
+ stripe.secret_key: '%env(STRIPE_SECRET_KEY)%'
+ stripe.public_key: '%env(STRIPE_PUBLIC_KEY)%'
+
 services:
-    # default configuration for services in *this* file
+    App\Bundle\PdfBundle\:
+        resource: '../src/Bundle/PdfBundle/*'
+        exclude: '../src/Bundle/PdfBundle/{Entity,Migrations,Tests}'
+
+    App\Bundle\StatisticsBundle\:
+        resource: '../src/Bundle/StatisticsBundle/*'
+        exclude: '../src/Bundle/StatisticsBundle/Resources'
+
+
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+       
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -22,3 +34,6 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    
+
