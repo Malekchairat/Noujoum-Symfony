@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Commande;
 
 use App\Form\AdminCommandeType;
+use App\Repository\CommandeRepository;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -130,4 +131,41 @@ class AdminCommandeController extends AbstractController
     
         return new JsonResponse($data);
     }
+
+
+    #[Route('/admin/test/sort', name: 'admin_test_sort')]
+public function sortCommandes(Request $request, CommandeRepository $commandeRepository): JsonResponse
+{
+    $column = $request->query->get('column');
+    $direction = $request->query->get('direction', 'asc');
+
+    $allowedColumns = ['montantTotal', 'ville', 'etat', 'methodePaiment'];
+    if (!in_array($column, $allowedColumns)) {
+        return new JsonResponse(['error' => 'Invalid column'], 400);
+    }
+
+    $commandes = $commandeRepository->createQueryBuilder('c')
+        ->orderBy('c.' . $column, $direction)
+        ->getQuery()
+        ->getResult();
+
+    $data = [];
+
+    foreach ($commandes as $commande) {
+        $data[] = [
+            'id' => $commande->getId(),
+            'rue' => $commande->getRue(),
+            'ville' => $commande->getVille(),
+            'codePostal' => $commande->getCodePostal(),
+            'etat' => $commande->getEtat(),
+            'montantTotal' => $commande->getMontantTotal(),
+            'methodePaiment' => $commande->getMethodePaiment(),
+            'idUser' => $commande->getIdUser(),
+            'productsSummary' => $commande->getProductsSummary(),
+        ];
+    }
+
+    return new JsonResponse($data);
+}
+
 }    

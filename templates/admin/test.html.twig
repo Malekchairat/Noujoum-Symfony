@@ -11,7 +11,25 @@
 
 
 
-<input type="text" id="search-input" placeholder="Search commandes..." />
+<input type="text" id="search-input" class="search-bar" placeholder="Search commandes..." />
+
+<div class="sorting-container">
+    <select id="sort-column" class="sort-select">
+        <option value="">Trier par...</option>
+        <option value="montantTotal">Montant Total</option>
+        <option value="ville">Ville</option>
+        <option value="etat">État</option>
+        <option value="methodePaiment">Méthode de Paiement</option>
+    </select>
+
+    <select id="sort-direction" class="sort-select">
+        <option value="asc">Ascendant</option>
+        <option value="desc">Descendant</option>
+    </select>
+
+    <button id="sort-button" class="sort-btn">Trier</button>
+</div>
+
 
 
 
@@ -24,7 +42,7 @@
             <th>Ville</th>
             <th>Code Postal</th>
             <th>État</th>
-            <th>Montant Total (TND)</th>
+            <th>Montant Total (€)</th>
             <th>Méthode de Paiement</th>
             <th>ID Utilisateur</th>
             <th>Produits</th>
@@ -212,6 +230,64 @@
     background-color: gold;
     color: black;
 }
+.sorting-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.sort-select, .sort-btn {
+    background-color: black;
+    color: gold;
+    border: 2px solid gold;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.sort-select:hover, .sort-btn:hover {
+    background-color: gold;
+    color: black;
+}
+
+.sort-select:focus, .sort-btn:focus {
+    outline: none;
+    box-shadow: 0 0 5px gold;
+}
+.search-bar {
+    background-color: black;
+    color: gold;
+    border: 2px solid gold;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    width: 300px; /* Optional: makes it bigger and nicer */
+    margin-bottom: 20px;
+}
+
+.search-bar::placeholder {
+    color: gold;
+    opacity: 0.7; /* softer placeholder */
+}
+
+.search-bar:hover {
+    background-color: gold;
+    color: black;
+}
+
+.search-bar:hover::placeholder {
+    color: black;
+}
+
+.search-bar:focus {
+    outline: none;
+    box-shadow: 0 0 5px gold;
+}
+
 
 
 </style>
@@ -257,5 +333,54 @@
         });
     });
 </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('sort-button').addEventListener('click', function() {
+            let column = document.getElementById('sort-column').value;
+            let direction = document.getElementById('sort-direction').value;
+
+            if (!column) {
+                alert('Veuillez choisir une colonne pour trier.');
+                return;
+            }
+
+            fetch(`/admin/test/sort?column=${encodeURIComponent(column)}&direction=${encodeURIComponent(direction)}`)
+                .then(response => response.json())
+                .then(data => {
+                    const commandesList = document.getElementById('commandes-list');
+                    if (commandesList) {
+                        commandesList.innerHTML = ''; // Clear the table body
+
+                        data.forEach(commande => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${commande.id}</td>
+                                <td>${commande.rue}</td>
+                                <td>${commande.ville}</td>
+                                <td>${commande.codePostal}</td>
+                                <td>${commande.etat}</td>
+                                <td>${commande.montantTotal} €</td>
+                                <td>${commande.methodePaiment}</td>
+                                <td>${commande.idUser}</td>
+                                <td>${commande.productsSummary}</td>
+                                <td class="actions">
+                                    <a href="/admin/commandes/modify/${commande.id}" class="btn modify-btn">Modifier</a>
+                                    <form action="/admin/commandes/delete/${commande.id}" method="POST" style="display: inline;">
+                                        <button type="submit" class="btn remove-btn" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette commande ?');">Supprimer</button>
+                                    </form>
+                                </td>
+                            `;
+                            commandesList.appendChild(row);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching sort results:', error);
+                });
+        });
+    });
+</script>
+
 
 

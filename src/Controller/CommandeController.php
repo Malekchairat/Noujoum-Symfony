@@ -23,7 +23,9 @@ class CommandeController extends AbstractController
     #[Route('/checkout', name: 'app_checkout')]
     public function checkout(Request $request, PanierRepository $panierRepository, EntityManagerInterface $em): Response
     {
-        // 1. Get current cart items
+
+
+        // 1. Get current cart items for hardcoded user id 1
         $cartItems = $panierRepository->findBy(['id_user' => 1]);
 
         // 2. Check if cart is empty
@@ -34,6 +36,7 @@ class CommandeController extends AbstractController
 
         // 3. Create new Commande entity
         $commande = new Commande();
+
         $form = $this->createForm(CheckoutType::class, $commande);
         $form->handleRequest($request);
 
@@ -151,5 +154,20 @@ class CommandeController extends AbstractController
         ]);
 
         return $pdfGenerator->generate($html, 'commande_' . $commande->getId() . '_receipt.pdf');
+    }
+
+    #[Route('/historique', name: 'app_commande_historique')]
+    public function historique(CommandeRepository $commandeRepository): Response
+    {
+        // Hardcoded user id = 1 instead of $this->getUser()
+        $userId = 1;
+
+        $commandes = $commandeRepository->findBy([
+            'id_user' => $userId,
+        ]);
+
+        return $this->render('panier/historique.html.twig', [
+            'commandes' => $commandes,
+        ]);
     }
 }

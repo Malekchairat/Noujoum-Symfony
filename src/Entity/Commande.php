@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\CommandeRepository;
+use App\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -180,4 +181,5 @@ public function setProductsSummary(?string $productsSummary): self
         }
         return $total;
     }
+
 }

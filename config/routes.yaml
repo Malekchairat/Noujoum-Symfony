@@ -9,3 +9,5 @@ statistics_bundle:
         path: ../src/Bundle/StatisticsBundle/Controller/
         namespace: App\Bundle\StatisticsBundle\Controller
     type: attribute
+
+
