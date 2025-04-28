@@ -21,24 +21,33 @@ use Symfony\Component\HttpFoundation\Request; // Add this line
 class BackController extends AbstractController
 {
     #[Route('/admin/dashboard', name: 'admin_dashboard')]
-    public function dashboard(
-        EvenementRepository $evenementRepo,
-        FavorisRepository   $favorisRepo,
-        ReclamationRepository $reclamationRepo
-    ): Response
-    {
-        $results     = $evenementRepo->findTopByTicketCount(3);
-        $favorites   = $favorisRepo->findTopByLikes(3);
-        $statusStats = $reclamationRepo->countByStatus();
-        $priorityStats = $reclamationRepo->countByPriority();
+public function dashboard(
+    EvenementRepository $evenementRepo,
+    FavorisRepository   $favorisRepo,
+    ReclamationRepository $reclamationRepo
+): Response
+{
+    // Fetching top 3 events by ticket count
+    $results     = $evenementRepo->findTopByTicketCount(3);
+    
+    // Fetching top 3 favorite products by likes
+    $favorites   = $favorisRepo->findTopByLikes(3);
+    
+    // Fetching status and priority statistics for reclamations
+    $statusStats = $reclamationRepo->countByStatus();
+    $priorityStats = $reclamationRepo->countByPriority();
+    
+    // Fetch all events (to pass to Twig for the notifications section)
+    $evenements = $evenementRepo->findAll();
 
-        return $this->render('dashboard.html.twig', [
-            'results'       => $results,
-            'favorites'     => $favorites,
-            'statusStats'   => $statusStats,
-            'priorityStats' => $priorityStats,
-        ]);
-    }
+    return $this->render('dashboard.html.twig', [
+        'evenements'    => $evenements,   // Add this line to pass the events to the template
+        'results'       => $results,
+        'favorites'     => $favorites,
+        'statusStats'   => $statusStats,
+        'priorityStats' => $priorityStats,
+    ]);
+}
 
 
     #[Route('/backoffice/produits', name: 'produits_index')]

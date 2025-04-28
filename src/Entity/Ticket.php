@@ -2,9 +2,11 @@
 
 namespace App\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity()]
+use Doctrine\ORM\Mapping as ORM;
+use App\Repository\TicketRepository; // <-- Don't forget this use
+
+#[ORM\Entity(repositoryClass: TicketRepository::class)]
 #[ORM\Table(name: "ticket")]
 class Ticket
 {

@@ -45,6 +45,21 @@ class Evenement
     #[ORM\OneToMany(mappedBy: "evenement", targetEntity: Ticket::class, orphanRemoval: true)]
     private Collection $tickets;
 
+      /**
+     * @ORM\Column(type="integer")
+     */
+    private $ticketCount;
+
+    // Getter and setter for ticketCount...
+
+    /**
+     * This is your custom method to check if the event is sold out.
+     */
+    public function isSoldOut(): bool
+    {
+        return $this->ticketCount <= 0;
+    }
+
     public function __construct()
     {
         $this->tickets = new ArrayCollection();

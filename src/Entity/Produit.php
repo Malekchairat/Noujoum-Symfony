@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\ProduitRepository;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ProduitRepository::class)]
@@ -29,8 +28,8 @@ class Produit
     #[ORM\Column]
     private ?int $disponibilite = null;
 
-    #[ORM\Column(type: Types::BLOB)]
-    private $image = null;
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $imageName = null; // <-- Notice we store the filename
 
     public function getId(): ?int
     {
@@ -45,7 +44,6 @@ class Produit
     public function setNom(string $nom): static
     {
         $this->nom = $nom;
-
         return $this;
     }
 
@@ -57,7 +55,6 @@ class Produit
     public function setDescription(string $description): static
     {
         $this->description = $description;
-
         return $this;
     }
 
@@ -69,7 +66,6 @@ class Produit
     public function setCategorie(string $categorie): static
     {
         $this->categorie = $categorie;
-
         return $this;
     }
 
@@ -81,7 +77,6 @@ class Produit
     public function setPrix(int $prix): static
     {
         $this->prix = $prix;
-
         return $this;
     }
 
@@ -93,36 +88,17 @@ class Produit
     public function setDisponibilite(int $disponibilite): static
     {
         $this->disponibilite = $disponibilite;
-
         return $this;
     }
 
-    public function getImage()
+    public function getImageName(): ?string
     {
-        return $this->image;
+        return $this->imageName;
     }
 
-    public function setImage($image): static
+    public function setImageName(?string $imageName): static
     {
-        $this->image = $image;
-
+        $this->imageName = $imageName;
         return $this;
     }
-
-    public function getBase64Image(): ?string {
-        if (!$this->image) {
-            return null;
-        }
-        
-        $image = $this->image;
-        if (is_resource($image)) {
-            // Reset the pointer to the beginning of the stream
-            rewind($image);
-            return 'data:image/jpeg;base64,' . base64_encode(stream_get_contents($image));
-        } else {
-            // If it's already a string
-            return 'data:image/jpeg;base64,' . base64_encode($image);
-        }
-    }
-
 }

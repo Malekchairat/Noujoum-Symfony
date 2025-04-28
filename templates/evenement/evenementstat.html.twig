@@ -1,110 +1,220 @@
 {% extends 'backoffice.html.twig' %}
 
-{% block title %}Podium des Evenements{% endblock %}
+{% block title %}Podium des Événements{% endblock %}
 
 {% block body %}
 <style>
-    .podium-container {
-        display: flex;
-        justify-content: center;
-        align-items: flex-end;
-        margin-top: 50px;
-        gap: 20px;
-    }
-    .podium-step {
-        background-color: #000;
-        color: white;
-        text-align: center;
-        padding: 20px 10px;
-        border-radius: 10px 10px 0 0;
-        position: relative;
-        width: 200px;
-    }
-    .podium-step .title {
-        font-size: 1.2em;
-        font-weight: bold;
-        margin-bottom: 10px;
-    }
-    .podium-step .tickets {
-        font-size: 1.5em;
-        color: gold;
-        margin-bottom: 10px;
-    }
-    /* Podium heights for different ranks */
-    .center-step { height: 220px; }
-    .right-step  { height: 180px; }
-    .left-step   { height: 150px; }
-    /* Podium base */
-    .podium-base {
-        background-color: #222;
-        height: 20px;
-        border-radius: 0 0 10px 10px;
-        margin-top: -10px;
-    }
-    /* Rank label */
-    .rank-label {
-        position: absolute;
-        top: -25px;
-        left: 50%;
-        transform: translateX(-50%);
-        background-color: gold;
-        color: black;
-        padding: 5px 10px;
-        border-radius: 50%;
-        font-weight: bold;
-    }
-    /* Retour button styling */
-    .retour-button {
-        text-align: left;
-        margin-bottom: 20px;
-    }
-    .retour-button a {
-        background-color: gold; 
-        color: black; 
-        padding: 10px 20px; 
-        border-radius: 5px; 
-        text-decoration: none; 
-        font-weight: 600;
-    }
+  .main-container {
+    background-color: #303234;
+    padding: 40px;
+    border-radius: 10px;
+  }
+  .retour-button {
+    margin-bottom: 20px;
+    text-align: left;
+  }
+  .retour-button a {
+    background-color: gold;
+    color: black;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background 0.3s, transform 0.3s;
+  }
+  .retour-button a:hover {
+    background-color: #ffd700;
+    transform: translateY(-2px);
+  }
+  h1 {
+    color: gold;
+    margin: 30px 0;
+    
+  }
+  .content-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 40px;
+    align-items: flex-start;
+  }
+
+  /* Podium & List Section */
+  .podium-list-section {
+    flex: 1;
+    min-width: 320px;
+    max-width: 500px;
+  }
+  .podium-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 15px;
+    margin-bottom: 30px;
+  }
+  .podium-step {
+    background-color: #000;
+    color: white;
+    text-align: center;
+    padding: 20px 10px;
+    border-radius: 10px 10px 0 0;
+    position: relative;
+    width: 120px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  }
+  .podium-step .rank-label {
+    position: absolute;
+    top: -18px; left: 50%;
+    transform: translateX(-50%);
+    background-color: gold;
+    color: black;
+    padding: 5px 10px;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 0.9rem;
+  }
+  .podium-step .title {
+    font-size: 1rem;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+  .podium-step .tickets {
+    font-size: 1.2em;
+    color: gold;
+    margin-bottom: 8px;
+  }
+  .center-step { height: 220px; }
+  .right-step  { height: 200px; }
+  .left-step   { height: 180px; }
+  .podium-base {
+    background-color: #222;
+    height: 15px;
+    border-radius: 0 0 10px 10px;
+    margin-top: -8px;
+  }
+
+  .other-list-container {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  }
+  .other-list {
+    list-style: none;
+    padding: 0; margin: 0;
+  }
+  .other-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 14px;
+    font-size: 0.95rem;
+    color: #fff;
+  }
+  .other-list li:nth-child(odd) { background: #1a1a1a; }
+  .other-list li:nth-child(even){ background: #2a2a2a; }
+  .other-list li .rank-num { font-weight: bold; margin-right: 8px; color: gold; }
+  .other-list li .evt-title{ flex-grow: 1; }
+  .other-list li .evt-tickets{ margin-left: 8px; color: gold; }
+
+  /* Chart Section */
+  .chart-container {
+    flex: 1;
+    min-width: 320px;
+    max-width: 600px;
+    background: #1f1f1f;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  }
+  .chart-container h2 {
+    color: gold;
+    text-align: center;
+    margin-bottom: 20px;
+  }
 </style>
 
-<div style="background-color: #303234; padding: 40px; border-radius: 10px;">
-    <!-- Retour button at the top -->
-    <div class="retour-button">
-        <a href="{{ path('evenement_EvenementBack') }}">← Retour</a>
-    </div>
-    <h1 class="text-center" style="color: gold;">🎤 Podium des Evenements</h1>
-    {% if results is not empty and results|length >= 3 %}
-        {% set podium = results|sort((a, b) => b.totalTickets <=> a.totalTickets) %}
-        {% set first = podium[0] %}
-        {% set second = podium[1] %}
-        {% set third = podium[2] %}
+<div class="main-container">
+  <div class="retour-button">
+    <a href="{{ path('evenement_EvenementBack') }}">← Retour à la liste</a>
+  </div>
+  <h1>🎤 Podium des Événements</h1>
+
+  <div class="content-wrapper">
+    <div class="podium-list-section">
+      {% if top3 is not empty %}
         <div class="podium-container">
-            <!-- Left podium: 3rd ranked -->
+          {% if top3|length >= 3 %}
+            {% set third = top3[2] %}
             <div class="podium-step left-step">
-                <div class="rank-label">3</div>
-                <div class="title">{{ third[0].Titre }}</div>
-                <div class="tickets">{{ third.totalTickets }} Tickets</div>
-                <div class="podium-base"></div>
+              <div class="rank-label">3</div>
+              <div class="title">{{ third[0].Titre }}</div>
+              <div class="tickets">{{ third.totalTickets }} Tickets</div>
+              <div class="podium-base"></div>
             </div>
-            <!-- Center podium: 1st ranked -->
-            
-            <div class="podium-step center-step">
-                <div class="rank-label">1</div>
-                <div class="title">{{ first[0].Titre }}</div>
-                <div class="tickets">{{ first.totalTickets }} Tickets</div>
-                <div class="podium-base"></div>
-            </div>
-            <!-- Right podium: 2nd ranked -->
+          {% endif %}
+          {% set first = top3[0] %}
+          <div class="podium-step center-step">
+            <div class="rank-label">1</div>
+            <div class="title">{{ first[0].Titre }}</div>
+            <div class="tickets">{{ first.totalTickets }} Tickets</div>
+            <div class="podium-base"></div>
+          </div>
+          {% if top3|length >= 2 %}
+            {% set second = top3[1] %}
             <div class="podium-step right-step">
-                <div class="rank-label">2</div>
-                <div class="title">{{ second[0].Titre }}</div>
-                <div class="tickets">{{ second.totalTickets }} Tickets</div>
-                <div class="podium-base"></div>
+              <div class="rank-label">2</div>
+              <div class="title">{{ second[0].Titre }}</div>
+              <div class="tickets">{{ second.totalTickets }} Tickets</div>
+              <div class="podium-base"></div>
             </div>
+          {% endif %}
         </div>
-    {% else %}
-        <p class="text-center text-white">Aucun événement trouvé.</p>
-    {% endif %}
+      {% else %}
+        <p class="text-center text-white">Aucun événement actif pour le podium.</p>
+      {% endif %}
+
+      {% if others is not empty %}
+        <div class="other-list-container">
+          <ol class="other-list" start="4">
+            {% for item in others %}
+              <li>
+                <span class="rank-num">{{ loop.index0 + 4 }}.</span>
+                <span class="evt-title">{{ item[0].Titre }}</span>
+                <span class="evt-tickets">{{ item.totalTickets }} tickets</span>
+              </li>
+            {% endfor %}
+          </ol>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="chart-container">
+      <h2>Vitesse de vente (tickets/jour)</h2>
+      <canvas id="speedChart"></canvas>
+    </div>
+  </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const data   = {{ speedData|json_encode()|raw }};
+    const labels = data.map(e => e.title);
+    const values = data.map(e => e.speed);
+
+    new Chart(document.getElementById('speedChart'), {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{ label: 'Tickets/jour', data: values, backgroundColor: 'rgba(255,215,0,0.7)', borderColor: 'gold', borderWidth: 1 }]
+      },
+      options: {
+        scales: {
+          y: { beginAtZero: true, title: { display: true, text: 'Tickets vendus par jour', color: '#ddd' }, ticks: { color: '#ddd' } },
+          x: { ticks: { color: '#ddd' } }
+        },
+        plugins: { legend: { labels: { color: '#ddd' } } }
+      }
+    });
+  });
+</script>
 {% endblock %}

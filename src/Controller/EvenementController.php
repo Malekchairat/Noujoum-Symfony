@@ -49,16 +49,5 @@ class EvenementController extends AbstractController
     
 
  
-#[Route('/{id}', name: 'evenement_details', methods: ['GET'])]
-    public function showEvenementDetails(int $id, EvenementRepository $repository): Response
-    {
-        $evenement = $repository->find($id);
-        if (!$evenement) {
-            throw $this->createNotFoundException('Événement introuvable');
-        }
-        return $this->render('evenement/evenement_show.html.twig', [
-            'evenement' => $evenement,
-        ]);
-    }
 
 }
