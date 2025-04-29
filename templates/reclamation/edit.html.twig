@@ -1,0 +1,178 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Reclamation - {{ reclamation.titre }}{% endblock %}
+
+{% block body %}
+    <style>
+        .is-valid { border-color: #198754; }
+        .is-invalid { border-color: #dc3545; }
+        .invalid-feedback.d-block { display: block; }
+        .invalid-feedback.d-none { display: none; }
+    </style>
+
+    <div class="container py-5">
+        <h1 class="mb-4">Edit Reclamation</h1>
+
+        <div class="card shadow">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-muted">Created on {{ reclamation.dateCreation|date('Y-m-d H:i') }}</span>
+                    <span class="badge bg-secondary">ID: {{ reclamation.id }}</span>
+                </div>
+            </div>
+
+            <div class="card-body">
+                {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+                <div class="mb-3">
+                    {{ form_label(form.titre, 'Title', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.titre, {'attr': {'class': 'form-control' ~ (form.titre.vars.errors ? ' is-invalid' : '')}}) }}
+                    <div class="invalid-feedback">
+                        {{ form_errors(form.titre) }}
+                    </div>
+                    <div id="edit-titre-error" class="invalid-feedback d-none"></div>
+
+                </div>
+
+                <div class="mb-4">
+                    {{ form_label(form.description, 'Description', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.description, {'attr': {'class': 'form-control' ~ (form.description.vars.errors ? ' is-invalid' : ''), 'rows': 8}}) }}
+                    <div class="invalid-feedback">
+                        {{ form_errors(form.description) }}
+                    </div>
+                    <div id="edit-description-error" class="invalid-feedback d-none"></div>
+
+                </div>
+
+                <div id="gemini-spinner" class="d-none text-center mb-3">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Analyse en cours...</span>
+                    </div>
+                    <div class="mt-2">Analyse du contenu par IA...</div>
+                </div>
+                <small id="edit-description-badwords" class="text-danger"></small>
+
+
+                <div class="d-flex justify-content-between">
+                    <a href="{{ path('app_reclamation_index') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>Cancel
+                    </a>
+                    <button id="edit-submit-btn" type="submit" class="btn btn-primary">
+                        <i class="bi bi-save-fill me-2"></i>Save Changes
+                    </button>
+                </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const GEMINI_API_KEY = "AIzaSyCWYXrEGlHeFdgJ-HEgeP-d-53vxgsxCso";
+        const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+
+        async function checkBadWordsWithGemini(text) {
+            const prompt = `Ce texte contient-il des mots inappropriés ou offensants en anglais, français ou arabe ? Réponds uniquement par "oui" ou "non". Texte : "${text}"`;
+
+            try {
+                const response = await fetch(GEMINI_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }]
+                    })
+                });
+
+                const result = await response.json();
+                const reply = result?.candidates?.[0]?.content?.parts?.[0]?.text?.toLowerCase() || "";
+                return reply.includes("oui");
+            } catch (error) {
+                console.error("Erreur Gemini:", error);
+                return false; // fail-safe
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.querySelector('form');
+            const titreInput = document.getElementById('user_reclamation_titre');
+            const titreError = document.getElementById('edit-titre-error');
+
+            const descriptionInput = document.getElementById('user_reclamation_description');
+            const descriptionError = document.getElementById('edit-description-error');
+            const badwordsError = document.getElementById('edit-description-badwords');
+
+            const submitBtn = document.getElementById('edit-submit-btn');
+            const spinner = document.getElementById('gemini-spinner');
+
+            titreInput.addEventListener('input', () => {
+                const value = titreInput.value.trim();
+                let message = "";
+
+                if (/^\d/.test(value)) {
+                    message = "Le titre ne doit pas commencer par un chiffre.";
+                } else if (value.length <= 5) {
+                    message = "Le titre doit contenir plus de 5 caractères.";
+                }
+
+                const isValid = message === "";
+                titreInput.classList.toggle('is-invalid', !isValid);
+                titreInput.classList.toggle('is-valid', isValid);
+                titreError.textContent = message;
+                titreError.classList.toggle('d-none', isValid);
+                titreError.classList.toggle('d-block', !isValid);
+            });
+
+            descriptionInput.addEventListener('input', () => {
+                const value = descriptionInput.value.trim();
+                let message = "";
+
+                if (value.length <= 10) {
+                    message = "La description doit contenir plus de 10 caractères.";
+                }
+
+                const isValid = message === "";
+                descriptionInput.classList.toggle('is-invalid', !isValid);
+                descriptionInput.classList.toggle('is-valid', isValid);
+                descriptionError.textContent = message;
+                descriptionError.classList.toggle('d-none', isValid);
+                descriptionError.classList.toggle('d-block', !isValid);
+                badwordsError.textContent = "";
+            });
+
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault(); // always prevent first
+                const description = descriptionInput.value.trim();
+
+                // validation locale
+                if (description.length <= 10) {
+                    descriptionInput.classList.add('is-invalid');
+                    descriptionError.textContent = "La description doit contenir plus de 10 caractères.";
+                    descriptionError.classList.remove('d-none');
+                    return;
+                }
+
+                // spinner + disable
+                submitBtn.disabled = true;
+                spinner.classList.remove('d-none');
+
+                const hasBadWords = await checkBadWordsWithGemini(description);
+
+                spinner.classList.add('d-none');
+
+                if (hasBadWords) {
+                    descriptionInput.classList.add('is-invalid');
+                    badwordsError.textContent = "⚠️ Ce texte contient des mots inappropriés.";
+                    submitBtn.disabled = false;
+                    return;
+                }
+
+                form.submit(); // ✅ submit manuel
+            });
+        });
+    </script>
+
+
+
+
+
+{% endblock %}

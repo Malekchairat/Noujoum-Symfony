@@ -1,0 +1,295 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Reclamations{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <h1 class="mb-4">My Reclamations</h1>
+
+
+
+        <div class="d-flex justify-content-end mb-4">
+            <a href="{{ path('app_reclamation_new') }}" class="btn btn-success">
+                <i class="bi bi-plus-circle me-1"></i> Add Reclamation
+            </a>
+        </div>
+        <form method="get" class="mb-4 row g-3">
+            <div class="col-md-6">
+                <input type="text" name="search" class="form-control" placeholder="Search by title or description"
+                       value="{{ search ?? '' }}">
+            </div>
+            <div class="col-md-4">
+                <select name="status" class="form-select">
+                    <option value="">All Statuses</option>
+                    <option value="PENDING" {{ statusFilter == 'PENDING' ? 'selected' }}>Pending</option>
+                    <option value="RESOLVED" {{ statusFilter == 'RESOLVED' ? 'selected' }}>Resolved</option>
+                    <option value="OPEN" {{ statusFilter == 'OPEN' ? 'selected' }}>Open</option>
+                    <option value="CLOSED" {{ statusFilter == 'CLOSED' ? 'selected' }}>Closed</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-filter me-1"></i> Filter
+                </button>
+            </div>
+        </form>
+
+
+        {% if reclamations is empty %}
+            <div class="alert alert-info">
+                You haven't submitted any reclamations yet.
+            </div>
+        {% else %}
+
+
+            <div class="list-group">
+                {% for reclamation in pagination %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-1">{{ reclamation.titre }}</h5>
+                                <small class="text-muted">
+                                    Submitted on {{ reclamation.dateCreation|date('Y-m-d H:i') }}
+                                </small>
+                                {% if reclamation.answer %}
+                                    <p class="mt-2 text-success">
+                                        <strong>Response:</strong> {{ reclamation.answer }}
+                                    </p>
+                                {% endif %}
+
+                            </div>
+                            <div>
+                            <span class="badge bg-{{ reclamation.statut == 'RESOLVED' ? 'success' : 'warning' }} me-2">
+                                {{ reclamation.statut|lower|capitalize }}
+                            </span>
+
+
+                                {% if reclamation.answer %}
+                                    {% set feedbackExists = false %}
+                                    {% for feedback in feedbacks %}
+                                        {% if feedback.reclamationId == reclamation.id %}
+                                            {% set feedbackExists = true %}
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {% if feedbackExists %}
+                                        <a href="{{ path('app_feedback_index') }}" class="btn btn-sm btn-primary">
+                                            <i class="bi bi-chat-left-text me-1"></i>View Feedback
+                                        </a>
+                                    {% else %}
+                                        <button class="btn btn-sm btn-primary"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#feedbackModal"
+                                                data-reclamation-id="{{ reclamation.id }}">
+                                            <i class="bi bi-chat-left-text me-1"></i>Give Feedback
+                                        </button>
+                                    {% endif %}
+                                {% endif %}
+
+
+                                {# 🔧 Edit button #}
+                                {% if not reclamation.answer %}
+                                    <a href="{{ path('app_reclamation_edit', {'id': reclamation.id}) }}"
+                                       class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </a>
+                                {% endif %}
+
+
+                                {# 🗑 Delete button (form to use POST/DELETE properly) #}
+                                <form method="post" action="{{ path('app_reclamation_delete', {'id': reclamation.id}) }}"
+                                      onsubmit="return confirm('Are you sure you want to delete this reclamation?');"
+                                      style="display:inline-block;">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reclamation.id) }}">
+                                    <button class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="pagination-custom mt-5">
+                {{ knp_pagination_render(pagination) }}
+            </div>
+
+        {% endif %}
+    </div>
+
+    <!-- Feedback Modal -->
+    <div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="feedbackModalLabel">Submit Feedback</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {{ form_start(feedbackForm, {
+                        'attr': {
+                            'id': 'feedbackForm',
+                            'data-url': path('app_feedback_new')
+                        }
+                    }) }}
+                    {# Add hidden fields for missing required values #}
+                    <input type="hidden" name="reclamationId" id="feedback_reclamationId">
+                    <input type="hidden" name="utilisateurId" value="1">
+                    <input type="hidden" name="date_feedback" value="{{ "now"|date("Y-m-d H:i:s") }}">
+
+                    {# Render only the needed fields #}
+                    <div class="mb-3">
+                        {{ form_label(feedbackForm.note) }}
+                        {{ form_widget(feedbackForm.note, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(feedbackForm.note) }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form_label(feedbackForm.commentaire) }}
+                        {{ form_widget(feedbackForm.commentaire, {'attr': {'class': 'form-control', 'rows': 4}}) }}
+                        {{ form_errors(feedbackForm.commentaire) }}
+                    </div>
+
+                    <div class="mt-3 d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Submit Feedback</button>
+                    </div>
+                    {{ form_end(feedbackForm) }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .pagination-custom {
+            margin: 2rem 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .pagination {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            padding: 0;
+            list-style: none;
+        }
+
+        .pagination span {
+            display: inline-block;
+            transition: all 0.2s ease;
+        }
+
+        .pagination .page a,
+        .pagination .previous a,
+        .pagination .next a,
+        .pagination .first a,
+        .pagination .last a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            color: #2A4B7C;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            background: white;
+        }
+
+        .pagination .page a:hover,
+        .pagination .previous a:hover,
+        .pagination .next a:hover,
+        .pagination .first a:hover,
+        .pagination .last a:hover {
+            background: #F4F7FA;
+            border-color: #2A4B7C;
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(42, 75, 124, 0.1);
+        }
+
+        .pagination .current {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #2A4B7C 0%, #3B5998 100%);
+            color: white !important;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(42, 75, 124, 0.2);
+        }
+
+        .pagination .previous,
+        .pagination .next {
+            min-width: 40px;
+        }
+
+        .pagination .disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .pagination .disabled a {
+            background: #f8f9fa !important;
+            border-color: #e9ecef !important;
+            pointer-events: none;
+        }
+
+        @media (max-width: 768px) {
+            .pagination .page a,
+            .pagination .previous a,
+            .pagination .next a,
+            .pagination .first a,
+            .pagination .last a {
+                width: 35px;
+                height: 35px;
+                font-size: 0.9rem;
+            }
+
+            .pagination .current {
+                width: 35px;
+                height: 35px;
+            }
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const feedbackModal = document.getElementById('feedbackModal');
+            const feedbackForm = document.getElementById('feedbackForm');
+
+            feedbackModal.addEventListener('show.bs.modal', function(event) {
+                const button = event.relatedTarget;
+                const reclamationId = button.getAttribute('data-reclamation-id');
+                document.getElementById('feedback_reclamationId').value = reclamationId;
+            });
+
+            feedbackForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                try {
+                    const response = await fetch(this.dataset.url, {
+                        method: 'POST',
+                        body: new FormData(this),
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    if (response.status === 204 || response.status === 201) {
+                        window.location.reload();
+                    } else {
+                        const data = await response.json();
+                        alert(data.errors.join('\n'));
+                    }
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Network error - please try again');
+                }
+            });
+        });
+    </script>
+{% endblock %}
