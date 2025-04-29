@@ -87,27 +87,10 @@
                                 <td class="text-black font-weight-bold"><strong>{{ total }} €</strong></td>
                             </tr>
                             <a href="{{ path('app_commande_historique') }}" class="btn btn-primary">
-  Voir mon historique de commandes
-</a>
-
+                                Voir mon historique de commandes
+                            </a>
                         </tbody>
                     </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Debug Information Section -->
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header bg-dark text-white">
-                        <h5 class="mb-0">Debug Information</h5>
-                    </div>
-                    <div class="card-body">
-                        <div id="debugInfo" class="text-muted">
-                            <p>Waiting for order process...</p>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -124,36 +107,27 @@
 </div>
 
 <script>
-function updateDebugInfo(message, isError = false) {
-    const debugInfo = document.getElementById('debugInfo');
-    const timestamp = new Date().toLocaleTimeString();
-    const messageDiv = document.createElement('div');
-    messageDiv.innerHTML = `<strong>[${timestamp}]</strong> ${message}`;
-    messageDiv.style.color = isError ? 'red' : 'inherit';
-    debugInfo.prepend(messageDiv);
-}
-
 function validateField(field) {
     let isValid = true;
     let errorMessage = "";
 
     if (!field.value.trim()) {
-        errorMessage = "🚨 This field cannot be empty!";
+        errorMessage = "Ce champ est requis.";
         isValid = false;
     } else if (field.name === "rue" && !/^[a-zA-Z0-9\s]+$/.test(field.value)) {
-        errorMessage = "🚫 No special characters allowed!";
+        errorMessage = "Pas de caractères spéciaux.";
         isValid = false;
     } else if (field.name === "rue" && field.value.length > 35) {
-        errorMessage = "⚠️ Keep it short! Max 35 characters.";
+        errorMessage = "Maximum 35 caractères.";
         isValid = false;
     } else if (field.name === "ville" && !/^[a-zA-Z\s]+$/.test(field.value)) {
-        errorMessage = "🤨 Only letters allowed!";
+        errorMessage = "Lettres uniquement.";
         isValid = false;
     } else if (field.name === "ville" && field.value.length > 10) {
-        errorMessage = "📏 Max 10 characters, please!";
+        errorMessage = "Maximum 10 caractères.";
         isValid = false;
     } else if (field.name === "code_postal" && !/^\d{4,5}$/.test(field.value)) {
-        errorMessage = "🔢 Must be 4-5 digits only!";
+        errorMessage = "Doit contenir 4 à 5 chiffres.";
         isValid = false;
     }
 
@@ -202,42 +176,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
 document.getElementById('placeOrderBtn').addEventListener('click', async function() {
     if (!validateForm()) {
-        updateDebugInfo('Please fill in all required fields correctly', true);
+        alert('Veuillez corriger les champs avant de continuer.');
         return;
     }
 
     const spinner = document.getElementById('loadingSpinner');
     const form = document.getElementById('checkoutForm');
-    
+
     try {
-        updateDebugInfo('Starting order process...');
         spinner.classList.remove('d-none');
-        
         const formData = new FormData(form);
-        updateDebugInfo(`Submitting form to: ${form.action}`);
-        
+
         const orderResponse = await fetch(form.action, {
             method: 'POST',
             body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
         });
 
-        updateDebugInfo(`Order response status: ${orderResponse.status}`);
-        
-        if (!orderResponse.ok) {
-            const errorText = await orderResponse.text();
-            updateDebugInfo(`Order error: ${errorText}`, true);
-            throw new Error('Failed to place order');
-        }
+        if (!orderResponse.ok) throw new Error('Commande échouée');
 
         const orderResult = await orderResponse.json();
-        updateDebugInfo(`Order result: ${JSON.stringify(orderResult)}`);
-        
+
         if (orderResult.success) {
-            updateDebugInfo('Order successful, sending confirmation email...');
-            const emailResponse = await fetch(`/api/order/confirm/${orderResult.orderId}`, {
+            await fetch(`/api/order/confirm/${orderResult.orderId}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -245,21 +206,10 @@ document.getElementById('placeOrderBtn').addEventListener('click', async functio
                 }
             });
 
-            updateDebugInfo(`Email response status: ${emailResponse.status}`);
-            
-            if (!emailResponse.ok) {
-                const emailError = await emailResponse.text();
-                updateDebugInfo(`Email error: ${emailError}`, true);
-            } else {
-                const emailResult = await emailResponse.json();
-                updateDebugInfo(`Email result: ${JSON.stringify(emailResult)}`);
-            }
-
             window.location.href = '{{ path('app_postcheckout', {'id': 'PLACEHOLDER'}) }}'.replace('PLACEHOLDER', orderResult.orderId);
         }
     } catch (error) {
-        updateDebugInfo(`Process error: ${error.message}`, true);
-        alert('Une erreur est survenue lors de la commande. Veuillez réessayer.');
+        alert('Une erreur est survenue. Veuillez réessayer.');
     } finally {
         spinner.classList.add('d-none');
     }
@@ -274,12 +224,6 @@ document.getElementById('placeOrderBtn').addEventListener('click', async functio
 .btn-primary:hover {
     background-color: #2e59d9;
     border-color: #2e59d9;
-}
-#debugInfo {
-    max-height: 300px;
-    overflow-y: auto;
-    font-family: monospace;
-    white-space: pre-wrap;
 }
 .is-invalid {
     border-color: #dc3545;

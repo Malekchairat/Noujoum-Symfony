@@ -1,4 +1,5 @@
 {# templates/security/login.html.twig #}
+{{ dump(error) }}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -134,11 +135,11 @@
 
             <h1>Connexion</h1>
 
-            <form id="loginForm" method="post">
+            <form id="loginForm" method="post" action="{{ path('app_login') }}">
                 <div class="form-group">
                     <i class="bi bi-person-fill"></i>
                     <input
-                        type="text"
+                        type="email"
                         id="inputEmail"
                         name="email"
                         class="form-control"
@@ -157,6 +158,8 @@
                         name="password"
                         class="form-control"
                         placeholder="Mot de passe"
+                        required
+                        autocomplete="current-password"
                     >
                     <div id="passwordEmpty" class="error-text">Veuillez entrer votre mot de passe.</div>
                 </div>

@@ -3,6 +3,14 @@
 {% block title %}Your Cart - Noujoum{% endblock %}
 
 {% block body %}
+
+{% if app.user %}
+    <p>Logged in as: {{ app.user.email }}</p>
+    <p>User roles: {{ app.user.roles|join(', ') }}</p>
+{% else %}
+    <p>Not logged in</p>
+{% endif %}
+
 <!-- Start Hero Section --> 
 <div class="hero">
     <div class="container">

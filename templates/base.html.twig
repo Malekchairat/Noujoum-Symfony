@@ -154,6 +154,9 @@
                     <ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5">
                         <li><a class="nav-link" href="#"><img src="{{ asset('images/user.svg') }}"></a></li>
                         <li class="nav-item {{ cart_active | default ('') }}"><a class="nav-link" href="{{ path('cart') }}"><img src="{{ asset('images/cart.svg') }}"></a></li>
+                        {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+    <a href="{{ path('app_logout') }}" class="btn btn-danger">Logout</a>
+{% endif %}
                     </ul>
                 </div>
             </div>

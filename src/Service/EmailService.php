@@ -26,25 +26,25 @@ class EmailService
 
     public function sendOrderConfirmation(string $userEmail, array $orderDetails): array
     {
+
+        $debugInfo = [
+            'status' => 'attempting',
+            'from' => 'hedifridhy@gmail.com',
+            'to' => $userEmail, // This should show the user's email
+            'subject' => 'Confirmation de commande',
+        ];
         try {
             $this->logger->info('Starting email sending process', [
                 'order_details' => $orderDetails,
                 'mailer_dsn' => $_ENV['MAILER_DSN'] ?? 'not set'
             ]);
-
+    
             $email = (new Email())
-                ->from('hedifridhy@gmail.com')
-                ->to('hedifridhy@gmail.com')
-                ->subject('Nouvelle commande - Noujoum Shop')
+                ->from('hedifridhy@gmail.com')  // Keep this as sender
+                ->to($userEmail)  // Changed to use the user's email
+                ->subject('Confirmation de votre commande - Noujoum Shop')  // Updated subject
                 ->html($this->getOrderConfirmationTemplate($orderDetails));
 
-            $debugInfo = [
-                'status' => 'attempting',
-                'from' => 'hedifridhy@gmail.com',
-                'to' => 'hedifridhy@gmail.com',
-                'subject' => 'Nouvelle commande - Noujoum Shop',
-                'mailer_dsn' => $_ENV['MAILER_DSN'] ?? 'not set'
-            ];
 
             $this->logger->info('Attempting to send email', $debugInfo);
 
