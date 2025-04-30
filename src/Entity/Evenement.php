@@ -45,6 +45,23 @@ class Evenement
     #[ORM\OneToMany(mappedBy: "evenement", targetEntity: Ticket::class, orphanRemoval: true)]
     private Collection $tickets;
 
+    private ?string $googleEventId = null;
+
+    // Getter and Setter for googleEventId
+    public function getGoogleEventId(): ?string
+    {
+        return $this->googleEventId;
+    }
+
+    public function setGoogleEventId(?string $googleEventId): self
+    {
+        $this->googleEventId = $googleEventId;
+        return $this;
+    }
+
+
+    
+
       /**
      * @ORM\Column(type="integer")
      */

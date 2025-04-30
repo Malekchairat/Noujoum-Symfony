@@ -10,114 +10,147 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Service\GoogleCalendarService;
 
 #[Route('/evenement')]
 class EvenementBackController extends AbstractController
 {
+
+    private GoogleCalendarService $calendarService;
+
+    public function __construct(GoogleCalendarService $calendarService)
+    {
+        $this->calendarService = $calendarService;
+    }
+
     #[Route('/EvenementBack', name: 'evenement_EvenementBack')]
-    public function index(EntityManagerInterface $entityManager): Response
+    public function index(EntityManagerInterface $em): Response
     {
         $now = new \DateTime();
-    $evenements = $entityManager
-        ->getRepository(Evenement::class)
-        ->createQueryBuilder('e')
-        ->leftJoin('e.tickets', 't')
-        ->addSelect('t')
-        ->where('e.dateFin >= :now')
-        ->setParameter('now', $now)
-        ->orderBy('e.dateDebut', 'ASC')
-        ->getQuery()
-        ->getResult();
+        $evenements = $em->getRepository(Evenement::class)
+            ->createQueryBuilder('e')
+            ->leftJoin('e.tickets', 't')->addSelect('t')
+            ->where('e.dateFin >= :now')->setParameter('now', $now)
+            ->orderBy('e.dateDebut', 'ASC')
+            ->getQuery()->getResult();
 
-            // Add days remaining to each evenement
-            foreach ($evenements as $evenement) {
-                $daysUntilStart = $now->diff($evenement->getDateDebut())->days;
-                $evenement->daysUntilStart = $daysUntilStart;
-            }
+        foreach ($evenements as $ev) {
+            $ev->daysUntilStart = $now->diff($ev->getDateDebut())->days;
+        }
 
-            return $this->render('evenement/evenementback.html.twig', [
-                'evenements' => $evenements,
-                'maxTickets' => 500,
+        return $this->render('evenement/evenementback.html.twig', [
+            'evenements' => $evenements,
+            'maxTickets' => 500,
         ]);
     }
 
     #[Route('/new', name: 'evenement_new', methods: ['GET','POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $em): Response
     {
         $evenement = new Evenement();
         $form = $this->createForm(EvenementType::class, $evenement);
         $form->handleRequest($request);
-
+    
         if ($form->isSubmitted() && $form->isValid()) {
+            // 1) Validation dateDebut/dateFin + image upload…
             $dateDebut = $evenement->getDateDebut();
             $dateFin   = $evenement->getDateFin();
             if ($dateDebut && $dateFin && $dateDebut > $dateFin) {
                 $form->get('dateDebut')->addError(new FormError('La date de début ne peut pas être après la date de fin.'));
             } else {
-                $imageFile = $form->get('image')->getData();
-                if ($imageFile) {
-                    $newFilename = uniqid() . '.' . $imageFile->guessExtension();
-                    $imageFile->move($this->getParameter('uploads_directory'), $newFilename);
+                // 2) Handle image upload (if any)
+                if ($img = $form->get('image')->getData()) {
+                    $newFilename = uniqid().'.'.$img->guessExtension();
+                    $img->move($this->getParameter('uploads_directory'), $newFilename);
                     $evenement->setImage($newFilename);
                 }
-                $entityManager->persist($evenement);
-                $entityManager->flush();
-                $this->addFlash('success', 'Evenement créé avec succès.');
+    
+                // 3) Persist the Evenement entity
+                $em->persist($evenement);
+                $em->flush();
+    
+                // 4) Synchronization with Google Calendar
+                $googleId = $this->calendarService->createEvent($evenement); // Create event on Google Calendar
+                $evenement->setGoogleEventId($googleId); // Set the Google event ID in the Evenement entity
+                $em->flush(); // Update the database with the Google event ID
+    
+                // 5) Display success message
+                $this->addFlash('success', 'Événement créé et synchronisé avec Google Calendar.');
+    
+                // 6) Redirect to another route after successful creation
                 return $this->redirectToRoute('evenement_EvenementBack');
             }
         }
-
+    
         return $this->render('evenement/new.html.twig', [
             'form' => $form->createView(),
         ]);
     }
 
     #[Route('/{id}/edit', name: 'evenement_edit', methods: ['GET','POST'])]
-    public function edit(Request $request, Evenement $evenement, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Evenement $evenement, EntityManagerInterface $em): Response
     {
         $form = $this->createForm(EvenementType::class, $evenement);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // 1) Validation + image upload…
             $dateDebut = $evenement->getDateDebut();
             $dateFin   = $evenement->getDateFin();
             if ($dateDebut && $dateFin && $dateDebut > $dateFin) {
                 $form->get('dateDebut')->addError(new FormError('La date de début ne peut pas être après la date de fin.'));
             } else {
-                $imageFile = $form->get('image')->getData();
-                if ($imageFile) {
-                    $newFilename = uniqid() . '.' . $imageFile->guessExtension();
-                    $imageFile->move($this->getParameter('uploads_directory'), $newFilename);
-                    if ($evenement->getImage()) {
-                        $old = $this->getParameter('uploads_directory').'/'.$evenement->getImage();
-                        if (file_exists($old)) unlink($old);
+                if ($img = $form->get('image')->getData()) {
+                    $newFilename = uniqid().'.'.$img->guessExtension();
+                    $img->move($this->getParameter('uploads_directory'), $newFilename);
+                    if ($old = $evenement->getImage()) {
+                        @unlink($this->getParameter('uploads_directory').'/'.$old);
                     }
                     $evenement->setImage($newFilename);
                 }
-                $entityManager->flush();
-                $this->addFlash('success', '🎉 Événement mis à jour avec succès!');
+
+                $em->flush();
+
+                // 2) Mise à jour Google Calendar
+                if ($evenement->getGoogleEventId()) {
+                    $this->calendarService->updateEvent($evenement->getGoogleEventId(), $evenement);
+                } else {
+                    $googleId = $this->calendarService->createEvent($evenement);
+                    $evenement->setGoogleEventId($googleId);
+                    $em->flush();
+                }
+
+                $this->addFlash('success', 'Événement mis à jour et synchronisé.');
                 return $this->redirectToRoute('evenement_EvenementBack');
             }
         }
 
         return $this->render('evenement/edit.html.twig', [
             'evenement' => $evenement,
-            'form' => $form->createView(),
+            'form'      => $form->createView(),
         ]);
     }
 
     #[Route('/{id}/delete', name: 'evenement_delete', methods: ['POST'])]
-    public function delete(Request $request, Evenement $evenement, EntityManagerInterface $entityManager): Response
+    public function delete(Request $request, Evenement $evenement, EntityManagerInterface $em): Response
     {
         if ($this->isCsrfTokenValid('delete'.$evenement->getId(), $request->request->get('_token'))) {
-            $entityManager->remove($evenement);
-            $entityManager->flush();
-            $this->addFlash('success', '🗑️ Event deleted successfully!');
+            // Suppression dans Google Calendar
+            if ($id = $evenement->getGoogleEventId()) {
+                $this->calendarService->deleteEvent($id);
+            }
+
+            $em->remove($evenement);
+            $em->flush();
+            $this->addFlash('success', 'Événement supprimé localement et sur Google Calendar.');
         } else {
-            $this->addFlash('error', '❌ Invalid CSRF token!');
+            $this->addFlash('error', '❌ Token CSRF invalide !');
         }
+
         return $this->redirectToRoute('evenement_EvenementBack');
     }
+    
+    
     #[Route('/stat', name: 'evenement_stat')]
     public function stat(EntityManagerInterface $entityManager): Response
     {
