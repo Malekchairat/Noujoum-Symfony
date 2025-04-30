@@ -49,15 +49,17 @@ class FavorisController extends AbstractController
     #[Route('/favoris', name: 'app_favoris')]
     public function index(FavorisRepository $favorisRepository): Response
     {
-        $favorisList = [];
-        if ($this->getUser()) {
-            $favorisList = $favorisRepository->findBy(['user' => $this->getUser()]);
+        if (!$this->getUser()) {
+            return $this->redirectToRoute('app_login');
         }
-
+    
+        $favorisList = $favorisRepository->findBy(['user' => $this->getUser()]);
+    
         return $this->render('favoris/favoris.html.twig', [
-            'favoris' => $favorisList,  // Changed variable name for consistency
+            'favoris' => $favorisList,
         ]);
     }
+    
 
     #[Route('/mes-produits', name: 'mes_favoris')]
     public function mesFavoris(FavorisRepository $favorisRepository): Response

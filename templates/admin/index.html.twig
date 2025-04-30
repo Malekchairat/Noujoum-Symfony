@@ -1,0 +1,622 @@
+{% extends 'backoffice.html.twig' %}
+
+{% block title %}Reclamations Management{% endblock %}
+
+{# ─── use the `head` block, not `stylesheets` ─────────────────────────────── #}
+{% block head %}
+    {{ parent() }}
+    <style>
+        /* ─── Color Palette ───────────────────────────────────────────────────── */
+        :root {
+            --clr-gold:   #D4AF37;
+            --clr-black:  #000000;
+            --clr-white:  #FFFFFF;
+            --clr-grey:   #F0F0F0;
+        }
+
+        /* ─── Page & Body ─────────────────────────────────────────────────────── */
+        body {
+            background-color: var(--clr-grey) !important;
+        }
+        .dashboard {
+            padding: 2rem;
+        }
+
+        /* ─── Card Styles ─────────────────────────────────────────────────────── */
+        .dashboard .card.reclamation-card {
+            background: var(--clr-black);
+            color: var(--clr-white);
+            border: none;
+            border-radius: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .dashboard .card.reclamation-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
+        }
+        .dashboard .card .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--clr-white);
+        }
+
+        /* ─── Badge Overrides ────────────────────────────────────────────────── */
+        .badge {
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            padding: 0.4em 0.8em;
+        }
+        .badge-open     { background: var(--clr-gold);  color: var(--clr-black); }
+        .badge-resolved { background: #28a745;          color: var(--clr-white); }
+        .badge-closed   { background: #6c757d;          color: var(--clr-white); }
+        .badge-low      { background: var(--clr-white); color: var(--clr-black); border: 1px solid var(--clr-black); }
+        .badge-medium   { background: var(--clr-gold);  color: var(--clr-black); }
+        .badge-high     { background: #dc3545;          color: var(--clr-white); }
+
+        /* ─── Button Variants ────────────────────────────────────────────────── */
+        .btn-gold {
+            background-color: var(--clr-gold);
+            color: var(--clr-black);
+            border: 2px solid var(--clr-gold);
+            border-radius: 50px;
+            padding: 0.5rem 1.5rem;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .btn-gold:hover {
+            background-color: var(--clr-black);
+            color: var(--clr-gold);
+            text-decoration: none;
+        }
+        .btn-outline-white {
+            background: transparent;
+            color: var(--clr-white);
+            border: 2px solid var(--clr-white);
+            border-radius: 50px;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .btn-outline-white:hover {
+            background: var(--clr-white);
+            color: var(--clr-black);
+        }
+
+        /* ─── Forms & Inputs ────────────────────────────────────────────────── */
+        .form-control,
+        .form-select {
+            border-radius: 0.75rem;
+        }
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--clr-gold);
+            box-shadow: 0 0 0 0.25rem rgba(212, 175, 55, 0.25);
+        }
+
+        /* ─── Text & Meta ───────────────────────────────────────────────────── */
+        .reclamation-meta,
+        .feedback-comment {
+            font-size: 0.9rem;
+            color: var(--clr-white);
+        }
+        h1.h3 {
+            color: var(--clr-black);
+        }
+        .feedback-section {
+            background-color: var(--clr-black);
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-top: 1rem;
+            border-left: 4px solid var(--clr-gold);
+            color: var(--clr-white);
+        }
+    </style>
+{% endblock %}
+
+
+{% block body %}
+    <div class="dashboard container-fluid">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 fw-bold">📋 Admin Dashboard - Reclamations</h1>
+        </div>
+
+        <!-- 🔍 Search and Filter -->
+        <form method="get" class="row g-3 mb-4">
+            <div class="col-md-4">
+                <input type="text" name="search" class="form-control"
+                       placeholder="Search by title or user ID"
+                       value="{{ app.request.get('search') }}">
+            </div>
+            <div class="col-md-3">
+                <select name="statut" class="form-select">
+                    <option value="">All Statuses</option>
+                    <option value="OPEN"     {{ app.request.get('statut') == 'OPEN'     ? 'selected' }}>Open</option>
+                    <option value="RESOLVED" {{ app.request.get('statut') == 'RESOLVED' ? 'selected' }}>Resolved</option>
+                    <option value="CLOSED"   {{ app.request.get('statut') == 'CLOSED'   ? 'selected' }}>Closed</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="priorite" class="form-select">
+                    <option value="">All Priorities</option>
+                    <option value="LOW"    {{ app.request.get('priorite') == 'LOW'    ? 'selected' }}>Low</option>
+                    <option value="MEDIUM" {{ app.request.get('priorite') == 'MEDIUM' ? 'selected' }}>Medium</option>
+                    <option value="HIGH"   {{ app.request.get('priorite') == 'HIGH'   ? 'selected' }}>High</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn-gold w-100">Filter</button>
+            </div>
+        </form>
+
+        {% if reclamations is empty %}
+            <div class="alert alert-info">No reclamations found.</div>
+        {% else %}
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 align-items-start g-4">
+                {% for reclamation in reclamations %}
+                    <div class="col">
+                        <div class="card reclamation-card h-100">
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title">{{ reclamation.titre }}</h5>
+                                <div class="reclamation-meta mb-2">
+                                    <p><strong>User:</strong> #{{ reclamation.user.idUser }}</p>  
+                                    <p>
+                                        <strong>Status:</strong>
+                                        <span class="badge badge-{{ reclamation.statut|lower }}">
+                                            {{ reclamation.statut|capitalize }}
+                                        </span>
+                                    </p>
+                                    <p>
+                                        <strong>Priority:</strong>
+                                        <span class="badge badge-{{ reclamation.priorite|lower }}">
+                                            {{ reclamation.priorite|capitalize }}
+                                        </span>
+                                    </p>
+                                    <p><strong>Created:</strong> {{ reclamation.dateCreation|date('Y-m-d H:i') }}</p>
+                                </div>
+
+                                {% set relatedFeedbacks = feedbacks|filter(f => f.reclamationId == reclamation.id) %}
+                                {% if relatedFeedbacks|length > 0 %}
+                                    <div class="feedback-section">
+                                        <h6 class="mb-2">Feedback</h6>
+                                        {% for feedback in relatedFeedbacks %}
+                                            <p class="feedback-comment mb-1">
+                                                <strong>Note:</strong> {{ feedback.note }}<br>
+                                                <strong>Comment:</strong> {{ feedback.commentaire }}
+                                            </p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+
+                                {% if reclamation.answer is not empty %}
+                                    <div class="alert alert-success mt-3">
+                                        <strong>Response:</strong> {{ reclamation.answer }}
+                                    </div>
+                                {% else %}
+                                    <div class="mt-auto pt-3 d-flex justify-content-end">
+                                        <button class="btn-outline-white"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#answerModal{{ reclamation.id }}">
+                                            <i class="bi bi-pencil me-1"></i> Answer
+                                        </button>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Answer Modal #}
+                    <div class="modal fade" id="answerModal{{ reclamation.id }}" tabindex="-1"
+                         aria-labelledby="answerModalLabel{{ reclamation.id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <form method="post" action="{{ path('admin_reclamation_edit', {id: reclamation.id}) }}">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="answerModalLabel{{ reclamation.id }}">
+                                            Respond to Reclamation #{{ reclamation.id }}
+                                        </h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label for="answerTextarea{{ reclamation.id }}" class="form-label">Answer</label>
+                                            <textarea name="answer"
+                                                      id="answerTextarea{{ reclamation.id }}"
+                                                      class="form-control"
+                                                      rows="4"
+                                                      placeholder="Write your response…">{{ reclamation.answer }}</textarea>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="statutSelect{{ reclamation.id }}" class="form-label">Status</label>
+                                            <select name="statut"
+                                                    id="statutSelect{{ reclamation.id }}"
+                                                    class="form-select">
+                                                <option value="OPEN"       {{ reclamation.statut == 'OPEN'       ? 'selected' }}>Open</option>
+                                                <option value="IN_PROGRESS"{{ reclamation.statut == 'IN_PROGRESS'? 'selected' }}>In Progress</option>
+                                                <option value="RESOLVED"   {{ reclamation.statut == 'RESOLVED'   ? 'selected' }}>Resolved</option>
+                                                <option value="CLOSED"     {{ reclamation.statut == 'CLOSED'     ? 'selected' }}>Closed</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                            Cancel
+                                        </button>
+                                        <button type="submit" class="btn-gold">Submit</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+       <!-- 📊 Dashboard Charts -->
+    <div class="row mb-5">
+        <div class="col-md-6">
+            <div class="card p-3">
+                <h5 class="mb-3">Reclamation Status Overview</h5>
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card p-3">
+                <h5 class="mb-3">Reclamation Priority Overview</h5>
+                <canvas id="priorityChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-md-6">
+            <div class="card p-3">
+                <h5 class="mb-3">📈 Monthly Reclamations</h5>
+                <canvas id="monthlyChart"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card p-3">
+                <h5 class="mb-3">👤 Top 5 Users by Reclamations</h5>
+                <canvas id="userChart"></canvas>
+            </div>
+        </div>
+        <div class="col-md-12 mt-4">
+            <div class="card p-3">
+                <h5 class="mb-3">⭐ Feedback Ratings Distribution</h5>
+                <canvas id="feedbackChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ionicons@5.5.2/dist/ionicons.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        function handleAnswerInput(textarea) {
+            const maxLength = 1000;
+            const currentLength = textarea.value.length;
+            const modalId = textarea.id.replace('answerTextarea', '');
+
+            // Update character count
+            document.getElementById(`charCount${modalId}`).textContent = currentLength;
+
+            // Update progress bar
+            const progressPercent = Math.min((currentLength / maxLength) * 100, 100);
+            const progressBar = document.getElementById(`progressBar${modalId}`);
+            progressBar.style.width = `${progressPercent}%`;
+
+            // Change color based on length
+            if (currentLength > maxLength * 0.9) {
+                progressBar.classList.remove('bg-warning');
+                progressBar.classList.add('bg-danger');
+            } else if (currentLength > maxLength * 0.75) {
+                progressBar.classList.remove('bg-success', 'bg-danger');
+                progressBar.classList.add('bg-warning');
+            } else {
+                progressBar.classList.remove('bg-warning', 'bg-danger');
+                progressBar.classList.add('bg-success');
+            }
+
+            // Disable submit button if over limit
+            const submitBtn = document.getElementById(`submitBtn${modalId}`);
+            if (currentLength > maxLength) {
+                submitBtn.disabled = true;
+                submitBtn.title = "Answer is too long (max 1000 characters)";
+            } else {
+                submitBtn.disabled = false;
+                submitBtn.title = "";
+            }
+        }
+
+        function validateForm(modalId) {
+            const textarea = document.getElementById(`answerTextarea${modalId}`);
+            const form = document.getElementById(`reclamationForm${modalId}`);
+
+            if (textarea.value.trim() === '') {
+                // Show SweetAlert error
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Empty Answer',
+                    text: 'Please provide a response before submitting.',
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'OK',
+                    focusConfirm: true
+                }).then(() => {
+                    textarea.focus();
+                });
+
+                // Add red border to highlight the empty field
+                textarea.classList.add('is-invalid');
+                setTimeout(() => {
+                    textarea.classList.remove('is-invalid');
+                }, 2000);
+
+                // Prevent form submission
+                return false;
+            }
+
+            return true; // Allow form submission if validation passes
+        }
+
+        // Initialize for existing content when modal opens
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('show.bs.modal', function() {
+                const textarea = this.querySelector('textarea');
+                if (textarea) {
+                    handleAnswerInput(textarea);
+                }
+            });
+        });
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log("top names",{{ topUserNames|json_encode|raw }});
+            console.log("stats month",{{ monthlyStats|json_encode|raw }});
+            // Get the correct elements using the new IDs we added
+            const searchInput = document.getElementById('dynamicSearch');
+            const statusSelect = document.getElementById('dynamicStatus');
+            const prioritySelect = document.getElementById('dynamicPriority');
+            const resetButton = document.getElementById('dynamicReset');
+            const reclamationsGrid = document.getElementById('reclamationsGrid');
+            const monthReclamations = {{ monthlyStats|json_encode|raw }};
+            const months = Object.keys(monthReclamations);
+            const reclamationsCount = Object.values(monthReclamations);
+            console.log("Monthly Reclamations:", months, reclamationsCount);
+
+            // Store original count for empty state
+            const originalCount = document.querySelectorAll('.reclamation-item').length;
+            let noResultsAlert = null;
+
+            function filterReclamations() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const statusValue = statusSelect.value.toLowerCase();
+                const priorityValue = prioritySelect.value.toLowerCase();
+
+                let visibleCount = 0;
+
+                document.querySelectorAll('.reclamation-item').forEach(item => {
+                    const matchesSearch = !searchTerm ||
+                        item.dataset.title.includes(searchTerm) ||
+                        item.dataset.user.includes(searchTerm);
+
+                    const matchesStatus = !statusValue || item.dataset.status === statusValue;
+                    const matchesPriority = !priorityValue || item.dataset.priority === priorityValue;
+
+                    if (matchesSearch && matchesStatus && matchesPriority) {
+                        item.style.display = 'block';
+                        visibleCount++;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+
+                // Handle empty state
+                if (visibleCount === 0 && originalCount > 0) {
+                    if (!noResultsAlert) {
+                        noResultsAlert = document.createElement('div');
+                        noResultsAlert.className = 'alert alert-info mt-3';
+                        noResultsAlert.textContent = 'No reclamations match your filters.';
+                        reclamationsGrid.parentNode.insertBefore(noResultsAlert, reclamationsGrid);
+                    }
+                } else if (noResultsAlert && visibleCount > 0) {
+                    noResultsAlert.remove();
+                    noResultsAlert = null;
+                }
+            }
+
+            // Debounce function
+            function debounceFilter() {
+                clearTimeout(window.filterDebounce);
+                window.filterDebounce = setTimeout(filterReclamations, 300);
+            }
+
+            // Event listeners
+            if (searchInput) searchInput.addEventListener('input', debounceFilter);
+            if (statusSelect) statusSelect.addEventListener('change', debounceFilter);
+            if (prioritySelect) prioritySelect.addEventListener('change', debounceFilter);
+            if (resetButton) {
+                resetButton.addEventListener('click', function() {
+                    searchInput.value = '';
+                    statusSelect.value = '';
+                    prioritySelect.value = '';
+                    filterReclamations();
+                });
+            }
+
+            // Initial filter if page loaded with values
+            if (searchInput.value || statusSelect.value || prioritySelect.value) {
+                filterReclamations();
+            }
+        });
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const statusStats = {{ statusStats|json_encode|raw }};
+            const priorityStats = {{ priorityStats|json_encode|raw }};
+            const feedbackStats = {{ feedbackStats|json_encode|raw }};
+            const topUserNames = {{ topUserNames|json_encode|raw }};
+            const topUserCounts = {{ topUserCounts|json_encode|raw }};
+            const monthReclamations = {{ monthlyStats|json_encode|raw }};
+            const months = Object.keys(monthReclamations);
+            const reclamationsCount = Object.values(monthReclamations);
+            console.log("Monthly Reclamations:", months, reclamationsCount);
+
+
+            // Top 5 Users by Reclamations Chart
+            new Chart(document.getElementById('userChart'), {
+                type: 'bar',
+                data: {
+                    labels: topUserNames,
+                    datasets: [{
+                        label: 'Reclamations Count',
+                        data: topUserCounts,
+                        backgroundColor: '#0dcaf0',
+                        borderColor: '#0dcaf0',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1 }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            enabled: true,
+                            backgroundColor: '#fff',
+                            titleColor: '#0dcaf0',
+                            bodyColor: '#333',
+                            borderColor: '#0dcaf0',
+                            borderWidth: 1,
+                        },
+                        legend: { display: false }
+                    }
+                }
+            });
+
+            // Reclamation Status Chart (Doughnut)
+            new Chart(document.getElementById('statusChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(statusStats),
+                    datasets: [{
+                        data: Object.values(statusStats),
+                        backgroundColor: ['#ffc107', '#0dcaf0', '#198754', '#6c757d'],
+                        borderWidth: 2,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        tooltip: { enabled: true },
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+
+            // Reclamation Priority Chart (Bar)
+            new Chart(document.getElementById('priorityChart'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(priorityStats),
+                    datasets: [{
+                        label: 'Count',
+                        data: Object.values(priorityStats),
+                        backgroundColor: ['#6c757d', '#ffc107', '#dc3545', '#0dcaf0'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true }
+                    },
+                    plugins: {
+                        tooltip: { enabled: true },
+                        legend: { display: false }
+                    }
+                }
+            });
+
+            // Feedback Rating Chart (Bar)
+            new Chart(document.getElementById('feedbackChart'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(feedbackStats),
+                    datasets: [{
+                        label: 'Feedback Count',
+                        data: Object.values(feedbackStats),
+                        backgroundColor: '#28a745',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true } },
+                    plugins: {
+                        tooltip: { enabled: true },
+                        legend: { display: false }
+                    }
+                }
+            });
+
+            // ✅ Monthly Reclamations Chart (Bar Chart)
+            new Chart(document.getElementById('monthlyChart'), {
+
+                type: 'bar',  // Bar chart for displaying the number of reclamations by month
+                data: {
+                    labels: months,  // x-axis labels (months)
+                    datasets: [{
+                        label: 'Reclamations Count',
+                        data: reclamationsCount,  // y-axis data (reclamations count)
+                        backgroundColor: '#0dcaf0',  // Customize color as needed
+                        borderColor: '#0dcaf0',
+                        borderWidth: 2,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,  // Ensure y-axis starts at 0
+                            ticks: {
+                                stepSize: 1  // Ensure step size is 1 for better readability
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            enabled: true,
+                            backgroundColor: '#fff',
+                            titleColor: '#0dcaf0',
+                            bodyColor: '#333',
+                            borderColor: '#0dcaf0',
+                            borderWidth: 1,
+                        },
+                        legend: { display: false }  // Hide the legend
+                    }
+                }
+
+
+
+
+            });
+        });
+
+
+
+
+
+
+
+
+    </script>
+
+
+
+
+
+{% endblock %}

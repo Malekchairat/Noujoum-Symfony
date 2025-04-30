@@ -1,0 +1,200 @@
+{# templates/admin/commande/edit.html.twig #}
+{% extends 'backoffice.html.twig' %}
+
+{% block title %}Modifier Commande{% endblock %}
+
+{% block body %}
+<style>
+    body {
+        background-color: black;
+        color: white;
+        font-family: Arial, sans-serif;
+    }
+
+    .container {
+        max-width: 700px;
+        margin: auto;
+        padding: 20px;
+        animation: fadeIn 0.8s ease-in-out;
+    }
+
+    .card {
+        background-color: #222;
+        color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(255, 215, 0, 0.2);
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .card:hover {
+        transform: scale(1.02);
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+        font-size: 16px;
+        transition: color 0.3s ease-in-out;
+    }
+
+    input, select {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #333;
+        color: white;
+        transition: all 0.3s ease-in-out;
+    }
+
+    input::placeholder {
+        color: #aaa;
+    }
+
+    input:hover, select:hover {
+        border-color: gold;
+    }
+
+    input:focus, select:focus {
+        border-color: gold;
+        outline: none;
+        box-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+    }
+
+    .btn-custom {
+        background-color: gold;
+        color: black;
+        font-weight: bold;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        transition: all 0.3s ease-in-out;
+        cursor: pointer;
+        display: inline-block;
+        animation: fadeIn 1s ease-in-out;
+    }
+
+    .btn-custom:hover {
+        background-color: #e6b800;
+        transform: scale(1.1);
+        box-shadow: 0 4px 10px rgba(255, 215, 0, 0.5);
+    }
+
+    .flash-messages {
+        margin-bottom: 20px;
+    }
+    
+    .flash-success {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+    
+    .flash-error {
+        background-color: #f44336;
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+
+    .form-error {
+        color: #f44336;
+        font-size: 14px;
+        margin-top: 5px;
+        font-weight: bold;
+    }
+
+    .bg-secondary {
+        background-color: #444 !important;
+        opacity: 0.8;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div >
+    <h1 class="text-center mb-4">Modifier Commande #{{ commande.id }}</h1>
+    
+    {# Display flash messages #}
+    <div class="flash-messages">
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="flash-{{ label }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+    
+    <div class="card custom-card">
+        <div class="card-body">
+            {{ form_start(form) }}
+                <div class="form-group">
+                    {{ form_label(form.rue) }}
+                    {{ form_widget(form.rue) }}
+                    {{ form_errors(form.rue) }}
+                </div>
+                
+                <div class="form-group">
+                    {{ form_label(form.ville) }}
+                    {{ form_widget(form.ville) }}
+                    {{ form_errors(form.ville) }}
+                </div>
+                
+                <div class="form-group">
+                    {{ form_label(form.codePostal) }}
+                    {{ form_widget(form.codePostal) }}
+                    {{ form_errors(form.codePostal) }}
+                </div>
+                
+                <div class="form-group">
+                    {{ form_label(form.etat) }}
+                    {{ form_widget(form.etat) }}
+                    {{ form_errors(form.etat) }}
+                </div>
+                
+                <div class="form-group">
+                    {{ form_label(form.montantTotal) }}
+                    {{ form_widget(form.montantTotal) }}
+                    <small class="text-muted">Ce champ n'est pas modifiable</small>
+                </div>
+                
+                <div class="form-group">
+                    {{ form_label(form.methodePaiment) }}
+                    {{ form_widget(form.methodePaiment) }}
+                    {{ form_errors(form.methodePaiment) }}
+                </div>
+                
+                <div class="form-group">
+                    {{ form_label(form.idUser) }}
+                    {{ form_widget(form.idUser) }}
+                    <small class="text-muted">Ce champ n'est pas modifiable</small>
+                </div>
+                
+                <div class="form-group text-center">
+                    <button type="submit" class="btn btn-custom">Enregistrer</button>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}

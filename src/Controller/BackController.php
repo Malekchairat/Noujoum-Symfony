@@ -2,24 +2,52 @@
 
 namespace App\Controller;
 
+use App\Repository\EvenementRepository;
+use App\Repository\FavorisRepository;
+use App\Repository\ReclamationRepository;
+use App\Controller\AdminController;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Promotion;
 use App\Form\PromotionType;
 use App\Entity\Produit; // Add this line
 use App\Form\ProduitType; // Add this line if you have a ProduitType form
 use App\Repository\ProduitRepository;
 use Doctrine\ORM\EntityManagerInterface; // Add this line
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request; // Add this line
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use App\Repository\PromotionRepository;
+use CalendarBundle\Calendar;
+use CalendarBundle\Event\CalendarEvent;
+use CalendarBundle\Factory\CalendarFactoryInterface;
+use CalendarBundle\Factory\CalendarFactory; // Add this line
+use CalendarBundle\Controller\CalendarControllerInterface;
+use CalendarBundle\Serializer\SerializerInterface;
+
 
 class BackController extends AbstractController
 {
     #[Route('/admin/dashboard', name: 'admin_dashboard')]
-    public function dashboard(): Response
+    public function dashboard(
+        EvenementRepository $evenementRepo,
+        FavorisRepository   $favorisRepo,
+        ReclamationRepository $reclamationRepo
+    ): Response
     {
-        return $this->render('backoffice.html.twig');
+        $results     = $evenementRepo->findTopByTicketCount(3);
+        $favorites   = $favorisRepo->findTopByLikes(3);
+        $statusStats = $reclamationRepo->countByStatus();
+        $priorityStats = $reclamationRepo->countByPriority('HIGH');  // Pass the required priority value
+    
+        return $this->render('dashboard.html.twig', [
+            'results'       => $results,
+            'favorites'     => $favorites,
+            'statusStats'   => $statusStats,
+            'priorityStats' => $priorityStats,
+        ]);
     }
+    
+
 
     #[Route('/backoffice/produits', name: 'produits_index')]
     public function produitsIndex(ProduitRepository $produitRepository): Response
@@ -173,4 +201,35 @@ public function addImage(Produit $produit): Response
     ]);
 }
 
+
+#[Route('/backoffice/promotions/stat', name: 'statistiques')]
+public function statistiques(PromotionRepository $promotionRepository): Response
+{
+    $promotionsByProduct = $promotionRepository->countPromotionsByProduct();
+    $averageDiscountByProduct = $promotionRepository->averageDiscountByProduct();
+    $activeVsExpired = $promotionRepository->countActiveVsExpiredPromotions();
+    $promotionsByCategory = $promotionRepository->countPromotionsByCategory();
+
+    // Ajouter un dump pour déboguer les données
+    dump($promotionsByProduct, $averageDiscountByProduct, $activeVsExpired, $promotionsByCategory);
+
+    return $this->render('backoffice/promotions/stat.html.twig', [
+        'promotionsByProduct' => $promotionsByProduct,
+        'averageDiscountByProduct' => $averageDiscountByProduct,
+        'activeVsExpired' => $activeVsExpired,
+        'promotionsByCategory' => $promotionsByCategory,
+    ]);
 }
+#[Route('/backoffice/promotions/calendar', name: 'admin_promotions_calendar')]
+    public function calendrierPromotions(PromotionRepository $promotionRepository): Response
+    {
+        $promotions = $promotionRepository->findAll();
+
+        return $this->render('backoffice/promotions/calendar.html.twig', [
+            'promotions' => $promotions,
+        ]);
+    }
+
+
+}
+

@@ -16,7 +16,7 @@ security:
             logout:
                 path: /logout
                 target: app_login  # 👈 This ensures redirect to login page after logout
-
+                 
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
@@ -24,3 +24,4 @@ security:
     access_control:
         - { path: ^/profileadmin, roles: ROLE_ADMIN }
         - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/reset-password, roles: PUBLIC_ACCESS }

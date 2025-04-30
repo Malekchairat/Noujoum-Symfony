@@ -1,4 +1,5 @@
-{% extends 'backoffice/backoffice.html.twig' %}
+{# templates/backoffice/produit/index.html.twig #}
+{% extends 'backoffice.html.twig' %}
 
 {% block stylesheets %}
     {{ parent() }}
@@ -8,85 +9,162 @@
 {% block title %}Gestion des Produits{% endblock %}
 
 {% block body %}
-<div class="container mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-gold"><i class="fas fa-boxes me-2"></i> Gestion des Produits</h2>
-        <style>
-            .btn-custom {
-                display: inline-block;
-                background-color: rgb(49, 49, 49) !important;
-                color: white !important;
-                padding: 12px 24px;
-                border-radius: 50px;
-                font-size: 1.1rem;
-                text-decoration: none !important;
-                border: none !important;
-                cursor: pointer;
-                transition: all 0.3s ease !important;
-            }
-            .btn-custom:hover {
-                background-color: rgba(57, 58, 59, 0.1) !important;
-                transform: translateY(-2px) !important;
-                box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
-            }
-        </style>
+<style>
+    /* Card hover */
+    .product-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .product-card:hover {
+        transform: scale(1.02);
+        box-shadow: 0 0 15px gold;
+    }
 
-        <!-- Existing Button to Add Product -->
-        <a href="{{ path('produit_ajout') }}" class="btn-custom">
-            <i class="fas fa-plus-circle me-2"></i>
-            Ajouter un Produit
+    /* Gold action buttons */
+    .gold-button, .edit-button, .delete-button {
+        transition: all 0.3s ease;
+        display: inline-block;
+        text-decoration: none;
+        text-align: center;
+    }
+
+    .gold-button {
+        background-color: gold;
+        color: black;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-weight: 600;
+    }
+    .gold-button:hover {
+        background-color: #ffd700;
+        box-shadow: 0 0 10px #ffd700;
+        transform: scale(1.05);
+    }
+
+    .edit-button {
+        border: 1px solid gold;
+        color: gold;
+        background: transparent;
+        border-radius: 5px;
+        padding: 5px 10px;
+    }
+    .edit-button:hover {
+        background-color: gold;
+        color: black;
+        box-shadow: 0 0 8px gold;
+        transform: scale(1.05);
+    }
+
+    .delete-button {
+        background-color: red;
+        border: none;
+        border-radius: 5px;
+        padding: 5px 10px;
+        color: white;
+        cursor: pointer;
+    }
+    .delete-button:hover {
+        background-color: darkred;
+        box-shadow: 0 0 8px red;
+        transform: scale(1.05);
+    }
+
+    /* Utility */
+    .text-gold { color: gold !important; }
+    .cards-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+    }
+</style>
+
+<div style="background-color: #303234; padding: 40px; border-radius: 10px; margin-top: 50px;">
+    <h1 class="text-center text-gold mb-4">📦 Gestion des Produits</h1>
+
+    {# Flash messages #}
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }}" style="margin-bottom: 20px;">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <div class="text-end mb-4">
+        <a href="{{ path('produit_ajout') }}" class="gold-button">
+            <i class="fas fa-plus-circle me-2"></i> Ajouter un Produit
         </a>
-
-        <!-- New Button for Popular Products -->
-        <a href="{{ path('app_podium') }}" class="btn-custom">
-            <i class="fas fa-trophy me-2"></i>
-            Produits les Plus Populaires
+        <a href="{{ path('app_podium') }}" class="gold-button" style="margin-left:10px;">
+            <i class="fas fa-trophy me-2"></i> Produits les Plus Populaires
         </a>
-
+        <a href="{{ path('statistiques') }}" class="gold-button" style="margin-left:10px;">
+            <i class="fas fa-trophy me-2"></i> statistiques
+        </a>
+        <a href="{{ path('admin_promotions_calendar') }}" class="gold-button" style="margin-left:10px;">
+            <i class="fas fa-trophy me-2"></i> calendrier
+        </a>
+        
     </div>
 
     <div class="cards-container">
         {% for produit in produits %}
-        <div class="card">
-            <div class="card-header">
+            <div class="product-card" style="
+                    width: 320px;
+                    background-color: black;
+                    border: 2px solid gold;
+                    border-radius: 10px;
+                    overflow: hidden;
+                    display: flex;
+                    flex-direction: column;
+                    color: white;
+                ">
                 {% if produit.imageName %}
-                <img src="{{ asset('uploads/' ~ produit.imageName) }}" alt="{{ produit.nom }}" class="img-fluid">
-                {% else %}
-                <span class="text-muted">Aucune image</span>
+                    <img src="{{ asset('uploads/' ~ produit.imageName) }}"
+                         alt="{{ produit.nom }}"
+                         style="width:100%; height:180px; object-fit:cover;">
                 {% endif %}
-            </div>
-            <div class="card-body">
-                <h3>{{ produit.nom }}</h3>
-                <p>{{ produit.description|length > 50 ? produit.description[:50] ~ '...' : produit.description }}</p>
-                <div class="d-flex justify-content-between align-items-center">
-                    <span class="badge bg-secondary">{{ produit.categorie }}</span>
-                    <span class="text-success fw-bold">{{ produit.prix }}€</span>
+                <div style="padding: 15px; flex:1; display:flex; flex-direction:column;">
+                    <h5 class="text-gold mb-2">📦 {{ produit.nom }}</h5>
+                    <p style="flex:1;">
+                        {{ produit.description|length > 60
+                            ? produit.description[:60] ~ '...'
+                            : produit.description
+                        }}
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="badge bg-secondary">{{ produit.categorie }}</span>
+                        <span class="fw-bold">{{ produit.prix }}€</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ path('produit_edit', {'id': produit.id}) }}"
+                           class="edit-button">
+                            <i class="fas fa-edit me-1"></i> Modifier
+                        </a>
+                        <form method="POST"
+                              action="{{ path('produit_delete', {'id': produit.id}) }}"
+                              onsubmit="return confirm('Êtes-vous sûr ?');"
+                              style="display:inline;">
+                            <input type="hidden" name="_token"
+                                   value="{{ csrf_token('delete' ~ produit.id) }}">
+                            <button type="submit" class="delete-button">
+                                <i class="fas fa-trash-alt me-1"></i> Supprimer
+                            </button>
+                        </form>
+                    </div>
+                    <div class="d-flex justify-content-between mt-2">
+                        <a href="{{ path('promotion_add', {'produitId': produit.id}) }}"
+                           class="edit-button">
+                            <i class="fas fa-plus-circle me-1"></i> Promo
+                        </a>
+                        <a href="{{ path('produit_promotions', {'id': produit.id}) }}"
+                           class="edit-button">
+                            <i class="fas fa-tags me-1"></i> Voir promos
+                        </a>
+                    </div>
                 </div>
-                <div class="btn-group-actions">
-                    <a href="{{ path('produit_edit', {'id': produit.id}) }}" 
-                       class="btn-action btn-edit">
-                       <i class="fas fa-edit"></i> Modifier
-                    </a>
-                    <a href="{{ path('produit_delete', {'id': produit.id}) }}" 
-                       class="btn-action btn-delete"
-                       onclick="return confirm('Êtes-vous sûr ?')">
-                       <i class="fas fa-trash-alt"></i> Supprimer
-                    </a>
-                    <a href="{{ path('promotion_add', {'produitId': produit.id}) }}" 
-                       class="btn-action btn-promo">
-                       <i class="fas fa-plus-circle"></i> Promo
-                    </a>
-                    <a href="{{ path('produit_promotions', {'id': produit.id}) }}" 
-                       class="btn-action btn-view">
-                       <i class="fas fa-tags"></i> Voir promos
-                    </a>
-                </div>
             </div>
-        </div>
         {% else %}
-        <div class="text-center text-muted py-4 col-12">
-            Aucun produit trouvé.
-        </div>
+            <p class="text-center text-white">Aucun produit trouvé.</p>
         {% endfor %}
     </div>
 </div>

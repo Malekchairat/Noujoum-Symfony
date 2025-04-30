@@ -45,6 +45,38 @@ class Evenement
     #[ORM\OneToMany(mappedBy: "evenement", targetEntity: Ticket::class, orphanRemoval: true)]
     private Collection $tickets;
 
+    private ?string $googleEventId = null;
+
+    // Getter and Setter for googleEventId
+    public function getGoogleEventId(): ?string
+    {
+        return $this->googleEventId;
+    }
+
+    public function setGoogleEventId(?string $googleEventId): self
+    {
+        $this->googleEventId = $googleEventId;
+        return $this;
+    }
+
+
+    
+
+      /**
+     * @ORM\Column(type="integer")
+     */
+    private $ticketCount;
+
+    // Getter and setter for ticketCount...
+
+    /**
+     * This is your custom method to check if the event is sold out.
+     */
+    public function isSoldOut(): bool
+    {
+        return $this->ticketCount <= 0;
+    }
+
     public function __construct()
     {
         $this->tickets = new ArrayCollection();

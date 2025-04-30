@@ -33,7 +33,7 @@ class PanierController extends AbstractController
     
     }
 
-    #[Route('/cart', name: 'app_cart')]
+    #[Route('/panier', name: 'panier')]
     public function cart(): Response
     {
         return $this->render('panier/cart.html.twig', [
@@ -42,7 +42,7 @@ class PanierController extends AbstractController
     
     }
 
-    #[Route('/checkout', name: 'app_checkout')]
+    #[Route('/checkout1', name: 'app_chck')]
     public function checkout(): Response
     {
         return $this->render('panier/checkout.html.twig', [
@@ -51,7 +51,7 @@ class PanierController extends AbstractController
     
     }
 
-    #[Route('/postcheckout', name: 'app_postcheckout')]
+    #[Route('/postcheckout', name: 'app_postchck')]
     public function postcheckout(): Response
     {
         return $this->render('panier/thankyou.html.twig', [
@@ -60,13 +60,13 @@ class PanierController extends AbstractController
     
     }
 
-    #[Route('/shop', name: 'app_shop')]
+    #[Route('/shop1', name: 'app_shop')]
     public function shop(): Response
     {
         return $this->render('panier/shop.html.twig', [
         
-        ]);
+        ]);  
     
-    }
+    } 
     
 }

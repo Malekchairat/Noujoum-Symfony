@@ -2,7 +2,7 @@
 
 {% block title %}Create New Event{% endblock %}
 
-{% block stylesheets %}
+{% block head %}
     {{ parent() }}
     <style>
         .container {
@@ -48,7 +48,6 @@
         .invalid-feedback {
             color: red;
             font-size: 0.875rem;
-            /* Nous utilisons display:block si une erreur est présente */
             margin-left: 150px;
         }
         .alert {
@@ -147,35 +146,25 @@
 
                 // Clear previous client-side error messages (if any)
                 document.querySelectorAll('.invalid-feedback').forEach(el => {
-                    // We clear only the inline text if needed, 
-                    // but server-side errors will be rendered on page reload
                     el.textContent = '';
                 });
 
-                function showError(fieldId, message) {
-                    let errorElem = document.getElementById('error_' + fieldId);
-                    if (errorElem) {
-                        errorElem.textContent = message;
-                    }
-                }
-
                 // Validate required fields (client-side)
                 const requiredFields = [
-                    { id: '{{ form.Titre.vars.id }}', name: 'Title', field: 'Titre' },
-                    { id: '{{ form.Description.vars.id }}', name: 'Description', field: 'Description' },
-                    { id: '{{ form.dateDebut.vars.id }}', name: 'Start Date', field: 'dateDebut' },
-                    { id: '{{ form.dateFin.vars.id }}', name: 'End Date', field: 'dateFin' },
-                    { id: '{{ form.Lieu.vars.id }}', name: 'Location', field: 'Lieu' },
-                    { id: '{{ form.Prix.vars.id }}', name: 'Price', field: 'Prix' },
-                    { id: '{{ form.TypeE.vars.id }}', name: 'Event Type', field: 'TypeE' },
-                    { id: '{{ form.artiste.vars.id }}', name: 'Artist', field: 'artiste' }
+                    { id: '{{ form.Titre.vars.id }}', name: 'Title' },
+                    { id: '{{ form.Description.vars.id }}', name: 'Description' },
+                    { id: '{{ form.dateDebut.vars.id }}', name: 'Start Date' },
+                    { id: '{{ form.dateFin.vars.id }}', name: 'End Date' },
+                    { id: '{{ form.Lieu.vars.id }}', name: 'Location' },
+                    { id: '{{ form.Prix.vars.id }}', name: 'Price' },
+                    { id: '{{ form.TypeE.vars.id }}', name: 'Event Type' },
+                    { id: '{{ form.artiste.vars.id }}', name: 'Artist' }
                 ];
 
                 requiredFields.forEach(item => {
                     let input = document.getElementById(item.id);
                     if (!input.value.trim()) {
                         valid = false;
-                        // Optionally, you can also show client-side errors here
                     }
                 });
 
@@ -187,7 +176,6 @@
                     let endDate = new Date(dateFinElem.value);
                     if (startDate > endDate) {
                         valid = false;
-                        // Optionally, you can show a client-side error here
                     }
                 }
 
@@ -195,12 +183,9 @@
                 let prixElem = document.getElementById('{{ form.Prix.vars.id }}');
                 if (prixElem.value.trim() && parseFloat(prixElem.value) < 0) {
                     valid = false;
-                    // Optionally, you can show a client-side error here
                 }
 
                 if (!valid) {
-                    // Prevent submission if client-side validations fail.
-                    // Server-side errors will be rendered on form re-display.
                     e.preventDefault();
                 }
             });

@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\UserType;
+use App\Form\UserRegisterType;
 use App\Form\UserEditType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -19,12 +20,8 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Knp\Component\Pager\PaginatorInterface;
 use App\Repository\FavorisRepository;
 use App\Entity\Favoris;
-<<<<<<< HEAD
 use Dompdf\Dompdf;
 use Dompdf\Options;
-=======
-
->>>>>>> 196baec27980e5fac3eeda1f273d9e2d8a0163a3
 class UserController extends AbstractController
 {
     private $userRepository;
@@ -82,51 +79,54 @@ class UserController extends AbstractController
         ]);
     }
     #[Route('/user/register', name: 'user_register')]
-    public function register(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $passwordHasher): Response
-    {
-        $user = new User();
-        $form = $this->createForm(UserType::class, $user);
-        $form->handleRequest($request);
+public function register(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $passwordHasher): Response
+{
+    $user = new User();
+    $form = $this->createForm(UserRegisterType::class, $user);
+    $form->handleRequest($request);
 
-        if ($form->isSubmitted()) {
-            if ($form->isValid()) {
-                $plainPassword = $form->get('mdp')->getData();
-                $hashedPassword = $passwordHasher->hashPassword($user, $plainPassword);
-                $user->setMdp($hashedPassword);
+    if ($form->isSubmitted()) {
+        if ($form->isValid()) {
+            $plainPassword = $form->get('mdp')->getData();
+            $hashedPassword = $passwordHasher->hashPassword($user, $plainPassword);
+            $user->setMdp($hashedPassword);
 
-                /** @var UploadedFile $imageFile */
-                $imageFile = $form->get('image')->getData();
+            // ✅ Set default role
+            $user->setRoles(['ROLE_USER']);
 
-                if ($imageFile) {
-                    $newFilename = uniqid() . '.' . $imageFile->guessExtension();
+            /** @var UploadedFile $imageFile */
+            $imageFile = $form->get('image')->getData();
 
-                    try {
-                        $imageFile->move(
-                            $this->getParameter('uploads_directory'),
-                            $newFilename
-                        );
-                    } catch (FileException $e) {
-                        $this->addFlash('error', 'Erreur lors du téléchargement de l\'image.');
-                    }
+            if ($imageFile) {
+                $newFilename = uniqid() . '.' . $imageFile->guessExtension();
 
-                    $user->setImage($newFilename);
+                try {
+                    $imageFile->move(
+                        $this->getParameter('uploads_directory'),
+                        $newFilename
+                    );
+                } catch (FileException $e) {
+                    $this->addFlash('error', 'Erreur lors du téléchargement de l\'image.');
                 }
 
-                $em->persist($user);
-                $em->flush();
-
-                $this->addFlash('success', 'Utilisateur créé avec succès !');
-                return $this->redirectToRoute('app_login');
-            } else {
-                $this->addFlash('error', 'Veuillez corriger les erreurs du formulaire.');
+                $user->setImage($newFilename);
             }
-        }
 
-        return $this->render('user/register.html.twig', [
-            'form' => $form->createView(),
-        ]);
+            $em->persist($user);
+            $em->flush();
+
+            $this->addFlash('success', 'Utilisateur créé avec succès !');
+            return $this->redirectToRoute('app_login');
+        } else {
+            $this->addFlash('error', 'Veuillez corriger les erreurs du formulaire.');
+        }
     }
-    
+
+    return $this->render('user/register.html.twig', [
+        'form' => $form->createView(),
+    ]);
+}
+
     #[Route('/user/{id}/edit', name: 'user_edit')]
     public function edit(Request $request, User $user, EntityManagerInterface $em)
 {
@@ -363,7 +363,6 @@ public function deleteUser(
     
         return $this->redirectToRoute('user_wishlist', ['id' => $favori->getUser()->getIdUser()]);
     }
-<<<<<<< HEAD
     #[Route('/admin/users/pdf', name: 'user_list_pdf')]
 public function generatePdf(Request $request, UserRepository $userRepository): Response
 {
@@ -391,7 +390,20 @@ public function generatePdf(Request $request, UserRepository $userRepository): R
         'Content-Disposition' => 'attachment; filename="liste_utilisateurs.pdf"',
     ]);
 }
-=======
->>>>>>> 196baec27980e5fac3eeda1f273d9e2d8a0163a3
-     
+#[Route('/users', name: 'app_user_index', methods: ['GET'])]
+public function index(Request $request, UserRepository $userRepository): Response
+{
+    $search = $request->query->get('search');
+
+    if ($search) {
+        $users = $userRepository->findByNomOrPrenom($search);
+    } else {
+        $users = $userRepository->findAll();
+    }
+
+    return $this->render('user/index.html.twig', [
+        'users' => $users,
+        'search' => $search,
+    ]);
+}
 }

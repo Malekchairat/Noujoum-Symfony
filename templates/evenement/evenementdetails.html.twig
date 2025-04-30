@@ -1,0 +1,137 @@
+{% extends 'backoffice.html.twig' %}
+
+{% block title %}Détails de l'Événement{% endblock %}
+
+{% block body %}
+<style>
+  .detail-card {
+    background: #303234;
+    padding: 30px;
+    border-radius: 12px;
+    margin: 50px auto;
+    max-width: 700px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    position: relative;
+    overflow: hidden;
+  }
+  .detail-card h1 {
+    color: gold;
+    margin-bottom: 10px;
+    font-size: 2rem;
+    position: relative;
+  }
+  .detail-card h1::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: gold;
+    margin-top: 4px;
+    border-radius: 2px;
+  }
+  .detail-card p.description {
+    color: #ddd;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+  .detail-card ul {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 25px;
+  }
+  .detail-card ul li {
+    color: #ccc;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+  }
+  .progress-container {
+    background: #1f1f1f;
+    border-radius: 6px;
+    overflow: hidden;
+    height: 12px;
+    margin-bottom: 10px;
+  }
+  .progress-bar {
+    height: 100%;
+    background: gold;
+    width: 0;
+    transition: width 1.2s ease-out;
+  }
+  .progress-label {
+    text-align: right;
+    font-size: 0.85rem;
+    color: #ddd;
+    margin-top: -6px;
+    margin-bottom: 20px;
+  }
+  .alert-custom {
+    padding: 10px 15px;
+    border-radius: 6px;
+    font-weight: 500;
+    margin-bottom: 20px;
+  }
+  .alert-warning { background: #856404; color: #fff; }
+  .alert-info    { background: #0c5460; color: #fff; }
+  .alert-success { background: #155724; color: #fff; }
+  .btn-back {
+    display: inline-block;
+    background: gold;
+    color: black;
+    padding: 8px 18px;
+    border-radius: 5px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.3s ease, transform 0.3s ease;
+  }
+  .btn-back:hover {
+    background: #ffd700;
+    transform: translateY(-2px);
+  }
+</style>
+
+<div class="detail-card">
+  <h1>{{ evenement.Titre }}</h1>
+  <p class="description">{{ evenement.Description }}</p>
+
+  <ul>
+    <li><strong>📅 Dates :</strong> {{ evenement.dateDebut|date('Y-m-d H:i') }} → {{ evenement.dateFin|date('Y-m-d H:i') }}</li>
+    <li><strong>📍 Lieu :</strong> {{ evenement.Lieu }}</li>
+    <li><strong>🎤 Artiste :</strong> {{ evenement.artiste }}</li>
+  </ul>
+
+  <h3 style="color: #ccc; margin-bottom:8px;">Billets vendus : {{ sold }} / {{ maxTickets }}</h3>
+
+  <div class="progress-container">
+    <div id="bar" class="progress-bar" style="width: {{ percentage }}%;"></div>
+  </div>
+  <div class="progress-label">{{ percentage }}%</div>
+
+  {% if percentage < 50 and daysUntilStart <= 5 %}
+    <div class="alert-custom alert-warning">
+      ⚠️ Moins de 50% vendus et seulement {{ daysUntilStart }} jours restants !
+    </div>
+  {% elseif percentage >= 80 and percentage < 100 %}
+    <div class="alert-custom alert-info">
+      🔔 Presque épuisé – dépêchez-vous !
+    </div>
+  {% elseif percentage >= 100 %}
+    <div class="alert-custom alert-success">
+      ✅ Épuisé ! Merci de l’intérêt 🎉
+    </div>
+  {% endif %}
+
+  <a href="{{ path('evenement_EvenementBack') }}" class="btn-back">← Retour à la liste</a>
+</div>
+
+<script>
+  // animate bar on load
+  document.addEventListener('DOMContentLoaded', () => {
+    const bar = document.getElementById('bar');
+    // trigger reflow to enable transition
+    bar.style.width = '0';
+    setTimeout(() => {
+      bar.style.width = '{{ percentage }}%';
+    }, 100);
+  });
+</script>
+{% endblock %}

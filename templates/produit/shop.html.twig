@@ -3,6 +3,118 @@
 {% block title %}Shop - Noujoum{% endblock %}
 {% set shop_active = 'active' %}
 
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .btn-gold {
+        background-color: #d4af37;
+        color: black;
+        border: none;
+    }
+
+    .btn-gold:hover {
+        background-color: #c9a032;
+        color: white;
+    }
+
+    .card {
+        background-color: #000;
+        border: 2px solid #d4af37;
+        color: white;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+    }
+
+    .card .card-title,
+    .card .card-category,
+    .card .card-price,
+    .card .text-success,
+    .card .text-warning {
+        color: white;
+    }
+
+    .card .text-danger {
+        color: #ff6b6b;
+    }
+
+    .card .badge.bg-danger {
+        background-color: #ff4c4c;
+    }
+
+    .card .btn-outline-primary {
+        border-color: #d4af37;
+        color: #d4af37;
+    }
+
+    .card .btn-outline-primary:hover {
+        background-color: #d4af37;
+        color: black;
+    }
+</style>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.add-to-cart').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const productId = this.dataset.productId;
+
+                fetch(`/cart/add/${productId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const toast = new bootstrap.Toast(document.getElementById('cartToast'));
+                        document.getElementById('toastMessage').textContent = 'Product added to cart!';
+                        toast.show();
+                        document.dispatchEvent(new Event('cartUpdated'));
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        });
+    });
+
+    function toggleFavori(event, produitId) {
+        event.preventDefault();
+        const heartIcon = document.getElementById('heart-' + produitId);
+
+        fetch('/favoris/toggle/' + produitId, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                if (data.action === 'added') {
+                    heartIcon.classList.remove('far');
+                    heartIcon.classList.add('fas');
+                } else {
+                    heartIcon.classList.remove('fas');
+                    heartIcon.classList.add('far');
+                }
+            } else {
+                console.error('Erreur:', data.message);
+            }
+        })
+        .catch(error => console.error('Erreur fetch:', error));
+    }
+</script>
+{% endblock %}
+
 {% block body %}
 <div class="hero">
     <div class="container">
@@ -22,7 +134,7 @@
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary w-100">Rechercher</button>
+                    <button type="submit" class="btn btn-gold w-100">Rechercher</button>
                 </div>
             </div>
         </form>
@@ -62,6 +174,7 @@
                                     {% else %}
                                         {{ produit.prix }}€
                                     {% endif %}
+                                    <a href="{{ path('cart_add', {'id': produit.id}) }}" class="btn btn-gold add-to-cart mt-2 w-100" data-product-id="{{ produit.id }}">Add to Cart</a>
                                 </p>
 
                                 <a href="{{ path('app_album_details', { id: produit.id }) }}" class="btn btn-outline-primary mt-2 w-100">Voir détails</a>
@@ -84,35 +197,4 @@
         {% endif %}
     </div>
 </div>
-{% endblock %}
-
-{% block javascripts %}
-<script>
-    function toggleFavori(event, produitId) {
-        event.preventDefault();
-        const heartIcon = document.getElementById('heart-' + produitId);
-
-        fetch('/favoris/toggle/' + produitId, {
-            method: 'POST',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                if (data.action === 'added') {
-                    heartIcon.classList.remove('far');
-                    heartIcon.classList.add('fas');
-                } else {
-                    heartIcon.classList.remove('fas');
-                    heartIcon.classList.add('far');
-                }
-            } else {
-                console.error('Erreur:', data.message);
-            }
-        })
-        .catch(error => console.error('Erreur fetch:', error));
-    }
-</script>
 {% endblock %}

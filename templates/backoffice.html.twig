@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -147,13 +146,13 @@
                     </a>
                 </li>
                 <li class="navList {% if app.request.attributes.get('_route') == 'commandes_index' %}active{% endif %}">
-                    <a href="{{ path('admin_dashboard') }}">
+                    <a href="{{ path('admin_test') }}">
                         <ion-icon name="heart-outline"></ion-icon>
                         <span class="links">Commandes</span>
                     </a>
                 </li>
                 <li class="navList {% if app.request.attributes.get('_route') == 'reclamations_index' %}active{% endif %}">
-                    <a href="{{ path('admin_dashboard') }}">
+                    <a href="{{ path('admin_reclamation_index') }}">
                         <ion-icon name="heart-outline"></ion-icon>
                         <span class="links">Reclamations</span>
                     </a>
@@ -177,9 +176,7 @@
     </nav>
 
     <section class="dashboard">
-        <div class="container">
-            {% block body %}{% endblock %}
-        </div>
+        {% block body %}{% endblock %}
     </section>
 
     <script src="index.js"></script>

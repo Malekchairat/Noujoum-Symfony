@@ -25,6 +25,36 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
             ->getQuery()
             ->getOneOrNullResult();
     }
+// In UserRepository.php
+public function getAverageSessionTime(): float
+{
+    return $this->createQueryBuilder('u')
+        ->select('AVG(u.totalSessionTime) as avg_time')
+        ->getQuery()
+        ->getSingleScalarResult();
+}
+
+public function getTotalUsageStatistics(): array
+    {
+        $qb = $this->createQueryBuilder('u')
+            ->select(
+                'SUM(u.totalSessionTime) as total_time',
+                'AVG(u.totalSessionTime) as avg_time',
+                'COUNT(u.id_user) as user_count',
+                'SUM(u.loginCount) as total_logins'
+            );
+
+        return $qb->getQuery()->getSingleResult();
+    }
+
+    public function findTopUsers(int $limit = 5): array
+    {
+        return $this->createQueryBuilder('u')
+            ->orderBy('u.totalSessionTime', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
 
     // You can uncomment and modify the methods below if you need them.
     //    /**

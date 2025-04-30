@@ -10,6 +10,7 @@ use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -33,9 +34,10 @@ class UserEditType extends AbstractType
                     new NotBlank(['message' => 'Le prénom ne peut pas être vide.']),
                 ],
             ])
-            ->add('email', TextType::class, [
+            ->add('email', TextType::class, [  // Alternatively, you could use EmailType::class
                 'constraints' => [
                     new NotBlank(['message' => 'L\'email ne peut pas être vide.']),
+                    new Email(['message' => 'Veuillez entrer une adresse email valide.']),
                 ],
             ])
             ->add('mdp', PasswordType::class, [
@@ -63,8 +65,9 @@ class UserEditType extends AbstractType
             ->add('image', FileType::class, [
                 'label' => 'Image de profil',
                 'mapped' => false,
-                'required' => false,
+                'required' => true, // Force to choose an image during edit
                 'constraints' => [
+                    new NotBlank(['message' => 'L\'image de profil est requise.']),
                     new File([
                         'maxSize' => '2Mi',
                         'mimeTypes' => ['image/jpeg', 'image/png', 'image/gif'],

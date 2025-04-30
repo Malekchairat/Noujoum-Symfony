@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Réinitialisation de mot de passe</title>
+    <style>
+        /* Your existing styles */
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <h1>Réinitialisation de mot de passe</h1>
+        <p>Bonjour,</p>
+        <p>Cliquez sur le lien ci-dessous pour réinitialiser votre mot de passe :</p>
+        
+        <a href="{{ absolute_url(path('app_reset_password', {token: resetToken.token})) }}" class="btn-reset">
+            Réinitialiser mon mot de passe
+        </a>
+        
+        <p>Ce lien expirera dans {{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}.</p>
+        
+        <div class="footer">
+            <p>L'équipe de Noujoum</p>
+        </div>
+    </div>
+</body>
+</html>

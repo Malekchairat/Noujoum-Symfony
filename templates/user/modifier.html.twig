@@ -115,6 +115,18 @@
             margin-top: 30px;
             flex-wrap: wrap;
         }
+        .custom-btn {
+    background-color: transparent;
+    border: 2px solid #d4af37;
+    color: #d4af37;
+    padding: 0.5rem 1.2rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border-radius: 30px;
+    text-decoration: none; /* ⬅️ This removes the underline */
+    display: inline-block;  /* ⬅️ Makes sure anchor looks like a button */
+}
+
     </style>
 {% endblock %}
 
@@ -169,10 +181,15 @@
             </div>
 
             <div class="btn-container">
-                <button type="submit" class="custom-btn">
-                    <i class="fas fa-save"></i> Enregistrer
-                </button>
-            </div>
+    <button type="submit" class="custom-btn">
+        <i class="fas fa-save"></i> Enregistrer
+    </button>
+
+    <a href="{{ path('app_profile') }}" class="custom-btn">
+        <i class="fas fa-times"></i> Annuler
+    </a>
+</div>
+
         {{ form_end(form) }}
 
         {% if is_self is defined and is_self %}

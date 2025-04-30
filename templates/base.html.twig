@@ -15,6 +15,7 @@
         <link href="{{ asset('css/style.css') }}" rel="stylesheet">
 
         {% block stylesheets %}
+            {{ encore_entry_link_tags('app') }}
             <link href="{{ asset('css/custom.css') }}" rel="stylesheet"> <!-- Custom styles -->
         {% endblock %}
     </head>
@@ -43,13 +44,11 @@
                         <li class="nav-item {{ shop_active | default('') }}">
                             <a class="nav-link" href="{{ path('evenement_index') }}">Evenements</a>
                         </li>
+                        <li class="nav-item {{ shop_active | default('') }}">
+                            <a class="nav-link" href="{{ path('app_reclamation_index') }}">Reclamations</a>
+                        </li>
 
-                        <li class="nav-item {{ about_active | default('') }}">
-                            <a class="nav-link" href="{{ path('app_about_us') }}">About us</a>
-                        </li>
-                        <li class="nav-item {{ contact_active | default('') }}">
-                            <a class="nav-link" href="{{ path('app_contact') }}">Contact us</a>
-                        </li>
+                        
                     </ul>
                     <ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5">
                         <!-- Profile -->
@@ -66,7 +65,7 @@
                         </li>
                         <!-- Cart -->
                         <li class="nav-item {{ cart_active | default('') }}">
-                            <a class="nav-link" href="{{ path('app_cart') }}">
+                            <a class="nav-link" href="{{ path('cart') }}">
                                 <i class="fas fa-shopping-cart" style="color: white;"></i>
                             </a>
                         </li>
@@ -89,5 +88,6 @@
         <script src="{{ asset('js/custom.js') }}"></script>
 
         {% block javascripts %}{% endblock %}
+            {{ encore_entry_script_tags('app') }}
     </body>
 </html>

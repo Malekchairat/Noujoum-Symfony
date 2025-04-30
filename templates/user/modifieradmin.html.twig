@@ -172,7 +172,11 @@
             </div>
         {% endif %}
 
-        <button type="submit" class="form-button">Enregistrer</button>
+        <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-top: 30px;">
+    <button type="submit" class="form-button">Enregistrer</button>
+    <a href="{{ path('app_profile_admin') }}" class="form-button" style="text-decoration: none; text-align: center;">Annuler</a>
+</div>
+
     {{ form_end(form) }}
 
     {% if is_self is defined and is_self %}

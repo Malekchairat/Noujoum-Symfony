@@ -8,14 +8,13 @@ use App\Repository\FavorisRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: FavorisRepository::class)]
-class Favoris
-{
+class Favoris {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: "integer", name: "id_favoris")]
     private ?int $idFavoris = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: "favoris")]
     #[ORM\JoinColumn(name: "id_user", referencedColumnName: "id_user", nullable: false, onDelete: "CASCADE")]
     private ?User $user = null;
 
