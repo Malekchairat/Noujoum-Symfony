@@ -2,6 +2,7 @@
 
     {% block title %}Your Cart - Noujoum{% endblock %}
 
+<<<<<<< HEAD
     {% block body %}
     <!-- Start Hero Section --> 
     <div class="hero">
@@ -19,12 +20,39 @@
                     <div class="col-md-6">
                         <a href="{{ path('app_shop') }}" class="btn btn-outline-light btn-block">Continue Shopping</a>
                     </div>
+=======
+{% block body %}
+
+{% if app.user %}
+    <p>Logged in as: {{ app.user.email }}</p>
+    <p>User roles: {{ app.user.roles|join(', ') }}</p>
+{% else %}
+    <p>Not logged in</p>
+{% endif %}
+
+<!-- Start Hero Section --> 
+<div class="hero">
+    <div class="container">
+        <div class="row justify-content-between align-items-center">
+            <div class="col-lg-5">
+                <div class="intro-excerpt">
+                    <h1>Your Cart 🛒</h1>
+                    <p>Review your selected items before checkout. Don't forget to grab your favorite merch before it sells out!</p>
+                </div>
+            </div>
+
+            <!-- Cart Summary Section -->
+            <div class="row align-items-center mt-5">
+                <div class="col-md-6">
+                    <a href="{{ path('app_shop') }}" class="btn btn-outline-light btn-block">Continue Shopping</a>
+>>>>>>> origin/GestionCommandes
                 </div>
             </div>
         </div>
     </div>
     <!-- End Hero Section -->
 
+<<<<<<< HEAD
     <input type="text" id="search-input" class="form-control mb-3" placeholder="Search by product name..." autocomplete="off">
     <div id="suggestions-container" class="suggestions-container"></div>
 
@@ -85,6 +113,66 @@
                                                     <div class="input-group-append">
                                                         <button class="btn btn-outline-black increase-btn" type="button">&plus;</button>
                                                     </div>
+=======
+
+
+
+<input type="text" id="search-input" class="form-control mb-3" placeholder="Search by product name..." autocomplete="off">
+<div id="suggestions-container" class="suggestions-container"></div>
+
+<div class="sort-dropdown">
+<select id="sortSelect">
+    <option value="">-- Sort By --</option>
+    <option value="price_asc">Price: Low to High</option>
+    <option value="price_desc">Price: High to Low</option>
+    <option value="name_asc">Name: A to Z</option>
+    <option value="name_desc">Name: Z to A</option>
+</select>
+</div>
+
+
+
+
+<!-- Cart Items Section -->
+<div class="untree_co-section before-footer-section">
+    <div class="container">
+        <div class="row mb-5">
+            <form class="col-md-12" method="post">
+                <div class="site-blocks-table">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th class="product-thumbnail">Image</th>
+                                <th class="product-name">Product</th>
+                                <th class="product-price">Price</th>
+                                <th class="product-quantity">Quantity</th>
+                                <th class="product-total">Total</th>
+                                <th class="product-remove">Remove</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cartBody">
+    {% if cartItems|length > 0 %}
+        {% for item in cartItems %}
+            <tr data-item-id="{{ item.id }}" class="cart-item-row cart-row">
+
+                                        <td class="product-thumbnail">
+                                            {% if item.produit is not null and item.produit.getBase64Image() %}
+                                                <img src="{{ item.produit.getBase64Image() }}" alt="{{ item.produit.getNom() }}" class="img-fluid" style="max-width: 100px;">
+                                            {% else %}
+                                                <div class="bg-light text-center p-4" style="width: 100px; height: 100px;">No Image</div>
+                                            {% endif %}
+                                        </td>
+                                        <td class="product-name">
+                                            <h2 class="h5 text-black">{% if item.produit is not null %}{{ item.produit.getNom() }}{% else %}Unknown Product{% endif %}</h2>
+                                        </td>
+                                        <td class="product-price">
+                                            <span class="item-price">{{ item.produit.getPrix() }} €</span>
+                                        </td>
+                                        <td class="product-quantity">
+                                            <div class="input-group mb-3" style="max-width: 120px;">
+                                                <div class="input-group-prepend">
+                                                    <button class="btn btn-outline-black decrease-btn" type="button">&minus;</button>
+>>>>>>> origin/GestionCommandes
                                                 </div>
                                             </td>
                                             <td class="product-total">
@@ -171,6 +259,7 @@
 
     {% block javascripts %}
     {{ parent() }}
+<<<<<<< HEAD
     <script>
     document.addEventListener('DOMContentLoaded', function () {
     let currentPage = 1;
@@ -217,6 +306,8 @@
     updatePagination();
 });
     </script>
+=======
+>>>>>>> origin/GestionCommandes
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {

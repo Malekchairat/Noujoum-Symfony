@@ -11,12 +11,23 @@
         "doctrine/doctrine-bundle": "^2.13",
         "doctrine/doctrine-migrations-bundle": "^3.3",
         "doctrine/orm": "^3.3",
+<<<<<<< HEAD
         "endroid/qr-code-bundle": "*",
         "google/apiclient": "2.14",
         "knplabs/knp-paginator-bundle": "^6.8",
         "phpdocumentor/reflection-docblock": "^5.4",
         "phpstan/phpdoc-parser": "^1.33",
         "symfony/asset": "^7.1",
+=======
+        "dompdf/dompdf": "^3.1",
+        "endroid/qr-code-bundle": "*",
+        "knplabs/knp-snappy-bundle": "^1.10",
+        "phpdocumentor/reflection-docblock": "^5.4",
+        "phpoffice/phpspreadsheet": "^4.2",
+        "phpstan/phpdoc-parser": "^1.33",
+        "stripe/stripe-php": "^17.1",
+        "symfony/asset": "6.4.*",
+>>>>>>> origin/GestionCommandes
         "symfony/asset-mapper": "6.4.*",
         "symfony/console": "6.4.*",
         "symfony/doctrine-messenger": "6.4.*",
@@ -25,6 +36,10 @@
         "symfony/flex": "^2",
         "symfony/form": "6.4.*",
         "symfony/framework-bundle": "6.4.*",
+<<<<<<< HEAD
+=======
+        "symfony/google-mailer": "6.4.*",
+>>>>>>> origin/GestionCommandes
         "symfony/http-client": "6.4.*",
         "symfony/intl": "6.4.*",
         "symfony/mailer": "6.4.*",

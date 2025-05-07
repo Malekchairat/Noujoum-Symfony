@@ -78,6 +78,9 @@ class TicketBackController extends AbstractController
         }
         return $this->redirectToRoute('ticket_back');
     }
+<<<<<<< HEAD
 
     
+=======
+>>>>>>> origin/GestionCommandes
 }

@@ -48,20 +48,10 @@
                     </div>
 
                     <div class="form-group row">
-<<<<<<< HEAD
-    <div class="col-md-12">
-        {{ form_row(form.etat, {'attr': {'class': 'form-select'}, 'label': 'State'}) }}
-    </div>
-</div>
-
-  </div>
-</div>
-=======
                         <div class="col-md-12">
                             {{ form_row(form.etat, {'attr': {'class': 'form-select'}, 'label': 'State'}) }}
                         </div>
                     </div>
->>>>>>> origin/GestionCommandes
 
                     <div class="form-group mt-4">
                         <button type="button" id="placeOrderBtn" class="btn btn-primary">
@@ -96,11 +86,24 @@
                                 <td class="text-black font-weight-bold"><strong>Order Total</strong></td>
                                 <td class="text-black font-weight-bold"><strong>{{ total }} €</strong></td>
                             </tr>
-                            <a href="{{ path('app_commande_historique') }}" class="btn btn-primary">
-                                Voir mon historique de commandes
-                            </a>
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Debug Information Section -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0">Debug Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="debugInfo" class="text-muted">
+                            <p>Waiting for order process...</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -117,118 +120,81 @@
 </div>
 
 <script>
-function validateField(field) {
-    let isValid = true;
-    let errorMessage = "";
-
-    if (!field.value.trim()) {
-        errorMessage = "Ce champ est requis.";
-        isValid = false;
-    } else if (field.name === "rue" && !/^[a-zA-Z0-9\s]+$/.test(field.value)) {
-        errorMessage = "Pas de caractères spéciaux.";
-        isValid = false;
-    } else if (field.name === "rue" && field.value.length > 35) {
-        errorMessage = "Maximum 35 caractères.";
-        isValid = false;
-    } else if (field.name === "ville" && !/^[a-zA-Z\s]+$/.test(field.value)) {
-        errorMessage = "Lettres uniquement.";
-        isValid = false;
-    } else if (field.name === "ville" && field.value.length > 10) {
-        errorMessage = "Maximum 10 caractères.";
-        isValid = false;
-    } else if (field.name === "code_postal" && !/^\d{4,5}$/.test(field.value)) {
-        errorMessage = "Doit contenir 4 à 5 chiffres.";
-        isValid = false;
+function updateDebugInfo(message) {
+    const debugInfo = document.getElementById('debugInfo');
+    if (debugInfo) {
+        debugInfo.textContent = message;
     }
+}
 
-    if (!isValid) {
-        field.classList.add("is-invalid");
-        field.nextElementSibling.innerHTML = errorMessage;
-    } else {
-        field.classList.remove("is-invalid");
-        field.classList.add("is-valid");
-        field.nextElementSibling.innerHTML = "";
+function validateForm() {
+    const requiredFields = ['rue', 'ville', 'code_postal', 'payment_method'];
+    let isValid = true;
+
+    requiredFields.forEach(field => {
+        const input = document.getElementById(field);
+        if (!input || !input.value.trim()) {
+            isValid = false;
+            input.classList.add('is-invalid');
+        } else {
+            input.classList.remove('is-invalid');
+        }
+    });
+
+    // Validate postal code format (5 digits)
+    const postalCode = document.getElementById('code_postal');
+    if (postalCode && !/^\d{5}$/.test(postalCode.value)) {
+        isValid = false;
+        postalCode.classList.add('is-invalid');
     }
 
     return isValid;
 }
 
-function validateForm() {
-    const form = document.getElementById('checkoutForm');
-    const fields = form.querySelectorAll(".form-control");
-    const submitBtn = document.getElementById('placeOrderBtn');
-    let allValid = true;
+document.getElementById('orderForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
 
-    fields.forEach(field => {
-        if (!validateField(field)) {
-            allValid = false;
-        }
-    });
-
-    submitBtn.disabled = !allValid;
-    return allValid;
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-    const form = document.getElementById('checkoutForm');
-    const fields = form.querySelectorAll(".form-control");
-
-    fields.forEach(field => {
-        field.insertAdjacentHTML("afterend", '<div class="invalid-feedback"></div>');
-        field.addEventListener("input", function () {
-            validateField(this);
-            validateForm();
-        });
-    });
-
-    validateForm();
-});
-
-document.getElementById('placeOrderBtn').addEventListener('click', async function() {
     if (!validateForm()) {
-        alert('Veuillez corriger les champs avant de continuer.');
+        updateDebugInfo('Please fill in all required fields correctly.');
         return;
     }
 
-    const spinner = document.getElementById('loadingSpinner');
-    const form = document.getElementById('checkoutForm');
+    const submitButton = document.getElementById('submitOrder');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    
+    submitButton.disabled = true;
+    loadingSpinner.classList.remove('d-none');
 
     try {
-        spinner.classList.remove('d-none');
-        const formData = new FormData(form);
-
-        const orderResponse = await fetch(form.action, {
+        const formData = new FormData(this);
+        const response = await fetch('{{ path('api_order_confirm', {'id': order.id}) }}', {
             method: 'POST',
-            body: formData,
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(Object.fromEntries(formData))
         });
 
-        if (!orderResponse.ok) throw new Error('Commande échouée');
+        const data = await response.json();
 
-        const orderResult = await orderResponse.json();
-
-        if (orderResult.success) {
-            await fetch(`/api/order/confirm/${orderResult.orderId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-
-            window.location.href = '{{ path('app_postcheckout', {'id': 'PLACEHOLDER'}) }}'.replace('PLACEHOLDER', orderResult.orderId);
+        if (response.ok) {
+            updateDebugInfo('Order confirmed successfully! A confirmation email has been sent.');
+            // Redirect to success page or show success message
+            window.location.href = '{{ path('order_success') }}';
+        } else {
+            updateDebugInfo(data.error || 'An error occurred while processing your order.');
         }
     } catch (error) {
-        alert('Une erreur est survenue. Veuillez réessayer.');
+        console.error('Error:', error);
+        updateDebugInfo('An unexpected error occurred. Please try again later.');
     } finally {
-        spinner.classList.add('d-none');
+        submitButton.disabled = false;
+        loadingSpinner.classList.add('d-none');
     }
 });
 </script>
 
-<<<<<<< HEAD
-
-=======
 <style>
 .btn-primary {
     background-color: #4e73df;
@@ -238,6 +204,12 @@ document.getElementById('placeOrderBtn').addEventListener('click', async functio
     background-color: #2e59d9;
     border-color: #2e59d9;
 }
+#debugInfo {
+    max-height: 300px;
+    overflow-y: auto;
+    font-family: monospace;
+    white-space: pre-wrap;
+}
 .is-invalid {
     border-color: #dc3545;
 }
@@ -245,5 +217,4 @@ document.getElementById('placeOrderBtn').addEventListener('click', async functio
     border-color: #28a745;
 }
 </style>
->>>>>>> origin/GestionCommandes
 {% endblock %}

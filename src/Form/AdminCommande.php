@@ -11,7 +11,11 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
 
+<<<<<<< HEAD
 class AdminCommandeType extends AbstractType
+=======
+class AdminCommande extends AbstractType
+>>>>>>> origin/GestionCommandes
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {

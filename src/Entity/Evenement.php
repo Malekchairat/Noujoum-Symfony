@@ -5,15 +5,21 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+<<<<<<< HEAD
 use Gedmo\Mapping\Annotation as Gedmo;
 
+=======
+>>>>>>> origin/GestionCommandes
 
 #[ORM\Entity()]
 #[ORM\Table(name: "evenement")]
 class Evenement
 {
+<<<<<<< HEAD
     
     
+=======
+>>>>>>> origin/GestionCommandes
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type:"integer")]
@@ -49,6 +55,7 @@ class Evenement
     #[ORM\OneToMany(mappedBy: "evenement", targetEntity: Ticket::class, orphanRemoval: true)]
     private Collection $tickets;
 
+<<<<<<< HEAD
     private ?string $googleEventId = null;
 
     // Getter and Setter for googleEventId
@@ -81,6 +88,8 @@ class Evenement
         return $this->ticketCount <= 0;
     }
 
+=======
+>>>>>>> origin/GestionCommandes
     public function __construct()
     {
         $this->tickets = new ArrayCollection();

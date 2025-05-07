@@ -1,0 +1,41 @@
+<table class="commandes-table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Rue</th>
+            <th>Ville</th>
+            <th>Code Postal</th>
+            <th>État</th>
+            <th>Montant Total (TND)</th>
+            <th>Méthode de Paiement</th>
+            <th>ID Utilisateur</th>
+            <th>Produits</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for commande in commandes %}
+            <tr>
+                <td>{{ commande.id }}</td>
+                <td>{{ commande.rue }}</td>
+                <td>{{ commande.ville }}</td>
+                <td>{{ commande.codePostal }}</td>
+                <td>{{ commande.etat }}</td>
+                <td>{{ commande.montantTotal }} €</td>
+                <td>{{ commande.methodePaiment }}</td>
+                <td>{{ commande.idUser }}</td>
+                <td>{{ commande.productsSummary }}</td>
+                <td class="actions">
+                    <a href="{{ path('admin_commandes_modify', { 'id': commande.id }) }}" class="btn modify-btn">Modifier</a>
+                    <form action="{{ path('admin_commandes_delete', { 'id': commande.id }) }}" method="POST" style="display: inline;">
+                        <button type="submit" class="btn remove-btn" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette commande ?');">Supprimer</button>
+                    </form>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="10">Aucune commande trouvée</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

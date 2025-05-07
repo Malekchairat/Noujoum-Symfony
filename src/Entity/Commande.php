@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\CommandeRepository;
+use App\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -62,6 +63,22 @@ class Commande
 
     #[ORM\Column]
     private ?int $id_user = null;
+
+    #[ORM\Column(name: 'products_summary', type: 'text', nullable: true)]
+private ?string $productsSummary = null;
+
+
+public function getProductsSummary(): ?string
+{
+    return $this->productsSummary;
+}
+
+public function setProductsSummary(?string $productsSummary): self
+{
+    $this->productsSummary = $productsSummary;
+    return $this;
+}
+
 
     public function getId(): ?int
     {
@@ -155,4 +172,14 @@ class Commande
         $this->id_user = $id_user;
         return $this;
     }
+
+    public function getTotal(): float
+    {
+        $total = 0.0;
+        foreach ($this->getOrderItems() as $item) {
+            $total += $item->getTotal();
+        }
+        return $total;
+    }
+
 }

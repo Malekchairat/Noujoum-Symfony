@@ -1,0 +1,255 @@
+
+{% block content %}
+<div class="container-fluid py-4 dark-theme">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="text-light fw-bold mb-4">Tableau de Bord des Ventes</h2>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6 col-xl-3 mb-4">
+            <div class="card bg-gradient-primary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50">Total des Commandes</h6>
+                            <h2 class="display-4 mb-0">{{ totalOrders }}</h2>
+                        </div>
+                        <div class="icon-shape bg-white-10 rounded-circle">
+                            <i class="fas fa-shopping-cart text-white"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3 mb-4">
+            <div class="card bg-gradient-success text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50">Total des Produits Vendus</h6>
+                            <h2 class="display-4 mb-0">{{ totalProducts }}</h2>
+                        </div>
+                        <div class="icon-shape bg-white-10 rounded-circle">
+                            <i class="fas fa-box text-white"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-7 mb-4">
+            <div class="card bg-dark shadow-sm h-100">
+                <div class="card-header bg-dark-light border-dark py-3">
+                    <h5 class="card-title text-light mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        Top 10 des Produits les plus Vendus
+                    </h5>
+                </div>
+                <div class="card-body">
+<div id="productChart" style="height: 400px;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-5 mb-4">
+            <div class="card bg-dark shadow-sm h-100">
+                <div class="card-header bg-dark-light border-dark py-3">
+                    <h5 class="card-title text-light mb-0">
+                        <i class="fas fa-map-marker-alt me-2"></i>
+                        Répartition par Ville
+                    </h5>
+                </div>
+                <div class="card-body">
+<div id="cityChart" style="height: 400px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://kit.fontawesome.com/your-code.js" crossorigin="anonymous"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set Highcharts global theme
+        Highcharts.setOptions({
+            chart: {
+                backgroundColor: '#1a1a1a',
+                style: {
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                }
+            },
+            title: {
+                style: {
+                    color: '#fff'
+                }
+            },
+            legend: {
+                itemStyle: {
+                    color: '#fff'
+                }
+            }
+        });
+
+        // Product Chart
+    Highcharts.chart('productChart', {
+            chart: { 
+                type: 'column'
+            },
+            title: { 
+                text: null
+            },
+            xAxis: { 
+                categories: {{ productNames|json_encode|raw }},
+                labels: {
+                    rotation: -45,
+                    style: {
+                        fontSize: '12px',
+                        color: '#fff'
+                    }
+                },
+                lineColor: '#333',
+                gridLineColor: '#333'
+            },
+            yAxis: { 
+                title: { 
+                    text: 'Quantité vendue',
+                    style: {
+                        color: '#fff'
+                    }
+                },
+                gridLineColor: '#333',
+                labels: {
+                    style: {
+                        color: '#fff'
+                    }
+                }
+            },
+            tooltip: {
+                headerFormat: '<b>{point.key}</b><br>',
+                pointFormat: '{point.y} unités vendues',
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                style: {
+                    color: '#fff'
+                }
+            },
+            plotOptions: {
+                column: {
+                    borderRadius: 5,
+                    borderWidth: 0
+                }
+            },
+        series: [{
+            name: 'Produits',
+                data: {{ productQuantities|json_encode|raw }},
+                color: {
+                    linearGradient: { x1: 0, x2: 0, y1: 0, y2: 1 },
+                    stops: [
+                        [0, '#6f42c1'],
+                        [1, '#4e73df']
+                    ]
+                }
+        }]
+    });
+
+        // City Chart
+    Highcharts.chart('cityChart', {
+            chart: { 
+                type: 'pie'
+            },
+            title: { 
+                text: null
+            },
+            tooltip: {
+                pointFormat: '<b>{point.y}</b> commandes ({point.percentage:.1f}%)',
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                style: {
+                    color: '#fff'
+                }
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    borderRadius: 3,
+                    dataLabels: {
+                        enabled: true,
+                        format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                        style: {
+                            color: '#fff'
+                        },
+                        connectorColor: '#fff'
+                    }
+                }
+            },
+        series: [{
+            name: 'Commandes',
+                data: {{ cityStats|json_encode|raw }},
+                colors: ['#4e73df', '#6f42c1', '#36b9cc', '#f6c23e', '#e74a3b']
+        }]
+        });
+    });
+</script>
+
+<style>
+.dark-theme {
+    background-color: #000;
+    color: #fff;
+    min-height: 100vh;
+}
+.card {
+    border: none;
+    border-radius: 0.75rem;
+    transition: transform 0.2s;
+    background-color: #1a1a1a !important;
+}
+.card:hover {
+    transform: translateY(-5px);
+}
+.card-header {
+    border-bottom: 1px solid rgba(255,255,255,.1);
+}
+.bg-dark {
+    background-color: #1a1a1a !important;
+}
+.bg-dark-light {
+    background-color: #222 !important;
+}
+.border-dark {
+    border-color: #333 !important;
+}
+.shadow-sm {
+    box-shadow: 0 .125rem 1rem rgba(0,0,0,.5)!important;
+}
+.bg-gradient-primary {
+    background: linear-gradient(45deg, #4e73df, #6f42c1) !important;
+}
+.bg-gradient-success {
+    background: linear-gradient(45deg, #1cc88a, #36b9cc) !important;
+}
+.icon-shape {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.bg-white-10 {
+    background-color: rgba(255,255,255,.1);
+}
+.text-white-50 {
+    color: rgba(255,255,255,.5)!important;
+}
+.display-4 {
+    font-size: 2.5rem;
+    font-weight: 300;
+    line-height: 1.2;
+}
+.rounded-circle {
+    border-radius: 50%!important;
+}
+</style>
+{% endblock %}

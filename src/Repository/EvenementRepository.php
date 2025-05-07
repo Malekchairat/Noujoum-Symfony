@@ -13,6 +13,7 @@ class EvenementRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Evenement::class);
     }
+<<<<<<< HEAD
 
     public function findTopByTicketCount($limit)
     {
@@ -26,4 +27,6 @@ class EvenementRepository extends ServiceEntityRepository
             ->getResult();
     }
     
+=======
+>>>>>>> origin/GestionCommandes
 }

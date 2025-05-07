@@ -1,4 +1,8 @@
 {# templates/security/login.html.twig #}
+<<<<<<< HEAD
+=======
+{{ dump(error) }}
+>>>>>>> origin/GestionCommandes
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -134,11 +138,19 @@
 
             <h1>Connexion</h1>
 
+<<<<<<< HEAD
             <form id="loginForm" method="post">
                 <div class="form-group">
                     <i class="bi bi-person-fill"></i>
                     <input
                         type="text"
+=======
+            <form id="loginForm" method="post" action="{{ path('app_login') }}">
+                <div class="form-group">
+                    <i class="bi bi-person-fill"></i>
+                    <input
+                        type="email"
+>>>>>>> origin/GestionCommandes
                         id="inputEmail"
                         name="email"
                         class="form-control"
@@ -157,6 +169,11 @@
                         name="password"
                         class="form-control"
                         placeholder="Mot de passe"
+<<<<<<< HEAD
+=======
+                        required
+                        autocomplete="current-password"
+>>>>>>> origin/GestionCommandes
                     >
                     <div id="passwordEmpty" class="error-text">Veuillez entrer votre mot de passe.</div>
                 </div>

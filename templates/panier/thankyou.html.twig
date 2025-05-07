@@ -34,6 +34,7 @@
                     <p class="lead mb-5">Your order was successfully completed.</p>
                 {% endif %}
                 <p><a href="{{ path('shop') }}" class="btn btn-sm btn-outline-black">Back to shop</a></p>
+                <a href="{{ path('commande_receipt', {'id': commande.id}) }}" class="btn btn-outline-primary mt-3">📄 Generate Receipt</a>
             </div>
         </div>
     </div>

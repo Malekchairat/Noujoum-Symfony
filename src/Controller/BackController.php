@@ -21,6 +21,7 @@ use Symfony\Component\HttpFoundation\Request; // Add this line
 class BackController extends AbstractController
 {
     #[Route('/admin/dashboard', name: 'admin_dashboard')]
+<<<<<<< HEAD
 public function dashboard(
     EvenementRepository $evenementRepo,
     FavorisRepository   $favorisRepo,
@@ -48,6 +49,26 @@ public function dashboard(
         'priorityStats' => $priorityStats,
     ]);
 }
+=======
+    public function dashboard(
+        EvenementRepository $evenementRepo,
+        FavorisRepository   $favorisRepo,
+        ReclamationRepository $reclamationRepo
+    ): Response
+    {
+        $results     = $evenementRepo->findTopByTicketCount(3);
+        $favorites   = $favorisRepo->findTopByLikes(3);
+        $statusStats = $reclamationRepo->countByStatus();
+        $priorityStats = $reclamationRepo->countByPriority();
+
+        return $this->render('dashboard.html.twig', [
+            'results'       => $results,
+            'favorites'     => $favorites,
+            'statusStats'   => $statusStats,
+            'priorityStats' => $priorityStats,
+        ]);
+    }
+>>>>>>> origin/GestionCommandes
 
 
     #[Route('/backoffice/produits', name: 'produits_index')]

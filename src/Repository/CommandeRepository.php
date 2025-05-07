@@ -16,6 +16,15 @@ class CommandeRepository extends ServiceEntityRepository
         parent::__construct($registry, Commande::class);
     }
 
+    public function createSortedQuery(string $field, string $order): array
+{
+    return $this->createQueryBuilder('c')
+        ->orderBy($field, $order)
+        ->getQuery()
+        ->getResult();
+}
+
+
 //    /**
 //     * @return Commande[] Returns an array of Commande objects
 //     */

@@ -4,10 +4,29 @@ parameters:
     # Use absolute path to eliminate any path resolution issues
     google_credentials_path: 'C:\Users\msi\Noujoum-Symfony\config\google\credentials.json'
 
+ stripe.secret_key: '%env(STRIPE_SECRET_KEY)%'
+ stripe.public_key: '%env(STRIPE_PUBLIC_KEY)%'
+
 services:
+<<<<<<< HEAD
     _defaults:
         autowire: true      # Only for objects
         autoconfigure: true # Only for objects
+=======
+    App\Bundle\PdfBundle\:
+        resource: '../src/Bundle/PdfBundle/*'
+        exclude: '../src/Bundle/PdfBundle/{Entity,Migrations,Tests}'
+
+    App\Bundle\StatisticsBundle\:
+        resource: '../src/Bundle/StatisticsBundle/*'
+        exclude: '../src/Bundle/StatisticsBundle/Resources'
+
+
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+       
+>>>>>>> origin/GestionCommandes
 
     # Explicit service definition with absolute paths
     App\Service\GoogleCalendarService:
@@ -21,4 +40,14 @@ services:
         exclude:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
+<<<<<<< HEAD
             - '../src/Kernel.php'
+=======
+            - '../src/Kernel.php'
+
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones
+
+    
+
+>>>>>>> origin/GestionCommandes

@@ -8,6 +8,14 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<Ticket>
+<<<<<<< HEAD
+=======
+ *
+ * @method Ticket|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Ticket|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Ticket[]    findAll()
+ * @method Ticket[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+>>>>>>> origin/GestionCommandes
  */
 class TicketRepository extends ServiceEntityRepository
 {
@@ -16,6 +24,7 @@ class TicketRepository extends ServiceEntityRepository
         parent::__construct($registry, Ticket::class);
     }
 
+<<<<<<< HEAD
     public function findByTicketCount(int $limit = 5): array
     {
         return $this->createQueryBuilder('t')
@@ -27,4 +36,7 @@ class TicketRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+=======
+    // Add custom methods here if needed
+>>>>>>> origin/GestionCommandes
 }

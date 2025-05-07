@@ -1,0 +1,22 @@
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Montant</th>
+            <th>Ville</th>
+            <th>Méthode de Paiement</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for commande in commandes %}
+            <tr>
+                <td>{{ commande.id }}</td>
+                <td>{{ commande.montantTotal }}</td>
+                <td>{{ commande.ville }}</td>
+                <td>{{ commande.methodePaiment }}</td>
+            </tr>
+        {% else %}
+            <tr><td colspan="4">Aucune commande trouvée</td></tr>
+        {% endfor %}
+    </tbody>
+</table>

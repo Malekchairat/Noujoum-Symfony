@@ -1,0 +1,27 @@
+{# templates/pdf/receipt.html.twig #}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Receipt</title>
+    <style>
+        body { font-family: Helvetica, sans-serif; font-size: 14px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 8px; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <h1>Order Receipt</h1>
+    <p><strong>Order ID:</strong> {{ commande.id }}</p>
+    <p><strong>Street:</strong> {{ commande.rue }}</p>
+    <p><strong>City:</strong> {{ commande.ville }}</p>
+    <p><strong>Postal Code:</strong> {{ commande.codePostal }}</p>
+    <p><strong>State:</strong> {{ commande.etat }}</p>
+    <p><strong>Payment Method:</strong> {{ commande.methodePaiment }}</p>
+
+    <h3>Products Summary</h3>
+    <p>{{ commande.productsSummary }}</p>
+
+    <h3>Total: {{ commande.montantTotal }} €</h3>
+</body>
+</html>

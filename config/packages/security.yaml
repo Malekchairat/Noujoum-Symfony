@@ -1,19 +1,26 @@
 security:
     password_hashers:
+<<<<<<< HEAD
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
 
     providers:
         # Replace with your actual provider (e.g., entity provider from database)
         users_in_database:
+=======
+        App\Entity\User:
+            algorithm: bcrypt
+            cost: 13 # Must match your existing hashes
+
+    providers:
+        app_user_provider:
+>>>>>>> origin/GestionCommandes
             entity:
                 class: App\Entity\User
                 property: email
 
     firewalls:
-        dev:
-            pattern: ^/(_(profiler|wdt)|css|images|js)/
-            security: false
         main:
+<<<<<<< HEAD
             lazy: true
             provider: users_in_database  # Use your actual user provider (could be in-memory, database, etc.)
             
@@ -32,3 +39,16 @@ security:
         # Add more paths for other roles if needed, e.g., admin routes
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
+=======
+            provider: app_user_provider
+            form_login:
+                login_path: app_login
+                check_path: app_login
+                username_parameter: email
+                password_parameter: password
+                enable_csrf: true
+            logout:
+                path: app_logout
+                # Optional: Add a redirect after logout
+                target: app_login   
+>>>>>>> origin/GestionCommandes

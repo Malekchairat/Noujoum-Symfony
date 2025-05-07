@@ -2,11 +2,17 @@
 
 namespace App\Entity;
 
+<<<<<<< HEAD
 
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\TicketRepository; // <-- Don't forget this use
 
 #[ORM\Entity(repositoryClass: TicketRepository::class)]
+=======
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Entity()]
+>>>>>>> origin/GestionCommandes
 #[ORM\Table(name: "ticket")]
 class Ticket
 {

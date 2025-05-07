@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Historique de Commandes{% endblock %}
+
+{% block body %}
+<style>
+    body {
+        background-color: #121212;
+        color: #f1f1f1;
+    }
+    .card {
+        background-color: #1e1e1e;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: none;
+    }
+    .card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6);
+    }
+    .card-title {
+        color: #ffcc00;
+        font-weight: bold;
+    }
+    .btn-primary {
+        background-color: #ffcc00;
+        border-color: #ffcc00;
+        color: #121212;
+    }
+    .btn-primary:hover {
+        background-color: #e6b800;
+        border-color: #e6b800;
+    }
+</style>
+
+<div class="container my-5">
+    <h1 class="mb-4 text-center" style="color: #ffcc00;">🛒 Historique de Mes Commandes</h1>
+
+    {% if commandes|length > 0 %}
+        <div class="row g-4">
+            {% for commande in commandes %}
+                <div class="col-md-6">
+                    <div class="card shadow-sm rounded-4 p-3">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">Commande #{{ commande.id }}</h5>
+                            <p class="mb-2"><strong>Montant Total :</strong> {{ commande.montantTotal }} €</p>
+                            <p class="mb-2"><strong>Méthode de Paiement :</strong> {{ commande.methodePaiment }}</p>
+                            <p class="mb-2"><strong>Produits :</strong><br> 
+                                {{ commande.productsSummary|replace({',': '<br>'})|raw }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center" role="alert">
+            Vous n'avez pas encore passé de commande.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
