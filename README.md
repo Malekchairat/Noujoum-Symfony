@@ -1,3 +1,6 @@
+#ecole_superieure_privee_d'ingenierie_et_de_technologie
+#esprit #noujoum 
+
 🌟 Noujoum - Fan Events & Merchandise Platform
 Noujoum is a web application built with Symfony, designed to connect fan communities by offering a platform for publishing events (concerts, fan meets) and selling merchandise. The platform includes user management, ticket reservations, product purchases, and more — all accessible to fans and administrators.
 
@@ -82,4 +85,8 @@ Contributions are welcome! Clone the repo, create a new branch, and submit a pul
 
 📄 License
 MIT License — Feel free to use and modify.
+#ecole_superieure_privee_d'ingenierie_et_de_technologie
+#esprit #noujoum 
+
+
 
